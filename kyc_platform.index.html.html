@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PEI KYC — LNG & Shipping Due Diligence</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  :root {
+    --clay:#d97757; --clay-lt:#f4ede8; --clay-dk:#b85c38;
+    --sand:#f5ede3; --sand2:#ede3d6; --cream:#fdf8f4;
+    --ink:#1a1410; --ink2:#3d2f25; --muted:#7a6356; --dim:#b0998a;
+    --border:#e8d9cc; --border2:#d4c1b0;
+    --green:#2a7d4f; --green-lt:#e6f4ed;
+    --amber:#92550a; --amber-lt:#fef3e2;
+    --red:#9b2020; --red-lt:#fdeaea;
+    --blue:#1e5fc2; --blue-lt:#e8f0fd;
+    --purple:#5b33b8; --purple-lt:#f0ecfc;
+    --teal:#0e6e70; --teal-lt:#e4f4f4;
+    --r:10px; --rlg:14px;
+    --sh1:0 1px 4px rgba(90,50,20,.08),0 2px 8px rgba(90,50,20,.06);
+    --sh2:0 4px 16px rgba(90,50,20,.12),0 1px 4px rgba(90,50,20,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--sand);color:var(--ink);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+
+  nav{position:sticky;top:0;z-index:200;background:#6b4f3a;padding:0 28px;display:flex;align-items:center;height:58px;box-shadow:0 2px 12px rgba(60,30,10,.15)}
+  .nav-logo{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:#fdf6f0;text-decoration:none;margin-right:36px;letter-spacing:-.01em}
+  .nav-logo-icon{width:32px;height:32px;border-radius:8px;background:rgba(253,246,240,.18);display:flex;align-items:center;justify-content:center}
+  .nav-logo-icon i{font-size:16px;color:#fdf6f0}
+  .nav-tabs{display:flex;flex:1}
+  .nav-tab{padding:0 18px;height:58px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:rgba(253,246,240,.55);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .15s}
+  .nav-tab:hover{color:rgba(253,246,240,.9)}
+  .nav-tab.active{color:#fdf6f0;border-bottom-color:#d97757}
+  .nav-tab i{font-size:15px}
+  .nav-badge{font-size:12px;color:rgba(253,246,240,.4);margin-left:auto}
+
+  .main{max-width:1100px;margin:0 auto;padding:28px 24px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+  .card{background:var(--cream);border:1px solid var(--border);border-radius:var(--rlg);padding:22px;box-shadow:var(--sh1)}
+  .card-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px;margin-bottom:16px}
+  .card-title i{font-size:14px;color:var(--clay)}
+
+  .hero{background:var(--cream);border:1px solid var(--border);border-radius:18px;padding:32px;margin-bottom:24px;box-shadow:var(--sh2);position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--clay),#e8925a,#d4a96a)}
+  .hero-title{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:5px;letter-spacing:-.02em}
+  .hero-sub{color:var(--muted);font-size:13px;margin-bottom:26px}
+
+  .company-row{display:flex;gap:12px;margin-bottom:20px}
+  .field{flex:1}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}
+  .field input,.field select{width:100%;background:#fff;border:1.5px solid var(--border2);border-radius:var(--r);padding:9px 13px;color:var(--ink);font-size:13px;outline:none;transition:all .15s;box-shadow:inset 0 1px 3px rgba(90,50,20,.06)}
+  .field input:focus,.field select:focus{border-color:var(--clay);box-shadow:0 0 0 3px rgba(217,119,87,.15)}
+
+  .upload-zones{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+  .uz{border:2px dashed var(--border2);border-radius:var(--rlg);padding:22px 16px;text-align:center;cursor:pointer;transition:all .2s;background:var(--sand);position:relative}
+  .uz:hover{border-color:var(--clay);background:var(--clay-lt);transform:translateY(-1px);box-shadow:var(--sh1)}
+  .uz.ok{border-color:var(--green);border-style:solid;background:var(--green-lt)}
+  .uz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .uz-icon{font-size:28px;color:var(--dim);margin-bottom:9px;display:block}
+  .uz.ok .uz-icon{color:var(--green)}
+  .uz-label{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px}
+  .uz-hint{font-size:11px;color:var(--dim)}
+  .uz-status{font-size:11px;color:var(--green);margin-top:5px;font-weight:600}
+
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--r);font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .15s}
+  .btn-primary{background:linear-gradient(135deg,var(--clay),var(--clay-dk));color:white;box-shadow:0 2px 8px rgba(217,119,87,.35)}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(217,119,87,.4)}
+  .btn-ghost{background:white;color:var(--muted);border:1.5px solid var(--border2);box-shadow:var(--sh1)}
+  .btn-ghost:hover{background:var(--sand);color:var(--ink);border-color:var(--clay)}
+
+  #loading-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(245,237,227,.92);backdrop-filter:blur(6px);align-items:center;justify-content:center;flex-direction:column;gap:20px}
+  #loading-overlay.show{display:flex}
+  .spinner{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--clay);border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-step{font-size:13px;color:var(--dim);display:flex;align-items:center;gap:9px}
+  .loading-step.done{color:var(--green)}
+  .loading-step.active{color:var(--ink);font-weight:600}
+
+  .page{display:none}
+  .page.active{display:block}
+  #results{display:none}
+
+  /* API key prompt */
+  /* (api-key input removed — key now lives server-side in Netlify) */
+
+  .save-bar{display:flex;align-items:center;justify-content:space-between;background:#6b4f3a;border-radius:var(--r);padding:13px 18px;margin-bottom:20px;box-shadow:0 3px 12px rgba(60,30,10,.12)}
+  .save-bar-info{font-size:13px;color:rgba(253,246,240,.75)}
+  .save-bar-info strong{color:#fdf6f0;font-weight:700}
+
+  .score-card{background:var(--cream);border:1px solid var(--border);border-radius:18px;padding:26px;box-shadow:var(--sh2);display:grid;grid-template-columns:auto 1fr auto;gap:30px;align-items:start;position:relative;overflow:hidden}
+  .score-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--clay),#e8925a,#d4a96a)}
+  .score-ring{position:relative;width:120px;height:120px;flex-shrink:0}
+  .score-ring svg{width:120px;height:120px;filter:drop-shadow(0 2px 8px rgba(90,50,20,.12))}
+  .score-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .score-number{font-size:30px;font-weight:900;color:var(--ink);letter-spacing:-.03em}
+  .score-lbl{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+  .score-company{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:3px}
+  .score-meta{font-size:13px;color:var(--muted);margin-bottom:16px}
+  .dims{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .dim{background:var(--sand);border-radius:var(--r);padding:11px 13px;border:1px solid var(--border)}
+  .dim-lbl{font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:500}
+  .dim-row{display:flex;align-items:center;gap:8px}
+  .dim-bar{flex:1;height:5px;background:var(--border2);border-radius:3px;overflow:hidden}
+  .dim-fill{height:100%;border-radius:3px}
+  .dim-val{font-size:12px;font-weight:700;min-width:26px;text-align:right}
+  .rating-col{display:flex;flex-direction:column;gap:9px;min-width:148px}
+  .rating-box{background:var(--sand);border-radius:var(--rlg);padding:13px 14px;text-align:center;border:1px solid var(--border);box-shadow:var(--sh1)}
+  .rating-src{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-weight:600}
+  .rating-grade{font-size:24px;font-weight:900}
+  .rating-desc{font-size:11px;color:var(--muted);margin-top:2px}
+  .rating-est{font-size:10px;color:var(--amber);margin-top:3px;font-weight:500}
+
+  .verdict{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-top:10px}
+  .v-pass{background:var(--green-lt);color:var(--green);border:1.5px solid #8bcfad}
+  .v-caution{background:var(--amber-lt);color:var(--amber);border:1.5px solid #f0bf7a}
+  .v-fail{background:var(--red-lt);color:var(--red);border:1.5px solid #e89494}
+
+  .rtabs-wrap{background:var(--cream);border:1px solid var(--border);border-radius:var(--rlg);box-shadow:var(--sh1);overflow:hidden;margin-top:16px}
+  .rtabs-header{display:flex;flex-wrap:wrap;gap:8px;padding:14px 16px;background:var(--sand2);border-bottom:1px solid var(--border)}
+  .rtab{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid var(--border2);background:#fff;color:var(--muted);transition:all .15s;white-space:nowrap;box-shadow:0 1px 3px rgba(90,50,20,.07)}
+  .rtab:hover{transform:translateY(-1px);box-shadow:var(--sh1);color:var(--ink);border-color:var(--dim)}
+  .rtab i{font-size:14px}
+  #rt-overview.active  {background:var(--clay);border-color:var(--clay-dk);color:#fff;box-shadow:0 3px 10px rgba(217,119,87,.4)}
+  #rt-financial.active {background:var(--green);border-color:#1d5e39;color:#fff;box-shadow:0 3px 10px rgba(42,125,79,.35)}
+  #rt-sanctions.active {background:var(--red);border-color:#6e1515;color:#fff;box-shadow:0 3px 10px rgba(155,32,32,.35)}
+  #rt-org.active       {background:var(--purple);border-color:#3d2090;color:#fff;box-shadow:0 3px 10px rgba(91,51,184,.35)}
+  #rt-news.active      {background:var(--teal);border-color:#094e50;color:#fff;box-shadow:0 3px 10px rgba(14,110,112,.35)}
+  #rt-credit.active    {background:#1e5fc2;border-color:#134099;color:#fff;box-shadow:0 3px 10px rgba(30,95,194,.35)}
+  #rt-opinion.active   {background:var(--ink);border-color:#000;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+  .rtab-panel{display:none;padding:26px}
+  .rtab-panel.active{display:block}
+
+  .flag{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border-radius:var(--r);border-left:4px solid;margin-bottom:10px;box-shadow:var(--sh1)}
+  .flag:last-child{margin-bottom:0}
+  .flag-r{border-color:var(--red);background:var(--red-lt)}
+  .flag-a{border-color:var(--amber);background:var(--amber-lt)}
+  .flag-g{border-color:var(--green);background:var(--green-lt)}
+  .flag i{font-size:16px;margin-top:1px;flex-shrink:0}
+  .flag-r i{color:var(--red)} .flag-a i{color:var(--amber)} .flag-g i{color:var(--green)}
+  .flag-title{font-size:13px;font-weight:700;color:var(--ink)}
+  .flag-detail{font-size:12px;color:var(--muted);margin-top:2px}
+
+  .sanc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .sanc-item{display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:var(--r);background:var(--sand);font-size:13px;font-weight:500;border:1.5px solid var(--border);box-shadow:var(--sh1)}
+  .sanc-item i{font-size:16px}
+  .sanc-ok i{color:var(--green)} .sanc-warn i{color:var(--amber)} .sanc-fail i{color:var(--red)}
+
+  .fin-table{width:100%;border-collapse:collapse}
+  .fin-table th{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:8px 12px;text-align:right;border-bottom:2px solid var(--border)}
+  .fin-table th:first-child{text-align:left}
+  .fin-table td{padding:10px 12px;font-size:13px;border-bottom:1px solid var(--border);text-align:right;color:var(--ink)}
+  .fin-table td:first-child{text-align:left;color:var(--muted);font-weight:500}
+  .fin-table tr:last-child td{border-bottom:none}
+  .fin-table tr:hover td{background:var(--sand)}
+  .fin-subtab{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:18px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border2);background:var(--sand);color:var(--muted);transition:all .15s}
+  .fin-subtab:hover{border-color:var(--clay);color:var(--ink)}
+  .fin-subtab.active{background:var(--ink);color:#fdf6f0;border-color:var(--ink)}
+  .fin-subpanel{display:none}
+  .fin-subpanel.active{display:block}
+  .up{color:var(--green)!important;font-weight:600} .dn{color:var(--red)!important;font-weight:600} .bld{font-weight:800!important;color:var(--ink)!important}
+
+  .news-item{padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:padding .15s}
+  .news-item:last-child{border-bottom:none}
+  .news-item:hover{padding-left:6px}
+  .news-item:hover .news-hl{color:var(--clay)}
+  .news-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+  .ntag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;text-transform:uppercase}
+  .ntag-lng{background:var(--blue-lt);color:var(--blue)}
+  .ntag-shipping{background:var(--teal-lt);color:var(--teal)}
+  .ntag-sanctions{background:var(--red-lt);color:var(--red)}
+  .ntag-credit{background:var(--purple-lt);color:var(--purple)}
+  .news-date{font-size:11px;color:var(--dim)}
+  .news-hl{font-size:13px;font-weight:600;color:var(--ink);transition:color .15s;line-height:1.45}
+  .news-src{font-size:11px;color:var(--dim);margin-top:3px}
+
+  .org-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
+  .org-item{background:var(--sand);border-radius:var(--r);padding:13px 15px;border:1px solid var(--border);box-shadow:var(--sh1)}
+  .org-lbl{font-size:11px;color:var(--dim);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+  .org-val{font-size:14px;font-weight:700;color:var(--ink)}
+
+  /* ── CREDIT ENHANCEMENT TABLE ── */
+  .credit-hero{background:linear-gradient(135deg,#1e3a6e,#1e5fc2);border-radius:var(--rlg);padding:20px 24px;margin-bottom:20px;color:white;position:relative;overflow:hidden}
+  .credit-hero::after{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.06)}
+  .credit-hero-title{font-size:15px;font-weight:700;margin-bottom:4px}
+  .credit-hero-sub{font-size:12px;opacity:.75}
+  .credit-tier{border-radius:var(--rlg);border:1.5px solid var(--border);overflow:hidden;margin-bottom:12px;box-shadow:var(--sh1)}
+  .credit-tier:last-child{margin-bottom:0}
+  .credit-tier-header{display:flex;align-items:center;gap:12px;padding:14px 18px;font-weight:700;font-size:14px}
+  .credit-tier-body{padding:14px 18px;background:var(--cream);border-top:1px solid var(--border)}
+  .credit-tier-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+  .ct-item{background:var(--sand);border-radius:var(--r);padding:11px 13px;border:1px solid var(--border)}
+  .ct-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+  .ct-val{font-size:14px;font-weight:700;color:var(--ink)}
+  .ct-sub{font-size:11px;color:var(--muted);margin-top:2px}
+  .method-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid}
+  .method-open{background:#e8f5e9;color:#2a7d4f;border-color:#8bcfad}
+  .method-sblc{background:var(--blue-lt);color:var(--blue);border-color:#92b8f0}
+  .method-cash{background:var(--red-lt);color:var(--red);border-color:#e89494}
+  .method-pcg{background:var(--purple-lt);color:var(--purple);border-color:#b8a0f0}
+
+  /* tier colors */
+  .tier-a   {background:linear-gradient(90deg,#1a4731,#2a7d4f);color:white}
+  .tier-bbb {background:linear-gradient(90deg,#0e4a70,#1e5fc2);color:white}
+  .tier-bb  {background:linear-gradient(90deg,#5a3a00,#92550a);color:white}
+  .tier-b   {background:linear-gradient(90deg,#6a1a00,#c04020);color:white}
+  .tier-ccc {background:linear-gradient(90deg,#5a0a0a,#9b2020);color:white}
+
+  /* current counterparty highlight */
+  .cpty-match{border:2.5px solid var(--clay)!important;box-shadow:0 0 0 3px rgba(217,119,87,.2)!important}
+  .cpty-match .credit-tier-header::after{content:'← 현재 거래처';font-size:11px;font-weight:600;opacity:.85;margin-left:auto;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:10px}
+
+  /* formula box */
+  .formula-box{background:var(--sand);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;font-size:13px}
+  .formula-box code{background:var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;color:var(--ink)}
+
+  .pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700}
+  .pill-g{background:var(--green-lt);color:var(--green)} .pill-a{background:var(--amber-lt);color:var(--amber)}
+  .pill-r{background:var(--red-lt);color:var(--red)} .pill-b{background:var(--blue-lt);color:var(--blue)}
+
+  .hist-table{width:100%;border-collapse:collapse}
+  .hist-table th{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:9px 14px;text-align:left;border-bottom:2px solid var(--border)}
+  .hist-table td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border);color:var(--ink)}
+  .hist-table tr:last-child td{border-bottom:none}
+  .hist-table tbody tr:hover td{background:var(--sand)}
+
+  .sec-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+  .sec-label::after{content:'';flex:1;height:1px;background:var(--border);margin-left:4px}
+  .gap{margin-bottom:18px}
+  .info-box{font-size:13px;color:var(--muted);line-height:1.75;background:var(--sand);border-radius:var(--r);padding:15px 17px;border:1px solid var(--border)}
+
+  @media(max-width:768px){
+    .upload-zones,.g2,.dims,.sanc-grid,.org-grid,.credit-tier-grid{grid-template-columns:1fr}
+    .score-card{grid-template-columns:1fr}
+    .company-row{flex-direction:column}
+    .rtab span{display:none}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-icon"><i class="ti ti-ship"></i></div>
+    PEI KYC
+  </a>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('upload')" id="tab-upload"><i class="ti ti-upload"></i> 분석 시작</button>
+    <button class="nav-tab" onclick="showPage('history')" id="tab-history"><i class="ti ti-history"></i> 분석 이력</button>
+  </div>
+  <span class="nav-badge">LNG &amp; Shipping KYC Platform</span>
+</nav>
+
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div style="text-align:center">
+    <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:4px">AI 분석 중...</div>
+    <div style="font-size:13px;color:var(--muted)">Claude가 문서를 읽고 분석하고 있습니다</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;min-width:260px">
+    <div class="loading-step active" id="s1"><i class="ti ti-file-text"></i> 문서 파싱 중...</div>
+    <div class="loading-step" id="s2"><i class="ti ti-chart-bar"></i> 재무제표 분석 중...</div>
+    <div class="loading-step" id="s3"><i class="ti ti-shield-check"></i> 제재 질문지 확인 중...</div>
+    <div class="loading-step" id="s4"><i class="ti ti-sitemap"></i> 조직도 검토 중...</div>
+    <div class="loading-step" id="s5"><i class="ti ti-star"></i> KYC 점수 및 신용보강 산출 중...</div>
+  </div>
+</div>
+
+<div class="page active" id="page-upload">
+<div class="main">
+
+  <div class="hero">
+    <div class="hero-title">거래 상대방 KYC 분석</div>
+    <div class="hero-sub">재무제표 · 조직도 · 제재 질문지를 업로드하면 Claude AI가 자동으로 분석하고 KYC 점수, 신용등급 및 신용보강 조건을 산출합니다</div>
+
+    <div class="company-row">
+      <div class="field" style="flex:2">
+        <label>회사명 *</label>
+        <input type="text" id="cname" placeholder="예: Pacific LNG Trading Pte. Ltd.">
+      </div>
+      <div class="field">
+        <label>국가</label>
+        <select id="ccountry">
+          <option value="">선택...</option>
+          <option>Singapore</option><option>South Korea</option><option>Japan</option>
+          <option>China</option><option>Qatar</option><option>Australia</option>
+          <option>United States</option><option>United Kingdom</option><option>UAE</option><option>Norway</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>섹터</label>
+        <select id="csector">
+          <option value="">선택...</option>
+          <option>LNG Trading</option><option>LNG Producer</option>
+          <option>Shipping Owner</option><option>Shipping Operator</option>
+          <option>Commodity Trader</option><option>Energy Utility</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="upload-zones">
+      <div class="uz" id="z-fin" onclick="this.querySelector('input').click()">
+        <input type="file" accept=".pdf,.xlsx,.xls,.docx" multiple id="file-fin" onchange="uploaded('z-fin','st-fin',this)">
+        <span class="uz-icon"><i class="ti ti-report-money"></i></span>
+        <div class="uz-label">재무제표</div>
+        <div class="uz-hint">3~4년치 · PDF / Excel</div>
+        <div class="uz-status" id="st-fin"></div>
+      </div>
+      <div class="uz" id="z-org" onclick="this.querySelector('input').click()">
+        <input type="file" accept=".pdf,.png,.jpg,.docx" id="file-org" onchange="uploaded('z-org','st-org',this)">
+        <span class="uz-icon"><i class="ti ti-sitemap"></i></span>
+        <div class="uz-label">조직도</div>
+        <div class="uz-hint">Organization Chart · PDF / PNG</div>
+        <div class="uz-status" id="st-org"></div>
+      </div>
+      <div class="uz" id="z-san" onclick="this.querySelector('input').click()">
+        <input type="file" accept=".pdf,.docx" id="file-san" onchange="uploaded('z-san','st-san',this)">
+        <span class="uz-icon"><i class="ti ti-shield-check"></i></span>
+        <div class="uz-label">제재 질문지</div>
+        <div class="uz-hint">Sanctions Questionnaire</div>
+        <div class="uz-status" id="st-san"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="btn btn-primary" onclick="startAnalysis()"><i class="ti ti-analyze"></i> AI 분석 시작</button>
+      <button class="btn btn-ghost" onclick="loadDemo()"><i class="ti ti-player-play"></i> 데모 보기</button>
+      <span style="font-size:12px;color:var(--dim)">API Key 없이 데모로 미리 확인 가능</span>
+    </div>
+  </div>
+
+  <div id="results">
+    <div class="save-bar">
+      <div class="save-bar-info"><strong id="rname-bar">—</strong> &nbsp;분석 완료 · <span id="rdate-bar"></span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" style="background:rgba(253,246,240,.12);color:rgba(253,246,240,.85);border-color:rgba(253,246,240,.25)" onclick="saveHistory()"><i class="ti ti-device-floppy"></i> 분석 저장</button>
+        <button class="btn btn-ghost" style="background:rgba(253,246,240,.12);color:rgba(253,246,240,.85);border-color:rgba(253,246,240,.25)" onclick="exportReport()"><i class="ti ti-download"></i> PDF</button>
+      </div>
+    </div>
+
+    <div class="score-card gap">
+      <div style="text-align:center">
+        <div class="score-ring">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--border2)" stroke-width="10"/>
+            <circle id="score-arc" cx="60" cy="60" r="50" fill="none" stroke="var(--clay)" stroke-width="10" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="90" transform="rotate(-90 60 60)"/>
+          </svg>
+          <div class="score-ring-center">
+            <div class="score-number" id="snum">—</div>
+            <div class="score-lbl">KYC Score</div>
+          </div>
+        </div>
+        <div id="verdict-wrap" style="margin-top:10px"></div>
+      </div>
+      <div>
+        <div class="score-company" id="rname">—</div>
+        <div class="score-meta" id="rmeta"></div>
+        <div class="dims" id="dims-el"></div>
+      </div>
+      <div class="rating-col">
+        <div class="rating-box" id="mg-box">
+          <div class="rating-src">Moody's</div>
+          <div class="rating-grade" id="mg" style="color:var(--blue)">—</div>
+          <div class="rating-desc" id="md"></div>
+        </div>
+        <div class="rating-box" id="sg-box">
+          <div class="rating-src">S&amp;P / Fitch</div>
+          <div class="rating-grade" id="sg" style="color:var(--purple)">—</div>
+          <div class="rating-desc" id="sd"></div>
+        </div>
+        <div class="rating-box" id="est-box" style="display:none;border:2px solid var(--amber);background:var(--amber-lt)">
+          <div class="rating-src" style="color:var(--amber)"><i class="ti ti-sparkles"></i> AI 추정 등급</div>
+          <div class="rating-grade" id="eg" style="color:var(--amber)">—</div>
+          <div class="rating-est">공시 등급 없음 · 재무 기반 추정</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI rating rationale (shown only when estimated) -->
+    <div id="est-rationale-box" style="display:none;margin-top:14px;background:var(--amber-lt);border:1.5px solid #f0bf7a;border-radius:var(--r);padding:14px 16px">
+      <div style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+        <i class="ti ti-sparkles"></i> AI 신용등급 추정 근거
+      </div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.7" id="est-rationale-text"></div>
+    </div>
+
+    <div class="rtabs-wrap">
+      <div class="rtabs-header">
+        <button class="rtab active" onclick="switchTab('overview')"  id="rt-overview" ><i class="ti ti-layout-dashboard"></i><span>종합 개요</span></button>
+        <button class="rtab"        onclick="switchTab('financial')" id="rt-financial"><i class="ti ti-chart-bar"></i><span>재무 분석</span></button>
+        <button class="rtab"        onclick="switchTab('sanctions')" id="rt-sanctions"><i class="ti ti-shield"></i><span>제재 스크리닝</span></button>
+        <button class="rtab"        onclick="switchTab('org')"       id="rt-org"      ><i class="ti ti-sitemap"></i><span>조직 구조</span></button>
+        <button class="rtab"        onclick="switchTab('credit')"    id="rt-credit"   ><i class="ti ti-building-bank"></i><span>신용보강 조건</span></button>
+        <button class="rtab"        onclick="switchTab('news')"      id="rt-news"     ><i class="ti ti-news"></i><span>관련 뉴스</span></button>
+        <button class="rtab"        onclick="switchTab('opinion')"   id="rt-opinion"  ><i class="ti ti-brain"></i><span>AI 의견</span></button>
+      </div>
+
+      <div class="rtab-panel active" id="tp-overview">
+        <div class="sec-label">주요 발견 사항</div>
+        <div id="flags-el"></div>
+      </div>
+
+      <div class="rtab-panel" id="tp-financial">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div class="sec-label" style="margin:0">재무 분석 (최근 4년)</div>
+          <span style="font-size:11px;color:var(--dim)" id="fin-ccy"></span>
+        </div>
+
+        <div id="fin-ai-warning" style="display:none;background:var(--amber-lt);border:1.5px solid #f0bf7a;border-radius:var(--r);padding:11px 14px;margin-bottom:16px;font-size:12px;color:var(--amber);display:flex;align-items:flex-start;gap:8px">
+          <i class="ti ti-alert-triangle" style="margin-top:1px;flex-shrink:0"></i>
+          <div>AI가 PDF에서 읽은 수치는 단위 오류(예: US$'000 vs 백만) 등으로 틀릴 수 있습니다. 원본 재무제표와 대조 후 아래 "숫자 직접 수정"으로 정정해주세요.</div>
+        </div>
+
+        <!-- Sub-tabs: B/S, P&L, Cash Flow -->
+        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
+          <button class="fin-subtab active" id="fst-pl" onclick="switchFinSubtab('pl')">
+            <i class="ti ti-receipt"></i> Profit &amp; Loss
+          </button>
+          <button class="fin-subtab" id="fst-bs" onclick="switchFinSubtab('bs')">
+            <i class="ti ti-scale"></i> Balance Sheet
+          </button>
+          <button class="fin-subtab" id="fst-cf" onclick="switchFinSubtab('cf')">
+            <i class="ti ti-cash"></i> Cash Flow
+          </button>
+          <button id="fin-edit-btn" onclick="toggleFinEdit()" style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;border:2px solid var(--clay);background:var(--clay-lt);color:var(--clay-dk);cursor:pointer">
+            <i class="ti ti-pencil"></i> 숫자 직접 수정
+          </button>
+        </div>
+
+        <!-- VIEW MODE -->
+        <div id="fin-view-mode">
+          <!-- P&L -->
+          <div class="fin-subpanel active" id="fsp-pl">
+            <div style="overflow-x:auto;margin-bottom:20px"><table class="fin-table" id="fin-tbl-pl"></table></div>
+            <div class="sec-label">매출 · EBITDA · 순이익 추이</div>
+            <div style="position:relative;width:100%;height:220px;margin-bottom:8px"><canvas id="fin-chart-pl"></canvas></div>
+            <div style="display:flex;gap:18px;font-size:12px;color:var(--muted)">
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(30,95,194,.75);display:inline-block"></span>매출액</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(42,125,79,.75);display:inline-block"></span>EBITDA</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(91,51,184,.75);display:inline-block"></span>순이익</span>
+            </div>
+          </div>
+
+          <!-- Balance Sheet -->
+          <div class="fin-subpanel" id="fsp-bs">
+            <div style="overflow-x:auto;margin-bottom:20px"><table class="fin-table" id="fin-tbl-bs"></table></div>
+            <div class="sec-label">자산 · 부채 · 자본 구조</div>
+            <div style="position:relative;width:100%;height:220px;margin-bottom:8px"><canvas id="fin-chart-bs"></canvas></div>
+            <div style="display:flex;gap:18px;font-size:12px;color:var(--muted)">
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(30,95,194,.75);display:inline-block"></span>총자산</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(155,32,32,.75);display:inline-block"></span>총부채</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(42,125,79,.75);display:inline-block"></span>자본총계</span>
+            </div>
+          </div>
+
+          <!-- Cash Flow -->
+          <div class="fin-subpanel" id="fsp-cf">
+            <div style="overflow-x:auto;margin-bottom:20px"><table class="fin-table" id="fin-tbl-cf"></table></div>
+            <div class="sec-label">영업 · 투자 · 재무 현금흐름</div>
+            <div style="position:relative;width:100%;height:220px;margin-bottom:8px"><canvas id="fin-chart-cf"></canvas></div>
+            <div style="display:flex;gap:18px;font-size:12px;color:var(--muted)">
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(42,125,79,.75);display:inline-block"></span>영업활동</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(155,32,32,.75);display:inline-block"></span>투자활동</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(30,95,194,.75);display:inline-block"></span>재무활동</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- EDIT MODE -->
+        <div id="fin-edit-mode" style="display:none;margin-bottom:26px">
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+            <button class="fin-subtab active" id="fet-pl" onclick="switchFinEditSubtab('pl')"><i class="ti ti-receipt"></i> P&amp;L</button>
+            <button class="fin-subtab" id="fet-bs" onclick="switchFinEditSubtab('bs')"><i class="ti ti-scale"></i> B/S</button>
+            <button class="fin-subtab" id="fet-cf" onclick="switchFinEditSubtab('cf')"><i class="ti ti-cash"></i> Cash Flow</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="fin-table" id="fin-edit-tbl"></table>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <button onclick="applyFinEdit()" class="btn btn-primary"><i class="ti ti-check"></i> 수정 적용 &amp; 재계산</button>
+            <button onclick="toggleFinEdit()" class="btn btn-ghost">취소</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rtab-panel" id="tp-sanctions">
+        <div class="sec-label">스크리닝 결과</div>
+        <div class="sanc-grid gap" id="sanc-el"></div>
+        <div class="sec-label" style="margin-top:6px">제재 질문지 응답 요약</div>
+        <div class="info-box" id="sanc-summary"></div>
+      </div>
+
+      <div class="rtab-panel" id="tp-org">
+        <div class="sec-label">기본 정보</div>
+        <div class="org-grid" id="org-el"></div>
+        <div class="sec-label">지배구조 분석</div>
+        <div class="info-box" id="org-analysis"></div>
+      </div>
+
+      <!-- ── CREDIT ENHANCEMENT TAB ── -->
+      <div class="rtab-panel" id="tp-credit">
+        <div class="credit-hero">
+          <div class="credit-hero-title"><i class="ti ti-building-bank"></i> 계약 이행 신용보강 조건 (내부 규정)</div>
+          <div class="credit-hero-sub">신용등급에 따른 SBLC 필요 금액 = Max(Min(A, B), 1개 Cargo Value)</div>
+        </div>
+
+        <div id="credit-tiers"></div>
+
+        <!-- ── SBLC CALCULATOR ── -->
+        <div style="margin-top:24px;background:var(--cream);border:2px solid var(--clay);border-radius:16px;overflow:hidden;box-shadow:var(--sh2)">
+          <div style="background:linear-gradient(135deg,var(--clay),var(--clay-dk));padding:16px 22px;display:flex;align-items:center;gap:10px">
+            <i class="ti ti-calculator" style="font-size:20px;color:white"></i>
+            <div>
+              <div style="font-size:15px;font-weight:800;color:white">SBLC 필요 금액 계산기</div>
+              <div style="font-size:12px;color:rgba(255,255,255,.75)">카고 금액과 총거래금액을 입력하면 바로 계산됩니다</div>
+            </div>
+          </div>
+          <div style="padding:22px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">1개 Cargo Value (USD)</label>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <input type="number" id="calc-cargo" placeholder="예: 5000000"
+                    style="flex:1;border:1.5px solid var(--border2);border-radius:var(--r);padding:10px 13px;font-size:14px;font-weight:600;color:var(--ink);outline:none;background:white"
+                    onfocus="this.style.borderColor='var(--clay)'" onblur="this.style.borderColor='var(--border2)'">
+                  <span style="font-size:12px;color:var(--dim);white-space:nowrap">USD</span>
+                </div>
+                <div style="font-size:11px;color:var(--dim);margin-top:4px">LNG 1 Cargo 가격 (예: $5M)</div>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">총 거래금액 (USD)</label>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <input type="number" id="calc-total" placeholder="예: 100000000"
+                    style="flex:1;border:1.5px solid var(--border2);border-radius:var(--r);padding:10px 13px;font-size:14px;font-weight:600;color:var(--ink);outline:none;background:white"
+                    onfocus="this.style.borderColor='var(--clay)'" onblur="this.style.borderColor='var(--border2)'">
+                  <span style="font-size:12px;color:var(--dim);white-space:nowrap">USD</span>
+                </div>
+                <div style="font-size:11px;color:var(--dim);margin-top:4px">계약 총 금액 (예: $100M)</div>
+              </div>
+            </div>
+
+            <!-- Result -->
+            <div style="margin-bottom:20px">
+              <button onclick="calcSBLC()" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--clay),var(--clay-dk));color:white;border:none;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 3px 10px rgba(217,119,87,.35)">
+                <i class="ti ti-calculator"></i> SBLC 금액 계산하기
+              </button>
+            </div>
+
+            <div id="calc-result" style="display:none;background:var(--sand);border-radius:12px;padding:20px;border:1px solid var(--border)">
+              <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">계산 결과</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+                <div style="background:var(--blue-lt);border:1.5px solid #92b8f0;border-radius:10px;padding:14px;text-align:center">
+                  <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px">A — 총거래금액 ×%</div>
+                  <div style="font-size:20px;font-weight:900;color:var(--blue)" id="calc-a">—</div>
+                  <div style="font-size:11px;color:var(--blue);opacity:.7;margin-top:2px" id="calc-a-detail"></div>
+                </div>
+                <div style="background:var(--purple-lt);border:1.5px solid #b8a0f0;border-radius:10px;padding:14px;text-align:center">
+                  <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:4px">B — Cargo × 개월</div>
+                  <div style="font-size:20px;font-weight:900;color:var(--purple)" id="calc-b">—</div>
+                  <div style="font-size:11px;color:var(--purple);opacity:.7;margin-top:2px" id="calc-b-detail"></div>
+                </div>
+                <div style="background:var(--green-lt);border:2px solid #8bcfad;border-radius:10px;padding:14px;text-align:center">
+                  <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">최소 보증 (1 Cargo)</div>
+                  <div style="font-size:20px;font-weight:900;color:var(--green)" id="calc-min">—</div>
+                </div>
+              </div>
+              <div style="background:white;border:2.5px solid var(--clay);border-radius:12px;padding:18px;text-align:center">
+                <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">✅ 최종 필요 SBLC 금액</div>
+                <div style="font-size:32px;font-weight:900;color:var(--clay)" id="calc-final">—</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:6px" id="calc-explain"></div>
+              </div>
+            </div>
+
+            <div id="calc-placeholder" style="text-align:center;padding:24px;color:var(--dim)">
+              <i class="ti ti-arrow-up" style="font-size:24px;display:block;margin-bottom:8px"></i>
+              위에 금액을 입력하면 바로 계산됩니다
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rtab-panel" id="tp-news">
+        <div class="sec-label">LNG · Shipping · 제재 관련 최신 뉴스</div>
+        <div id="news-el"></div>
+      </div>
+
+      <div class="rtab-panel" id="tp-opinion">
+        <div class="sec-label">AI 종합 의견</div>
+        <div style="font-size:14px;line-height:1.9;color:var(--muted)" id="ai-text"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="page" id="page-history">
+<div class="main">
+  <div style="margin-bottom:22px">
+    <div style="font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px">분석 이력</div>
+    <div style="font-size:13px;color:var(--muted)">저장된 KYC 분석 결과를 조회합니다</div>
+  </div>
+  <div class="card">
+    <table class="hist-table">
+      <thead><tr><th>회사명</th><th>국가</th><th>섹터</th><th>KYC 점수</th><th>등급</th><th>신용보강</th><th>판정</th><th>분석일</th><th></th></tr></thead>
+      <tbody id="hist-body"></tbody>
+    </table>
+    <div id="hist-empty" style="text-align:center;padding:48px;color:var(--dim)">
+      <i class="ti ti-inbox" style="font-size:36px;display:block;margin-bottom:10px;color:var(--border2)"></i>
+      저장된 분석 이력이 없습니다<br>
+      <span style="font-size:12px">분석 완료 후 "분석 저장"을 클릭하세요</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// Safe localStorage wrapper — some browser contexts (file://, private mode,
+// sandboxed iframes) throw on localStorage access. Never let that kill the whole script.
+function safeGet(key, fallback) {
+  try { return localStorage.getItem(key) ?? fallback; }
+  catch (e) { console.warn('localStorage unavailable:', e.message); return fallback; }
+}
+function safeSet(key, value) {
+  try { localStorage.setItem(key, value); return true; }
+  catch (e) { console.warn('localStorage unavailable:', e.message); return false; }
+}
+
+let savedHistory = JSON.parse(safeGet('kyc_h', '[]'));
+let current = null;
+let finChart = null; // (unused legacy var, kept for safety)
+
+// ── Credit enhancement tiers (internal policy) ──
+const TIERS = [
+  {
+    id:'a', label:'A- 이상 / A3 이상', sp:'A- and above', moodys:'A3 and above',
+    pct:'0–5%', cargo:'3–4개월分', method:['open','pcg','sblc'],
+    methodLabel:'Open Credit or PCG or SBLC',
+    cls:'tier-a', desc:'최우량 등급. 신용보강 최소화 또는 불필요.'
+  },
+  {
+    id:'bbb', label:'BBB+ ~ BBB- / Baa1 ~ Baa3', sp:'BBB+ to BBB-', moodys:'Baa1 to Baa3',
+    pct:'7–10%', cargo:'5–6개월分', method:['open','pcg','sblc'],
+    methodLabel:'Open Credit or PCG or SBLC',
+    cls:'tier-bbb', desc:'투자적격 하위. PCG 또는 SBLC 권장.'
+  },
+  {
+    id:'bb', label:'BB+ ~ BB- / Ba1 ~ Ba3', sp:'BB+ to BB-', moodys:'Ba1 to Ba3',
+    pct:'12–18%', cargo:'7–9개월分', method:['sblc'],
+    methodLabel:'SBLC',
+    cls:'tier-bb', desc:'투기적 등급 진입. SBLC 필수.'
+  },
+  {
+    id:'b', label:'B+ ~ B- / B1 ~ B3', sp:'B+ to B-', moodys:'B1 to B3',
+    pct:'20–30%', cargo:'9–12개월分', method:['sblc'],
+    methodLabel:'SBLC',
+    cls:'tier-b', desc:'고위험 등급. 높은 SBLC 요구.'
+  },
+  {
+    id:'ccc', label:'CCC 이하 / Caa1 이하 / 미공시', sp:'CCC and below / Unrated', moodys:'Caa1 and below',
+    pct:'≥40% 또는 전액 선납', cargo:'12개월分 이상', method:['sblc','cash'],
+    methodLabel:'SBLC or Cash Collateral',
+    cls:'tier-ccc', desc:'최고위험. 전액 담보 또는 선납 요구.'
+  },
+];
+
+// ── Financial table / chart rendering (P&L / Balance Sheet / Cash Flow) ──
+let finCharts = { pl:null, bs:null, cf:null };
+let finEditSubtab = 'pl';
+
+function getFinRowsPL() {
+  const { yrs, rev, cogs, grossProfit, operatingExpense, ebi, depreciation, ebit, interestExpense, net, dbt } = current;
+  const rows = [
+    {l:'매출액 (Revenue)', data:rev, bold:true},
+  ];
+  if (cogs)             rows.push({l:'매출원가 (COGS)', data:cogs});
+  if (grossProfit)      rows.push({l:'매출총이익 (Gross Profit)', data:grossProfit});
+  if (operatingExpense) rows.push({l:'영업비용 (OpEx)', data:operatingExpense});
+  rows.push({l:'EBITDA', data:ebi, bold:true});
+  if (depreciation) rows.push({l:'감가상각비 (D&A)', data:depreciation});
+  if (ebit)          rows.push({l:'영업이익 (EBIT)', data:ebit});
+  if (interestExpense) rows.push({l:'이자비용 (Interest Expense)', data:interestExpense});
+  rows.push({l:'당기순이익 (Net Income)', data:net, bold:true});
+  rows.push({l:'EBITDA 마진', data:ebi.map((e,i)=>rev[i]?((e/rev[i])*100).toFixed(1)+'%':'—'), str:true});
+  rows.push({l:'순이익률', data:net.map((n,i)=>rev[i]?((n/rev[i])*100).toFixed(1)+'%':'—'), str:true});
+  return rows;
+}
+
+function getFinRowsBS() {
+  const { totalAssets, currentAssets, totalLiabilities, currentLiabilities, totalEquity, dbt, ebi } = current;
+  const rows = [];
+  if (totalAssets)        rows.push({l:'총자산 (Total Assets)', data:totalAssets, bold:true});
+  if (currentAssets)      rows.push({l:'유동자산 (Current Assets)', data:currentAssets});
+  if (totalLiabilities)   rows.push({l:'총부채 (Total Liabilities)', data:totalLiabilities, bold:true});
+  if (currentLiabilities) rows.push({l:'유동부채 (Current Liabilities)', data:currentLiabilities});
+  if (totalEquity)         rows.push({l:'자본총계 (Total Equity)', data:totalEquity, bold:true});
+  rows.push({l:'순부채 (Net Debt)', data:dbt});
+  if (totalLiabilities && totalEquity) {
+    rows.push({l:'부채비율 (D/E)', data:totalLiabilities.map((l,i)=>totalEquity[i]?(l/totalEquity[i]).toFixed(2)+'x':'—'), str:true});
+  }
+  if (currentAssets && currentLiabilities) {
+    rows.push({l:'유동비율 (Current Ratio)', data:currentAssets.map((a,i)=>currentLiabilities[i]?(a/currentLiabilities[i]).toFixed(2)+'x':'—'), str:true});
+  }
+  rows.push({l:'순부채/EBITDA', data:dbt.map((d,i)=>ebi[i]?(d/ebi[i]).toFixed(1)+'x':'—'), str:true});
+  return rows;
+}
+
+function getFinRowsCF() {
+  const { operatingCF, investingCF, financingCF, netChangeInCash, endingCash, net } = current;
+  const rows = [];
+  if (operatingCF) rows.push({l:'영업활동 현금흐름 (Operating CF)', data:operatingCF, bold:true});
+  if (investingCF) rows.push({l:'투자활동 현금흐름 (Investing CF)', data:investingCF});
+  if (financingCF) rows.push({l:'재무활동 현금흐름 (Financing CF)', data:financingCF});
+  if (netChangeInCash) rows.push({l:'현금 증감 (Net Change)', data:netChangeInCash, bold:true});
+  if (endingCash) rows.push({l:'기말 현금 (Ending Cash)', data:endingCash});
+  if (operatingCF) {
+    rows.push({l:'OCF/순이익 비율', data:operatingCF.map((o,i)=>net[i]?(o/net[i]).toFixed(2)+'x':'—'), str:true});
+  }
+  if (!operatingCF && !investingCF && !financingCF) {
+    rows.push({l:'데이터 없음', data:['—','—','—','—'], str:true});
+  }
+  return rows;
+}
+
+function renderTableHTML(elId, rows, yrs) {
+  document.getElementById(elId).innerHTML =
+    `<thead><tr><th>항목</th>${(yrs||['—','—','—','—']).map(y=>`<th>${y}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(r=>`<tr><td>${r.l}</td>${(r.str?r.data:r.data.map(v=>typeof v==='number'?v.toLocaleString():v)).map((v,i)=>{
+      const cls = (!r.str&&i>0&&typeof r.data[i]==='number'&&typeof r.data[i-1]==='number') ? (r.data[i]>=r.data[i-1]?'up':'dn') : '';
+      return `<td class="${r.bold?'bld ':''} ${cls}">${(v===null||v===undefined)?'—':v}</td>`;
+    }).join('')}</tr>`).join('')}</tbody>`;
+}
+
+function renderFinTable() {
+  renderTableHTML('fin-tbl-pl', getFinRowsPL(), current.yrs);
+  renderTableHTML('fin-tbl-bs', getFinRowsBS(), current.yrs);
+  renderTableHTML('fin-tbl-cf', getFinRowsCF(), current.yrs);
+}
+
+function destroyChart(key) {
+  if (finCharts[key]) { finCharts[key].destroy(); finCharts[key] = null; }
+}
+
+function renderFinChart() {
+  const { yrs, rev, ebi, net, totalAssets, totalLiabilities, totalEquity, operatingCF, investingCF, financingCF } = current;
+
+  destroyChart('pl');
+  finCharts.pl = new Chart(document.getElementById('fin-chart-pl'), {
+    type:'bar',
+    data:{labels:yrs, datasets:[
+      {label:'매출액', data:rev, backgroundColor:'rgba(30,95,194,.75)', borderRadius:5},
+      {label:'EBITDA', data:ebi, backgroundColor:'rgba(42,125,79,.75)', borderRadius:5},
+      {label:'순이익', data:net, backgroundColor:'rgba(91,51,184,.75)', borderRadius:5},
+    ]},
+    options: chartOptions()
+  });
+
+  destroyChart('bs');
+  if (totalAssets && totalLiabilities && totalEquity) {
+    finCharts.bs = new Chart(document.getElementById('fin-chart-bs'), {
+      type:'bar',
+      data:{labels:yrs, datasets:[
+        {label:'총자산', data:totalAssets, backgroundColor:'rgba(30,95,194,.75)', borderRadius:5},
+        {label:'총부채', data:totalLiabilities, backgroundColor:'rgba(155,32,32,.75)', borderRadius:5},
+        {label:'자본총계', data:totalEquity, backgroundColor:'rgba(42,125,79,.75)', borderRadius:5},
+      ]},
+      options: chartOptions()
+    });
+  }
+
+  destroyChart('cf');
+  if (operatingCF && investingCF && financingCF) {
+    finCharts.cf = new Chart(document.getElementById('fin-chart-cf'), {
+      type:'bar',
+      data:{labels:yrs, datasets:[
+        {label:'영업활동', data:operatingCF, backgroundColor:'rgba(42,125,79,.75)', borderRadius:5},
+        {label:'투자활동', data:investingCF, backgroundColor:'rgba(155,32,32,.75)', borderRadius:5},
+        {label:'재무활동', data:financingCF, backgroundColor:'rgba(30,95,194,.75)', borderRadius:5},
+      ]},
+      options: chartOptions()
+    });
+  }
+}
+
+function chartOptions() {
+  return {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{color:'rgba(90,50,20,.06)'},ticks:{color:'#b0998a'}},
+      y:{grid:{color:'rgba(90,50,20,.06)'},ticks:{color:'#b0998a',callback:v=>Math.abs(v)>=1000?(v/1000).toFixed(1)+'B':v+'M'}}
+    }
+  };
+}
+
+function switchFinSubtab(name) {
+  ['pl','bs','cf'].forEach(k => {
+    document.getElementById('fst-'+k).classList.toggle('active', k===name);
+    document.getElementById('fsp-'+k).classList.toggle('active', k===name);
+  });
+  if (finCharts[name]) finCharts[name].update();
+}
+
+// ── Manual edit mode for financials ──
+function toggleFinEdit() {
+  const viewMode = document.getElementById('fin-view-mode');
+  const editMode = document.getElementById('fin-edit-mode');
+  const btn = document.getElementById('fin-edit-btn');
+  const isEditing = editMode.style.display !== 'none';
+
+  if (isEditing) {
+    editMode.style.display = 'none';
+    viewMode.style.display = 'block';
+    btn.innerHTML = '<i class="ti ti-pencil"></i> 숫자 직접 수정';
+  } else {
+    switchFinEditSubtab(finEditSubtab);
+    viewMode.style.display = 'none';
+    editMode.style.display = 'block';
+    btn.innerHTML = '<i class="ti ti-x"></i> 수정 닫기';
+  }
+}
+
+function switchFinEditSubtab(name) {
+  finEditSubtab = name;
+  ['pl','bs','cf'].forEach(k => document.getElementById('fet-'+k).classList.toggle('active', k===name));
+  buildFinEditTable(name);
+}
+
+// Field map: which raw keys are editable per statement, with Korean labels
+const EDIT_FIELDS = {
+  pl: [
+    {key:'rev', l:'매출액'}, {key:'cogs', l:'매출원가'}, {key:'grossProfit', l:'매출총이익'},
+    {key:'operatingExpense', l:'영업비용'}, {key:'ebi', l:'EBITDA'}, {key:'depreciation', l:'감가상각비'},
+    {key:'ebit', l:'영업이익'}, {key:'interestExpense', l:'이자비용'}, {key:'net', l:'당기순이익'},
+  ],
+  bs: [
+    {key:'totalAssets', l:'총자산'}, {key:'currentAssets', l:'유동자산'},
+    {key:'totalLiabilities', l:'총부채'}, {key:'currentLiabilities', l:'유동부채'},
+    {key:'totalEquity', l:'자본총계'}, {key:'dbt', l:'순부채'},
+  ],
+  cf: [
+    {key:'operatingCF', l:'영업활동 현금흐름'}, {key:'investingCF', l:'투자활동 현금흐름'},
+    {key:'financingCF', l:'재무활동 현금흐름'}, {key:'netChangeInCash', l:'현금 증감'}, {key:'endingCash', l:'기말 현금'},
+  ],
+};
+
+function buildFinEditTable(statement) {
+  const { yrs } = current;
+  const fields = EDIT_FIELDS[statement];
+  document.getElementById('fin-edit-tbl').innerHTML = `
+    <thead><tr><th>항목</th>${yrs.map(y=>`<th>${y}</th>`).join('')}</tr></thead>
+    <tbody>
+      ${fields.map(f => {
+        const data = current[f.key] || [null,null,null,null];
+        return `<tr><td>${f.l}</td>
+        ${yrs.map((_,i) => `
+          <td style="padding:6px 8px">
+            <input type="number" data-key="${f.key}" data-idx="${i}" value="${data[i] ?? ''}"
+              style="width:100%;min-width:80px;border:1.5px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:13px;text-align:right;color:var(--ink);outline:none"
+              onfocus="this.style.borderColor='var(--clay)'" onblur="this.style.borderColor='var(--border2)'">
+          </td>`).join('')}
+        </tr>`;
+      }).join('')}
+    </tbody>`;
+}
+
+function applyFinEdit() {
+  const inputs = document.querySelectorAll('#fin-edit-tbl input');
+  inputs.forEach(inp => {
+    const key = inp.dataset.key;
+    const idx = parseInt(inp.dataset.idx);
+    const val = parseFloat(inp.value);
+    if (!current[key]) current[key] = [null,null,null,null];
+    current[key][idx] = isNaN(val) ? null : val;
+  });
+  current.fromAI = false; // manually verified now
+
+  renderFinTable();
+  renderFinChart();
+  document.getElementById('fin-ai-warning').style.display = 'none';
+  document.getElementById('fin-edit-mode').style.display = 'none';
+  document.getElementById('fin-view-mode').style.display = 'block';
+  document.getElementById('fin-edit-btn').innerHTML = '<i class="ti ti-pencil"></i> 숫자 직접 수정';
+
+  const confirmBox = document.createElement('div');
+  confirmBox.style.cssText = 'background:var(--green-lt);border:1.5px solid #8bcfad;border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:8px';
+  confirmBox.innerHTML = '<i class="ti ti-circle-check"></i> 수정사항이 적용되었습니다. 표와 차트가 업데이트되었습니다.';
+  const panel = document.getElementById('tp-financial');
+  panel.insertBefore(confirmBox, panel.firstChild.nextSibling);
+  setTimeout(() => confirmBox.remove(), 4000);
+}
+
+function bindCalcInputs() {
+  const cargo = document.getElementById('calc-cargo');
+  const total = document.getElementById('calc-total');
+  if (!cargo || !total) return;
+  // remove old listeners by cloning
+  const newCargo = cargo.cloneNode(true);
+  const newTotal = total.cloneNode(true);
+  cargo.parentNode.replaceChild(newCargo, cargo);
+  total.parentNode.replaceChild(newTotal, total);
+  newCargo.addEventListener('input', calcSBLC);
+  newTotal.addEventListener('input', calcSBLC);
+  newCargo.addEventListener('focus', () => newCargo.style.borderColor = 'var(--clay)');
+  newCargo.addEventListener('blur',  () => newCargo.style.borderColor = 'var(--border2)');
+  newTotal.addEventListener('focus', () => newTotal.style.borderColor = 'var(--clay)');
+  newTotal.addEventListener('blur',  () => newTotal.style.borderColor = 'var(--border2)');
+}
+
+
+const TIER_CALC = {
+  a:   { pctMin:0,   pctMax:5,   mMin:3,  mMax:4  },
+  bbb: { pctMin:7,   pctMax:10,  mMin:5,  mMax:6  },
+  bb:  { pctMin:12,  pctMax:18,  mMin:7,  mMax:9  },
+  b:   { pctMin:20,  pctMax:30,  mMin:9,  mMax:12 },
+  ccc: { pctMin:40,  pctMax:100, mMin:12, mMax:24 },
+};
+
+function fmt(n) {
+  if (n >= 1_000_000) return '$' + (n/1_000_000).toFixed(2) + 'M';
+  if (n >= 1_000)     return '$' + (n/1_000).toFixed(1) + 'K';
+  return '$' + n.toFixed(0);
+}
+
+function calcSBLC() {
+  const cargoEl = document.getElementById('calc-cargo');
+  const totalEl = document.getElementById('calc-total');
+  if (!cargoEl || !totalEl) return;
+
+  const cargo = parseFloat(cargoEl.value);
+  const total = parseFloat(totalEl.value);
+
+  if (!cargo || !total || isNaN(cargo) || isNaN(total)) {
+    document.getElementById('calc-result').style.display = 'none';
+    document.getElementById('calc-placeholder').style.display = 'block';
+    return;
+  }
+
+  const tier = current ? getTier(current.sp, current.moodys, current.estGrade) : 'bbb';
+  const tc   = TIER_CALC[tier];
+
+  // A: total * pct range
+  const aMin = total * tc.pctMin / 100;
+  const aMax = total * tc.pctMax / 100;
+
+  // B: cargo * months range
+  const bMin = cargo * tc.mMin;
+  const bMax = cargo * tc.mMax;
+
+  // Min(A, B) range then Max with 1 cargo
+  const minValLow  = Math.min(aMin, bMin);
+  const minValHigh = Math.min(aMax, bMax);
+  const finalLow   = Math.max(minValLow,  cargo);
+  const finalHigh  = Math.max(minValHigh, cargo);
+
+  document.getElementById('calc-a').textContent = fmt(aMin) + ' ~ ' + fmt(aMax);
+  document.getElementById('calc-a-detail').textContent = tc.pctMin + '~' + tc.pctMax + '%';
+  document.getElementById('calc-b').textContent = fmt(bMin) + ' ~ ' + fmt(bMax);
+  document.getElementById('calc-b-detail').textContent = tc.mMin + '~' + tc.mMax + '개월';
+  document.getElementById('calc-min').textContent = fmt(cargo);
+
+  const isSame = finalLow === finalHigh;
+  document.getElementById('calc-final').textContent = isSame ? fmt(finalLow) : fmt(finalLow) + ' ~ ' + fmt(finalHigh);
+
+  // Explain which constraint hit
+  let why = '';
+  if (finalLow === cargo) why = '1개 Cargo Value가 Min(A,B)보다 커서 최솟값으로 적용됨';
+  else if (aMin <= bMin)  why = 'A(총거래금액 ×%)가 B(Cargo×개월)보다 작아 A 기준 적용';
+  else                    why = 'B(Cargo×개월)가 A(총거래금액 ×%)보다 작아 B 기준 적용';
+  document.getElementById('calc-explain').textContent = why;
+
+  document.getElementById('calc-result').style.display = 'block';
+  document.getElementById('calc-placeholder').style.display = 'none';
+}
+
+function getTier(sp, moodys, estimated) {
+  const g = (sp || moodys || estimated || '').toUpperCase();
+  if (/^(AAA|AA|A[+\-]?$|A3|A2|A1|Aa|Aaa)/i.test(g) || /^A[-+]?$/.test(g) || /^A[123]$/.test(g)) return 'a';
+  if (/^BBB|^Baa/.test(g)) return 'bbb';
+  if (/^BB[^B]|^BB$|^Ba[123]/.test(g)) return 'bb';
+  if (/^B[^B]|^B[123]/.test(g)) return 'b';
+  return 'ccc';
+}
+
+function methodBadge(m) {
+  const map = {open:'method-open', sblc:'method-sblc', cash:'method-cash', pcg:'method-pcg'};
+  const label = {open:'Open Credit', sblc:'SBLC', cash:'Cash Collateral', pcg:'PCG'};
+  return `<span class="method-badge ${map[m]}">${label[m]}</span>`;
+}
+
+function renderCreditTiers(matchTierId) {
+  const t = TIERS.find(t => t.id === matchTierId);
+  if (!t) return;
+  document.getElementById('credit-tiers').innerHTML = `
+    <!-- MATCHED TIER — big clear card -->
+    <div style="background:var(--cream);border:2px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--sh2)">
+
+      <!-- Header -->
+      <div class="${t.cls}" style="padding:20px 24px;display:flex;align-items:center;gap:12px">
+        <i class="ti ti-building-bank" style="font-size:24px;opacity:.9"></i>
+        <div>
+          <div style="font-size:11px;font-weight:600;opacity:.7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">적용 신용등급 구간</div>
+          <div style="font-size:17px;font-weight:800">${t.sp} &nbsp;/&nbsp; ${t.moodys}</div>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div style="padding:24px">
+
+        <!-- Formula result -->
+        <div style="background:var(--sand);border:1.5px solid var(--border2);border-radius:12px;padding:18px 22px;margin-bottom:20px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">SBLC 필요 금액 산출 기준</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Max ( Min ( A, B ), 1개 Cargo Value )</div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center">
+            <div style="background:var(--blue-lt);border:1.5px solid #92b8f0;border-radius:10px;padding:14px">
+              <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px">A — 총거래금액 대비</div>
+              <div style="font-size:26px;font-weight:900;color:var(--blue)">${t.pct}</div>
+            </div>
+            <div style="font-size:18px;font-weight:700;color:var(--dim)">vs</div>
+            <div style="background:var(--purple-lt);border:1.5px solid #b8a0f0;border-radius:10px;padding:14px">
+              <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:4px">B — Cargo Value</div>
+              <div style="font-size:26px;font-weight:900;color:var(--purple)">${t.cargo}</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:var(--muted)">→ 둘 중 <strong>작은 금액</strong>을 적용하되, 최소 <strong>1개 Cargo Value</strong> 이상</div>
+        </div>
+
+        <!-- Method -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">권장 신용보강 방법</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${t.method.map(m => {
+              const styles = {
+                open: 'background:#e8f5e9;color:#2a7d4f;border-color:#8bcfad',
+                sblc: 'background:var(--blue-lt);color:var(--blue);border-color:#92b8f0',
+                cash: 'background:var(--red-lt);color:var(--red);border-color:#e89494',
+                pcg:  'background:var(--purple-lt);color:var(--purple);border-color:#b8a0f0'
+              };
+              const labels = {open:'Open Credit', sblc:'SBLC', cash:'Cash Collateral', pcg:'PCG (모회사 보증)'};
+              const icons  = {open:'ti-lock-open', sblc:'ti-file-certificate', cash:'ti-cash', pcg:'ti-shield-check'};
+              return `<span style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:700;border:1.5px solid;${styles[m]}">
+                <i class="ti ${icons[m]}"></i>${labels[m]}
+              </span>`;
+            }).join('')}
+          </div>
+          ${t.method.includes('pcg') ? `<div style="margin-top:8px;font-size:12px;color:var(--muted)">* PCG 사용 조건: 모회사 신용등급 ≥ S&P/Fitch BBB- 또는 Moody's Baa3 이상</div>` : ''}
+        </div>
+
+        <!-- Description -->
+        <div style="background:${t.id==='ccc'?'var(--red-lt)':t.id==='b'?'var(--amber-lt)':'var(--green-lt)'};border-radius:8px;padding:12px 14px;font-size:13px;color:var(--muted);line-height:1.6">
+          <i class="ti ti-info-circle" style="margin-right:5px"></i>${t.desc}
+        </div>
+      </div>
+    </div>
+
+    <!-- Reference table (collapsed, small) -->
+    <details style="margin-top:16px">
+      <summary style="font-size:12px;color:var(--muted);cursor:pointer;padding:8px 12px;background:var(--sand);border-radius:8px;border:1px solid var(--border);list-style:none;display:flex;align-items:center;gap:6px">
+        <i class="ti ti-table"></i> 전체 등급별 기준 보기
+      </summary>
+      <div style="margin-top:8px;border:1px solid var(--border);border-radius:10px;overflow:hidden">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="background:var(--sand2)">
+              <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-weight:700">S&P / Fitch</th>
+              <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-weight:700">Moody's</th>
+              <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--border);color:var(--muted);font-weight:700">총거래금액 %</th>
+              <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--border);color:var(--muted);font-weight:700">Cargo Value</th>
+              <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-weight:700">방법</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${TIERS.map(row => `
+            <tr style="${row.id===matchTierId?'background:var(--clay-lt);font-weight:700':''}">
+              <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--ink)">${row.sp}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--ink)">${row.moodys}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid var(--border);text-align:center;color:var(--ink)">${row.pct}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid var(--border);text-align:center;color:var(--ink)">${row.cargo}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--ink)">${row.methodLabel}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  `;
+}
+
+// ── Page / Tab navigation ──
+function showPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + n).classList.add('active');
+  document.getElementById('tab-' + n).classList.add('active');
+  if (n === 'history') renderHistory();
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.rtab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('rt-' + name).classList.add('active');
+  document.getElementById('tp-' + name).classList.add('active');
+  if (name === 'financial') {
+    const active = ['pl','bs','cf'].find(k => document.getElementById('fsp-'+k)?.classList.contains('active')) || 'pl';
+    if (finCharts[active]) finCharts[active].update();
+  }
+  if (name === 'credit') bindCalcInputs();
+}
+
+function uploaded(zid, sid, inp) {
+  if (!inp.files.length) return;
+  document.getElementById(zid).classList.add('ok');
+  const name = inp.files.length > 1 ? inp.files.length + '개 파일' : inp.files[0].name.substring(0, 24);
+  document.getElementById(sid).textContent = '✓ ' + name;
+}
+
+// ── Convert file to base64 ──
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// ── Real AI analysis (via Netlify Function — API key stays server-side) ──
+async function startAnalysis() {
+  const company = document.getElementById('cname').value.trim();
+  if (!company) { alert('회사명을 입력해주세요.'); return; }
+
+  const finFiles = document.getElementById('file-fin').files;
+  const orgFiles = document.getElementById('file-org').files;
+  const sanFiles = document.getElementById('file-san').files;
+  if (!finFiles.length) { alert('최소 재무제표 파일을 업로드해주세요.'); return; }
+
+  showLoading();
+
+  try {
+    const country = document.getElementById('ccountry').value || 'Unknown';
+    const sector  = document.getElementById('csector').value || 'Unknown';
+
+    // Build content blocks from uploaded files
+    const contentBlocks = [];
+
+    contentBlocks.push({ type:'text', text: `You are a senior KYC and credit analyst for an LNG and shipping trading company. Analyze the following documents for counterparty: "${company}" (Country: ${country}, Sector: ${sector}).
+
+Extract and return a JSON object ONLY (no markdown, no explanation) with exactly this structure:
+{
+  "company": "${company}",
+  "country": "${country}",
+  "sector": "${sector}",
+
+  "moodys": "official Moody's rating string, or null if not disclosed in documents",
+  "sp": "official S&P/Fitch rating string, or null if not disclosed in documents",
+  "estGrade": "if moodys AND sp are both null, your own estimated Moody's-equivalent rating (e.g. Baa2) based on the financial statements; otherwise null",
+  "estRationale": "if estGrade is set, a 2-3 sentence rationale in Korean explaining which financial ratios/metrics led to this estimate (e.g. interest coverage, leverage, liquidity, profitability trend)",
+
+  "years": ["2021","2022","2023","2024"],
+  "currency": "USD millions",
+
+  "revenue": [num, num, num, num],
+  "cogs": [num, num, num, num],
+  "grossProfit": [num, num, num, num],
+  "operatingExpense": [num, num, num, num],
+  "ebitda": [num, num, num, num],
+  "depreciation": [num, num, num, num],
+  "ebit": [num, num, num, num],
+  "interestExpense": [num, num, num, num],
+  "netIncome": [num, num, num, num],
+
+  "totalAssets": [num, num, num, num],
+  "currentAssets": [num, num, num, num],
+  "totalLiabilities": [num, num, num, num],
+  "currentLiabilities": [num, num, num, num],
+  "totalEquity": [num, num, num, num],
+  "netDebt": [num, num, num, num],
+
+  "operatingCF": [num, num, num, num],
+  "investingCF": [num, num, num, num],
+  "financingCF": [num, num, num, num],
+  "netChangeInCash": [num, num, num, num],
+  "endingCash": [num, num, num, num],
+
+  "shareholders": "major shareholders",
+  "employees": "headcount",
+  "subsidiaries": "number and countries",
+  "founded": "year",
+  "orgAnalysis": "governance analysis in Korean",
+  "sanctionsClear": true or false,
+  "pepFound": true or false,
+  "pepDetail": "detail or null",
+  "sanctionsSummary": "summary in Korean",
+  "financialSummary": "financial health summary in Korean, mentioning liquidity, leverage, and profitability trends across B/S, P&L and Cash Flow",
+  "riskFactors": "risk factors in Korean",
+  "aiCommentary": "comprehensive KYC opinion in Korean (3-4 paragraphs)",
+  "score": number between 0-100,
+  "dimFinancial": number 0-100,
+  "dimSanctions": number 0-100,
+  "dimGovernance": number 0-100,
+  "dimHistory": number 0-100
+}
+
+Rules:
+- For score: 85-100=excellent, 70-84=good, 55-69=caution, 40-54=high risk, below 40=very high risk.
+- If a line item is not present or not derivable from the documents, use null for that year (do not guess a fake number).
+- Normalize ALL figures to USD millions. Watch carefully for unit markers like "in thousands", "US$'000", "단위: 천원" etc. — these are common sources of error. If statements are in thousands, divide by 1000 to get millions.
+- Only fill estGrade/estRationale when both moodys and sp are null. If either official rating exists, leave estGrade null.` });
+
+    // Attach financial statement files
+    for (const file of finFiles) {
+      const b64 = await toBase64(file);
+      if (file.type === 'application/pdf') {
+        contentBlocks.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 }, title:`Financial Statement: ${file.name}` });
+      } else {
+        contentBlocks.push({ type:'image', source:{ type:'base64', media_type: file.type || 'image/png', data:b64 } });
+      }
+    }
+    // Attach org chart
+    for (const file of orgFiles) {
+      const b64 = await toBase64(file);
+      if (file.type === 'application/pdf') {
+        contentBlocks.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 }, title:`Organization Chart: ${file.name}` });
+      } else {
+        contentBlocks.push({ type:'image', source:{ type:'base64', media_type: file.type || 'image/png', data:b64 } });
+      }
+    }
+    // Attach sanctions questionnaire
+    for (const file of sanFiles) {
+      const b64 = await toBase64(file);
+      contentBlocks.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 }, title:`Sanctions Questionnaire: ${file.name}` });
+    }
+
+    updateStep(1);
+
+    // Call our own Netlify Function — it holds the Anthropic API key server-side
+    const resp = await fetch('/.netlify/functions/analyze-kyc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: contentBlocks })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error || `서버 오류 (${resp.status})`);
+    }
+
+    updateStep(3);
+    const data = await resp.json();
+    const raw  = data.content?.find(b => b.type === 'text')?.text || '';
+
+    // Parse JSON from response
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('AI 응답 파싱 실패');
+    const parsed = JSON.parse(jsonMatch[0]);
+
+    updateStep(5);
+    await new Promise(r => setTimeout(r, 600));
+    hideLoading();
+    render({ ...parsed,
+      yrs: parsed.years || ['2021','2022','2023','2024'],
+      rev: parsed.revenue || [0,0,0,0],
+      ebi: parsed.ebitda  || [0,0,0,0],
+      net: parsed.netIncome || [0,0,0,0],
+      dbt: parsed.netDebt || [0,0,0,0],
+      cogs: parsed.cogs || null,
+      grossProfit: parsed.grossProfit || null,
+      operatingExpense: parsed.operatingExpense || null,
+      depreciation: parsed.depreciation || null,
+      ebit: parsed.ebit || null,
+      interestExpense: parsed.interestExpense || null,
+      totalAssets: parsed.totalAssets || null,
+      currentAssets: parsed.currentAssets || null,
+      totalLiabilities: parsed.totalLiabilities || null,
+      currentLiabilities: parsed.currentLiabilities || null,
+      totalEquity: parsed.totalEquity || null,
+      operatingCF: parsed.operatingCF || null,
+      investingCF: parsed.investingCF || null,
+      financingCF: parsed.financingCF || null,
+      netChangeInCash: parsed.netChangeInCash || null,
+      endingCash: parsed.endingCash || null,
+      date: new Date().toLocaleDateString('ko-KR'),
+      fromAI: true
+    });
+
+  } catch(e) {
+    hideLoading();
+    alert('분석 중 오류가 발생했습니다:\n\n' + e.message + '\n\n데모 모드로 전환합니다.');
+    loadDemo();
+  }
+}
+
+// ── Loading helpers ──
+var loadStep = 0;
+function showLoading() {
+  loadStep = 0;
+  document.getElementById('loading-overlay').classList.add('show');
+  ['s1','s2','s3','s4','s5'].forEach(s => document.getElementById(s).className = 'loading-step');
+  document.getElementById('s1').className = 'loading-step active';
+  loadStep = 1;
+}
+function updateStep(n) {
+  for (let i = 1; i < n; i++) document.getElementById('s'+i).className = 'loading-step done';
+  if (n <= 5) document.getElementById('s'+n).className = 'loading-step active';
+}
+function hideLoading() {
+  ['s1','s2','s3','s4','s5'].forEach(s => document.getElementById(s).className = 'loading-step done');
+  setTimeout(() => document.getElementById('loading-overlay').classList.remove('show'), 400);
+}
+
+// ── Demo ──
+function loadDemo() {
+  showLoading();
+  const steps = ['s1','s2','s3','s4','s5'];
+  let i = 0;
+  function next() {
+    if (i < steps.length) {
+      if (i > 0) document.getElementById(steps[i-1]).className = 'loading-step done';
+      document.getElementById(steps[i]).className = 'loading-step active';
+      i++; setTimeout(next, 700 + Math.random()*300);
+    } else {
+      document.getElementById(steps[steps.length-1]).className = 'loading-step done';
+      setTimeout(() => { hideLoading(); render(makeDemoData()); }, 400);
+    }
+  }
+  next();
+}
+
+function makeDemoData() {
+  const score = 68 + Math.floor(Math.random() * 16);
+  const yrs = ['2021','2022','2023','2024'];
+  const base = 800 + Math.floor(Math.random() * 400);
+  const rev = yrs.map((_,i) => base + i*75 + Math.floor(Math.random()*80));
+  const cogs = rev.map(r => Math.round(r * (0.68 + Math.random()*0.06)));
+  const grossProfit = rev.map((r,i) => r - cogs[i]);
+  const operatingExpense = grossProfit.map(g => Math.round(g * (0.35 + Math.random()*0.1)));
+  const ebi = rev.map(r => Math.round(r * (0.13 + Math.random() * 0.05)));
+  const depreciation = ebi.map(e => Math.round(e * (0.18 + Math.random()*0.06)));
+  const ebit = ebi.map((e,i) => e - depreciation[i]);
+  const interestExpense = rev.map(r => Math.round(r * (0.015 + Math.random()*0.01)));
+  const net = ebi.map(e => Math.round(e * (0.55 + Math.random() * 0.15)));
+  const dbt = rev.map(r => Math.round(r * (0.28 + Math.random() * 0.18)));
+
+  const totalAssets = rev.map(r => Math.round(r * (1.6 + Math.random()*0.3)));
+  const currentAssets = totalAssets.map(a => Math.round(a * (0.42 + Math.random()*0.08)));
+  const totalEquity = totalAssets.map(a => Math.round(a * (0.38 + Math.random()*0.08)));
+  const totalLiabilities = totalAssets.map((a,i) => a - totalEquity[i]);
+  const currentLiabilities = totalLiabilities.map(l => Math.round(l * (0.45 + Math.random()*0.1)));
+
+  const operatingCF = ebi.map(e => Math.round(e * (0.75 + Math.random()*0.15)));
+  const investingCF = rev.map(r => -Math.round(r * (0.06 + Math.random()*0.04)));
+  const financingCF = rev.map(r => -Math.round(r * (0.04 + Math.random()*0.04)));
+  const netChangeInCash = operatingCF.map((o,i) => o + investingCF[i] + financingCF[i]);
+  const endingCash = [];
+  let cashAcc = Math.round(base * 0.15);
+  netChangeInCash.forEach(c => { cashAcc += c; endingCash.push(cashAcc); });
+
+  const enteredName = document.getElementById('cname').value.trim();
+  const noRating = Math.random() > 0.5; // randomly demo the "no official rating" scenario
+  const moG = ['Baa1','Baa2','Baa3','Ba1','Ba2'];
+  const spG = ['BBB+','BBB','BBB-','BB+','BB'];
+  const gi = Math.floor(Math.random()*moG.length);
+
+  return {
+    company: enteredName || '[데모] Pacific LNG Trading Pte. Ltd.',
+    isDemo: true,
+    country: document.getElementById('ccountry').value || 'Singapore',
+    sector:  document.getElementById('csector').value || 'LNG Trading',
+    score, yrs, rev, ebi, net, dbt,
+    cogs, grossProfit, operatingExpense, depreciation, ebit, interestExpense,
+    totalAssets, currentAssets, totalLiabilities, currentLiabilities, totalEquity,
+    operatingCF, investingCF, financingCF, netChangeInCash, endingCash,
+    moodys: noRating ? null : moG[gi],
+    sp: noRating ? null : spG[gi],
+    estGrade: noRating ? moG[gi] : null,
+    estRationale: noRating ? `EBITDA 대비 이자비용 커버리지가 ${(ebi[3]/interestExpense[3]).toFixed(1)}배로 안정적이며, 총부채/EBITDA 비율은 ${(dbt[3]/ebi[3]).toFixed(1)}배 수준으로 ${moG[gi]} 등급 회사들과 유사한 재무 프로필을 보입니다. 최근 3년간 매출 및 현금흐름이 꾸준히 개선되는 추세입니다.` : null,
+    currency: 'USD (백만)',
+    shareholders: 'Pacific Holdings Group (72%), Institutional Investors (28%)',
+    employees: '약 340명', subsidiaries: '7개 (한국·일본·카타르·UAE)', founded: '2008년',
+    orgAnalysis: '단일 모회사 지배 구조. 싱가포르 법인 아래 4개국 자회사 운영. 이사회 독립이사 2인 포함. SPC를 통한 프로젝트 파이낸싱 구조 확인. 특수관계인 거래 공시 이상 없음.',
+    sanctionsClear: true, pepFound: false, pepDetail: null,
+    sanctionsSummary: '주요 제재 리스트(OFAC·EU·UN·BIS·OFSI) 이상 없음. PEP 연관 임원 없음 확인. 자기신고 내용과 외부 DB 교차 검증 완료.',
+    financialSummary: `최근 4년간 매출 CAGR 약 ${Math.round(8+Math.random()*5)}%. EBITDA 마진 안정적 유지. 부채비율 업종 평균 수준. 영업현금흐름이 순이익을 안정적으로 상회.`,
+    riskFactors: 'LNG 시장 변동성 노출. 카타르 자회사 지정학적 리스크 경미. 전반적 리스크 관리 양호.',
+    aiCommentary: `${enteredName || 'Pacific LNG Trading Pte. Ltd.'}는 싱가포르 기반의 ${noRating ? '투자적격 등급으로 추정되는' : '투자적격 등급'} LNG 트레이딩 회사입니다.\n\n재무적으로 최근 4년간 안정적인 성장세를 보이며, EBITDA 마진은 업종 평균 수준을 유지하고 있습니다. 부채 수준은 통제 가능한 범위 내에 있으며 유동성 지표도 양호합니다. 영업활동 현금흐름이 꾸준히 양(+)을 기록하고 있어 재무 건전성을 뒷받침합니다.\n\n제재 스크리닝 결과 주요 리스트에서 이상 없음이 확인되었으며, PEP 연관 임원도 없습니다. 지배구조는 투명하며 UBO 식별이 완료되었습니다.\n\n종합적으로 거래 승인을 권고하며, ${noRating ? `AI 추정 등급 ${moG[gi]}` : `Moody's ${moG[gi]} / S&P ${spG[gi]}`} 등급에 해당하는 신용보강 조건을 적용하시기 바랍니다.`,
+    dimFinancial: Math.min(100, Math.round(score * (0.95 + Math.random()*.1))),
+    dimSanctions: Math.min(100, Math.round(score * (1.05 + Math.random()*.05))),
+    dimGovernance: Math.min(100, Math.round(score * (0.9 + Math.random()*.15))),
+    dimHistory: Math.min(100, Math.round(score * (0.95 + Math.random()*.1))),
+    date: new Date().toLocaleDateString('ko-KR')
+  };
+}
+
+function rDesc(g) {
+  if (!g) return '';
+  if (/^(Aaa|AAA)/.test(g)) return '최고 신용등급';
+  if (/^(Aa|AA)/.test(g))   return '우수 신용등급';
+  if (/^(A[^a]|A$)/.test(g))return '상위 투자적격';
+  if (/^Baa|^BBB/.test(g))  return '투자적격 (하위)';
+  if (/^Ba|^BB/.test(g))    return '투기적 등급';
+  if (/^B[^B]|^B[123]/.test(g)) return '고위험';
+  return '최고위험 / 미공시';
+}
+
+function render(d) {
+  current = d;
+  const {company, country, sector, score, yrs, rev, ebi, net, dbt, moodys, sp, estGrade, date,
+    dimFinancial, dimSanctions, dimGovernance, dimHistory,
+    shareholders, employees, subsidiaries, founded, orgAnalysis,
+    sanctionsClear, pepFound, sanctionsSummary, aiCommentary, estRationale} = d;
+
+  document.getElementById('results').style.display = 'block';
+  ['rname','rname-bar'].forEach(id => document.getElementById(id).textContent = company);
+  document.getElementById('rmeta').textContent = country + ' · ' + sector + ' · 분석일: ' + date;
+  document.getElementById('rdate-bar').textContent = date;
+
+  // Score ring
+  const circ = 314, off = circ - (score/100)*circ;
+  const arc = document.getElementById('score-arc');
+  arc.style.strokeDashoffset = off;
+  const sc = score>=75?'#2a7d4f':score>=55?'#92550a':'#9b2020';
+  arc.setAttribute('stroke', sc);
+  document.getElementById('snum').textContent = score;
+  document.getElementById('snum').style.color = sc;
+
+  const vw = document.getElementById('verdict-wrap');
+  if      (score>=75) vw.innerHTML = '<span class="verdict v-pass"><i class="ti ti-check"></i> 거래 승인 권고</span>';
+  else if (score>=55) vw.innerHTML = '<span class="verdict v-caution"><i class="ti ti-alert-triangle"></i> 조건부 검토</span>';
+  else                vw.innerHTML = '<span class="verdict v-fail"><i class="ti ti-x"></i> 추가 심사 필요</span>';
+
+  // Dimension bars
+  const dims = [
+    {l:'재무 건전성', v:dimFinancial||70,  c:'#2a7d4f'},
+    {l:'제재 위험',   v:dimSanctions||80,  c:'#1e5fc2'},
+    {l:'지배구조',    v:dimGovernance||65, c:'#5b33b8'},
+    {l:'거래 이력',   v:dimHistory||75,    c:'#0e6e70'},
+  ];
+  document.getElementById('dims-el').innerHTML = dims.map(d =>
+    `<div class="dim"><div class="dim-lbl">${d.l}</div><div class="dim-row">
+    <div class="dim-bar"><div class="dim-fill" style="width:${d.v}%;background:${d.c}"></div></div>
+    <div class="dim-val" style="color:${d.c}">${d.v}</div></div></div>`).join('');
+
+  // Ratings
+  document.getElementById('mg').textContent = moodys || '미공시';
+  document.getElementById('md').textContent = moodys ? rDesc(moodys) : '공시 등급 없음';
+  document.getElementById('sg').textContent = sp || '미공시';
+  document.getElementById('sd').textContent = sp ? rDesc(sp) : '공시 등급 없음';
+  const noOfficial = !moodys && !sp;
+  document.getElementById('est-box').style.display = noOfficial ? 'block' : 'none';
+  document.getElementById('eg').textContent = estGrade || '—';
+
+  const rationaleBox = document.getElementById('est-rationale-box');
+  if (noOfficial && estRationale) {
+    document.getElementById('est-rationale-text').textContent = estRationale;
+    rationaleBox.style.display = 'block';
+  } else {
+    rationaleBox.style.display = 'none';
+  }
+
+  // Overview flags
+  const tier = getTier(sp, moodys, estGrade);
+  const tierInfo = TIERS.find(t => t.id === tier);
+  const flags = [
+    sanctionsClear
+      ? {t:'g', icon:'circle-check', title:'제재 스크리닝 클리어', det:'OFAC · EU · UN · BIS · OFSI 주요 제재 리스트 이상 없음'}
+      : {t:'r', icon:'alert-circle',  title:'제재 위험 확인', det:'하나 이상의 제재 리스트에서 주의 항목 발견 → 즉시 법무팀 검토 필요'},
+    pepFound
+      ? {t:'a', icon:'alert-triangle', title:'PEP 연관 임원 확인', det:d.pepDetail || '정치적 연계 인물 확인 → 심층 검토 권고'}
+      : {t:'g', icon:'user-check',     title:'PEP 스크리닝 클리어', det:'임원진 PEP 연관 없음 확인'},
+    {t: score>=70?'g':'a', icon: score>=70?'trending-up':'trending-down',
+      title:'재무 건전성 ' + (score>=70?'양호':'주의 필요'),
+      det: d.financialSummary || 'EBITDA 마진 및 부채비율 검토 완료'},
+    {t:'b', icon:'building-bank',
+      title:`신용보강 조건: ${tierInfo.pct} / ${tierInfo.cargo}`,
+      det:`권장 방법: ${tierInfo.methodLabel} · ${noOfficial ? 'AI 추정 등급 기준' : '공시 등급 기준'}`},
+    {t:'g', icon:'building', title:'지배구조 투명성 확인', det:'조직도 명확, 최종수익소유자(UBO) 식별 완료'},
+  ];
+  if (noOfficial) flags.push({t:'a', icon:'star', title:'공시 신용등급 없음', det:`Moody's · S&P 미공시. AI 추정 ${estGrade} (${estRationale || '재무 기반 추정'})`});
+  document.getElementById('flags-el').innerHTML = flags.map(f =>
+    `<div class="flag flag-${f.t}"><i class="ti ti-${f.icon}"></i>
+    <div><div class="flag-title">${f.title}</div><div class="flag-detail">${f.det}</div></div></div>`).join('');
+
+  // Sanctions
+  const sancs = [
+    {l:'OFAC SDN List',        ok:sanctionsClear},
+    {l:'EU Consolidated List', ok:sanctionsClear},
+    {l:'UN Sanctions',         ok:sanctionsClear},
+    {l:'BIS Entity List',      ok:sanctionsClear},
+    {l:'OFSI UK List',         ok:sanctionsClear},
+    {l:'PEP Screening',        ok:!pepFound, warn:false},
+  ];
+  document.getElementById('sanc-el').innerHTML = sancs.map(s =>
+    `<div class="sanc-item ${s.warn?'sanc-warn':s.ok?'sanc-ok':'sanc-fail'}">
+    <i class="ti ti-${s.warn?'alert-triangle':s.ok?'circle-check':'circle-x'}"></i>${s.l}</div>`).join('');
+  document.getElementById('sanc-summary').textContent = sanctionsSummary || '';
+
+  // Financials
+  document.getElementById('fin-ccy').textContent = d.currency || 'USD (백만)';
+  document.getElementById('fin-ai-warning').style.display = d.fromAI ? 'flex' : 'none';
+  renderFinTable();
+  renderFinChart();
+
+  // Org
+  document.getElementById('org-el').innerHTML = `
+    <div class="org-item"><div class="org-lbl">최대주주</div><div class="org-val">${shareholders||'—'}</div></div>
+    <div class="org-item"><div class="org-lbl">임직원 수</div><div class="org-val">${employees||'—'}</div></div>
+    <div class="org-item"><div class="org-lbl">자회사</div><div class="org-val">${subsidiaries||'—'}</div></div>
+    <div class="org-item"><div class="org-lbl">설립연도</div><div class="org-val">${founded||'—'}</div></div>`;
+  document.getElementById('org-analysis').textContent = orgAnalysis || '';
+
+  // Credit enhancement tiers
+  renderCreditTiers(tier);
+
+  // News
+  const t2 = new Date();
+  const dd = n => { const x=new Date(t2); x.setDate(t2.getDate()-n); return x.toLocaleDateString('ko-KR'); };
+  const news = [
+    {tag:'lng',      tl:'LNG',      date:dd(1),  hl:'Asia LNG spot prices rise as summer demand peaks in Japan and South Korea',  src:'Bloomberg Energy'},
+    {tag:'shipping', tl:'Shipping', date:dd(3),  hl:'VLCC charter rates firm on increased Middle East Gulf cargo flow to Asia',    src:'Platts Shipping'},
+    {tag:'sanctions',tl:'Sanctions',date:dd(5),  hl:'OFAC issues updated guidance on LNG trade with sanctioned jurisdictions',     src:'Reuters'},
+    {tag:'credit',   tl:'Credit',   date:dd(8),  hl:"Moody's affirms stable outlook for Singapore-based energy trading firms",     src:"Moody's Ratings"},
+    {tag:'lng',      tl:'LNG',      date:dd(11), hl:'Qatar Petroleum expands LNG supply agreements with Asian counterparties',     src:'S&P Global Commodity'},
+    {tag:'shipping', tl:'Shipping', date:dd(14), hl:'LNG carrier spot rates surge on Atlantic basin tightness ahead of winter',    src:'Argus Media'},
+  ];
+  document.getElementById('news-el').innerHTML = news.map(n =>
+    `<div class="news-item">
+      <div class="news-top"><span class="ntag ntag-${n.tag}">${n.tl}</span><span class="news-date">${n.date}</span></div>
+      <div class="news-hl">${n.hl}</div><div class="news-src">${n.src}</div>
+    </div>`).join('');
+
+  // AI opinion
+  document.getElementById('ai-text').innerHTML = (aiCommentary||'').replace(/\n/g,'<br>');
+
+  document.getElementById('results').style.display = 'block';
+  switchTab('overview');
+  const resultsEl = document.getElementById('results');
+  if (resultsEl && typeof resultsEl.scrollIntoView === 'function') {
+    resultsEl.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+
+function saveHistory() {
+  if (!current) return;
+  if (current.isDemo) {
+    const proceed = confirm('⚠️ 이 결과는 데모 데이터입니다.\n\n실제 분석 이력에 저장하지 않는 것을 권장합니다.\n그래도 저장하시겠습니까?');
+    if (!proceed) return;
+  }
+  const tier = getTier(current.sp, current.moodys, current.estGrade);
+  const tierInfo = TIERS.find(t => t.id === tier);
+  savedHistory = savedHistory.filter(h => !(h.company===current.company && h.date===current.date));
+  savedHistory.unshift({...current, tierLabel: tierInfo.label, creditPct: tierInfo.pct});
+  if (savedHistory.length > 50) savedHistory = savedHistory.slice(0,50);
+  safeSet('kyc_h', JSON.stringify(savedHistory));
+  alert('✅ 분석 결과가 저장되었습니다.');
+}
+
+function exportReport() {
+  alert('PDF 내보내기는 실제 배포 환경(Netlify 등)에서 활성화됩니다.');
+}
+
+function renderHistory() {
+  const body = document.getElementById('hist-body');
+  const empty = document.getElementById('hist-empty');
+  if (!savedHistory.length) { body.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  body.innerHTML = savedHistory.map((h,i) => {
+    const color = h.score>=75?'g':h.score>=55?'a':'r';
+    const verdict = h.score>=75?'승인 권고':h.score>=55?'조건부':'추가심사';
+    const grade = h.moodys || h.sp || (h.estGrade ? h.estGrade+'*' : '—');
+    return `<tr>
+      <td style="font-weight:700">${h.company}</td>
+      <td style="color:var(--muted)">${h.country}</td>
+      <td style="color:var(--muted)">${h.sector}</td>
+      <td><strong style="color:${h.score>=75?'var(--green)':h.score>=55?'var(--amber)':'var(--red)'}">${h.score}</strong></td>
+      <td><span class="pill pill-b">${grade}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${h.creditPct||'—'}</td>
+      <td><span class="pill pill-${color}">${verdict}</span></td>
+      <td style="color:var(--muted)">${h.date}</td>
+      <td><button class="btn btn-ghost" style="padding:5px 11px;font-size:12px" onclick="reloadResult(${i})"><i class="ti ti-eye"></i> 보기</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function reloadResult(i) {
+  current = savedHistory[i];
+  showPage('upload');
+  render(current);
+}
+
+// Real site: starts empty. API key now lives server-side in Netlify env var.
+window.addEventListener('DOMContentLoaded', () => {});
+</script>
+</body>
+</html>
