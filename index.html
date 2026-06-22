@@ -1683,7 +1683,147 @@ function saveHistory() {
 }
 
 function exportReport() {
-  alert('PDF 내보내기는 실제 배포 환경(Netlify 등)에서 활성화됩니다.');
+  if (!current) return;
+
+  // Build a clean printable HTML page
+  const { company, country, sector, score, date, moodys, sp, estGrade,
+    rev, ebi, net, dbt, yrs, aiCommentary, sanctionsSummary, orgAnalysis,
+    shareholders, employees, subsidiaries, founded } = current;
+
+  const tier = getTier(sp, moodys, estGrade);
+  const tierInfo = TIERS.find(t => t.id === tier);
+  const grade = moodys || sp || (estGrade ? estGrade + ' (AI 추정)' : '—');
+  const scoreColor = score>=75?'#2a7d4f':score>=55?'#92550a':'#9b2020';
+  const verdict = score>=75?'거래 승인 권고':score>=55?'조건부 검토':'추가 심사 필요';
+
+  const finRows = [
+    ['매출액', rev],
+    ['EBITDA', ebi],
+    ['당기순이익', net],
+    ['순부채', dbt],
+  ];
+
+  const html = `<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>PEI KYC Report — ${company}</title>
+<style>
+  body { font-family: 'Inter', Arial, sans-serif; font-size: 13px; color: #1a1410; margin: 0; padding: 0; }
+  .page { max-width: 800px; margin: 0 auto; padding: 40px; }
+  .header { border-bottom: 3px solid #d97757; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .logo { font-size: 18px; font-weight: 800; color: #1a1410; }
+  .logo span { color: #d97757; }
+  .report-date { font-size: 11px; color: #7a6356; }
+  h2 { font-size: 15px; font-weight: 700; color: #1a1410; border-left: 4px solid #d97757; padding-left: 10px; margin: 24px 0 12px; }
+  .score-row { display: flex; gap: 20px; align-items: center; background: #fdf8f4; border: 1px solid #e8d9cc; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; }
+  .score-big { font-size: 48px; font-weight: 900; color: ${scoreColor}; line-height: 1; }
+  .score-info { flex: 1; }
+  .company-name { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+  .company-meta { font-size: 12px; color: #7a6356; margin-bottom: 8px; }
+  .verdict { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; background: ${score>=75?'#e6f4ed':score>=55?'#fef3e2':'#fdeaea'}; color: ${scoreColor}; border: 1px solid ${score>=75?'#8bcfad':score>=55?'#f0bf7a':'#e89494'}; }
+  .rating-row { display: flex; gap: 12px; }
+  .rating-box { flex: 1; background: #f5ede3; border: 1px solid #e8d9cc; border-radius: 8px; padding: 10px 14px; text-align: center; }
+  .rating-src { font-size: 10px; color: #b0998a; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+  .rating-grade { font-size: 20px; font-weight: 900; color: #1e5fc2; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  th { font-size: 11px; font-weight: 700; color: #7a6356; text-transform: uppercase; padding: 7px 10px; text-align: right; border-bottom: 2px solid #e8d9cc; }
+  th:first-child { text-align: left; }
+  td { padding: 8px 10px; font-size: 13px; border-bottom: 1px solid #e8d9cc; text-align: right; }
+  td:first-child { text-align: left; color: #7a6356; font-weight: 500; }
+  .credit-box { background: #fdf8f4; border: 1px solid #e8d9cc; border-radius: 8px; padding: 14px 18px; }
+  .credit-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .credit-grid { display: flex; gap: 12px; }
+  .credit-item { flex: 1; background: white; border: 1px solid #e8d9cc; border-radius: 6px; padding: 10px; text-align: center; }
+  .credit-lbl { font-size: 10px; color: #7a6356; margin-bottom: 4px; }
+  .credit-val { font-size: 16px; font-weight: 800; color: #1e5fc2; }
+  .text-block { background: #fdf8f4; border: 1px solid #e8d9cc; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: #3d2f25; line-height: 1.7; }
+  .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e8d9cc; font-size: 11px; color: #b0998a; display: flex; justify-content: space-between; }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { padding: 20px; }
+  }
+</style>
+</head><body><div class="page">
+
+  <div class="header">
+    <div class="logo">PEI <span>KYC</span> — LNG &amp; Shipping Due Diligence</div>
+    <div class="report-date">분석일: ${date} &nbsp;|&nbsp; CONFIDENTIAL</div>
+  </div>
+
+  <div class="score-row">
+    <div class="score-big">${score}</div>
+    <div class="score-info">
+      <div class="company-name">${company}</div>
+      <div class="company-meta">${country} · ${sector}</div>
+      <div class="verdict">${verdict}</div>
+    </div>
+    <div class="rating-row">
+      <div class="rating-box">
+        <div class="rating-src">Moody's</div>
+        <div class="rating-grade" style="color:#1e5fc2">${moodys||'—'}</div>
+        <div style="font-size:11px;color:#7a6356">${moodys?rDesc(moodys):'미공시'}</div>
+      </div>
+      <div class="rating-box">
+        <div class="rating-src">S&amp;P / Fitch</div>
+        <div class="rating-grade" style="color:#5b33b8">${sp||'—'}</div>
+        <div style="font-size:11px;color:#7a6356">${sp?rDesc(sp):'미공시'}</div>
+      </div>
+      ${!moodys&&!sp?`<div class="rating-box">
+        <div class="rating-src">AI 추정</div>
+        <div class="rating-grade" style="color:#92550a">${estGrade||'—'}</div>
+        <div style="font-size:11px;color:#92550a">재무 기반 추정</div>
+      </div>`:''}
+    </div>
+  </div>
+
+  <h2>신용보강 조건</h2>
+  <div class="credit-box">
+    <div class="credit-title">${tierInfo.sp} / ${tierInfo.moodys} 구간 적용</div>
+    <div class="credit-grid">
+      <div class="credit-item"><div class="credit-lbl">총거래금액 대비 (A)</div><div class="credit-val">${tierInfo.pct}</div></div>
+      <div class="credit-item"><div class="credit-lbl">Cargo Value (B)</div><div class="credit-val">${tierInfo.cargo}</div></div>
+      <div class="credit-item"><div class="credit-lbl">권장 방법</div><div class="credit-val" style="font-size:12px">${tierInfo.methodLabel}</div></div>
+    </div>
+  </div>
+
+  <h2>재무 분석 (USD 백만)</h2>
+  <table>
+    <thead><tr><th>항목</th>${(yrs||[]).map(y=>`<th>${y}</th>`).join('')}</tr></thead>
+    <tbody>${finRows.map(([l,data])=>`<tr><td>${l}</td>${data.map(v=>`<td>${typeof v==='number'?v.toLocaleString():'—'}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table>
+
+  <h2>조직 구조</h2>
+  <table>
+    <tbody>
+      <tr><td>최대주주</td><td colspan="3">${shareholders||'—'}</td></tr>
+      <tr><td>임직원 수</td><td>${employees||'—'}</td><td>자회사</td><td>${subsidiaries||'—'}</td></tr>
+      <tr><td>설립연도</td><td colspan="3">${founded||'—'}</td></tr>
+    </tbody>
+  </table>
+  ${orgAnalysis?`<div class="text-block">${orgAnalysis}</div>`:''}
+
+  <h2>제재 스크리닝</h2>
+  <div class="text-block">${sanctionsSummary||'—'}</div>
+
+  <h2>AI 종합 의견</h2>
+  <div class="text-block">${(aiCommentary||'').replace(/\n/g,'<br>')}</div>
+
+  <div class="footer">
+    <span>PEI KYC Platform — PRISM Finance Internal Use Only</span>
+    <span>Generated: ${new Date().toLocaleString('ko-KR')}</span>
+  </div>
+
+</div></body></html>`;
+
+  // Open print dialog in new window
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(html);
+  win.document.close();
+  win.onload = () => {
+    setTimeout(() => {
+      win.print();
+    }, 500);
+  };
 }
 
 function renderHistory() {
