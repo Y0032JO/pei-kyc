@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PEI KYC — LNG & Shipping Due Diligence</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --clay:#d97757; --clay-lt:#f4ede8; --clay-dk:#b85c38;
@@ -83,7 +84,37 @@
   #results{display:none}
 
   /* API key prompt */
-  /* (api-key input removed — key now lives server-side in Netlify) */
+  /* ── LOGIN SCREEN ── */
+  #login-screen{position:fixed;inset:0;z-index:999;background:var(--sand);display:flex;align-items:center;justify-content:center}
+  #login-screen.hidden{display:none}
+  .login-card{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:400px;box-shadow:var(--sh2);position:relative;overflow:hidden}
+  .login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--clay),#e8925a,#d4a96a)}
+  .login-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;justify-content:center}
+  .login-logo-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--clay),var(--clay-dk));display:flex;align-items:center;justify-content:center}
+  .login-logo-icon i{font-size:20px;color:white}
+  .login-title{font-size:20px;font-weight:800;color:var(--ink);text-align:center;margin-bottom:4px}
+  .login-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px}
+  .login-field{margin-bottom:16px}
+  .login-field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .login-field input{width:100%;background:white;border:1.5px solid var(--border2);border-radius:var(--r);padding:11px 14px;color:var(--ink);font-size:14px;outline:none;transition:all .15s}
+  .login-field input:focus{border-color:var(--clay);box-shadow:0 0 0 3px rgba(217,119,87,.15)}
+  .login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--clay),var(--clay-dk));color:white;border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;margin-top:4px}
+  .login-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(217,119,87,.4)}
+  .login-error{background:var(--red-lt);border:1px solid #fecdca;border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
+  .login-api-note{font-size:11px;color:var(--dim);text-align:center;margin-top:16px;line-height:1.5}
+
+  /* ── USER INFO IN NAV ── */
+  .nav-user{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .nav-user-email{font-size:12px;color:rgba(253,246,240,.6)}
+  .nav-logout{font-size:12px;color:rgba(253,246,240,.5);cursor:pointer;border:none;background:none;padding:4px 8px;border-radius:6px;transition:all .15s}
+  .nav-logout:hover{color:rgba(253,246,240,.9);background:rgba(253,246,240,.1)}
+
+  /* ── API KEY INPUT IN HERO ── */
+  .api-key-row{display:flex;gap:10px;align-items:center;background:var(--blue-lt);border:1px solid #c0d4f5;border-radius:var(--r);padding:10px 14px;margin-bottom:16px}
+  .api-key-row i{color:var(--blue);font-size:16px;flex-shrink:0}
+  .api-key-row input{flex:1;border:1.5px solid #c0d4f5;border-radius:6px;padding:7px 10px;font-size:12px;outline:none;background:white;color:var(--ink)}
+  .api-key-row input:focus{border-color:var(--blue)}
+  .api-key-row span{font-size:12px;color:var(--blue);font-weight:500}
 
   .save-bar{display:flex;align-items:center;justify-content:space-between;background:#6b4f3a;border-radius:var(--r);padding:13px 18px;margin-bottom:20px;box-shadow:0 3px 12px rgba(60,30,10,.12)}
   .save-bar-info{font-size:13px;color:rgba(253,246,240,.75)}
@@ -240,6 +271,33 @@
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="ti ti-ship"></i></div>
+      <div style="font-size:20px;font-weight:800;color:var(--ink)">PEI KYC</div>
+    </div>
+    <div class="login-title">로그인</div>
+    <div class="login-sub">LNG & Shipping KYC Platform<br>PRISM Finance 내부 전용</div>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-field">
+      <label>이메일</label>
+      <input type="email" id="login-email" placeholder="name@prismfinance.com" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <label>비밀번호</label>
+      <input type="password" id="login-password" placeholder="비밀번호 입력" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()" id="login-btn">
+      <i class="ti ti-login"></i> 로그인
+    </button>
+    <div class="login-api-note">
+      <i class="ti ti-info-circle"></i> 로그인 후 Anthropic API Key를 입력하면 실제 AI 분석이 가능합니다
+    </div>
+  </div>
+</div>
+
 <nav>
   <a class="nav-logo" href="#">
     <div class="nav-logo-icon"><i class="ti ti-ship"></i></div>
@@ -249,7 +307,10 @@
     <button class="nav-tab active" onclick="showPage('upload')" id="tab-upload"><i class="ti ti-upload"></i> 분석 시작</button>
     <button class="nav-tab" onclick="showPage('history')" id="tab-history"><i class="ti ti-history"></i> 분석 이력</button>
   </div>
-  <span class="nav-badge">LNG &amp; Shipping KYC Platform</span>
+  <div class="nav-user">
+    <span class="nav-user-email" id="nav-user-email"></span>
+    <button class="nav-logout" onclick="doLogout()"><i class="ti ti-logout"></i> 로그아웃</button>
+  </div>
 </nav>
 
 <div id="loading-overlay">
@@ -273,6 +334,14 @@
   <div class="hero">
     <div class="hero-title">거래 상대방 KYC 분석</div>
     <div class="hero-sub">재무제표 · 조직도 · 제재 질문지를 업로드하면 Claude AI가 자동으로 분석하고 KYC 점수, 신용등급 및 신용보강 조건을 산출합니다</div>
+
+    <!-- API Key -->
+    <div class="api-key-row">
+      <i class="ti ti-key"></i>
+      <span>Anthropic API Key</span>
+      <input type="password" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off">
+      <span style="font-size:11px;opacity:.7">브라우저에만 저장됨</span>
+    </div>
 
     <div class="company-row">
       <div class="field" style="flex:2">
@@ -1124,10 +1193,93 @@ function toBase64(file) {
   });
 }
 
-// ── Real AI analysis (via Netlify Function — API key stays server-side) ──
+// ── Supabase config ──
+const SUPABASE_URL = 'https://sxpfgqirggqmabgkakfd.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_J5kWJreJDx4tdpk9b41-FQ_HCo14-Z7';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── Auth ──
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  const btn   = document.getElementById('login-btn');
+  errEl.style.display = 'none';
+  btn.textContent = '로그인 중...';
+  btn.disabled = true;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-login"></i> 로그인';
+  if (error) {
+    errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+    errEl.style.display = 'block';
+    return;
+  }
+  showApp(data.user);
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('nav-user-email').textContent = '';
+}
+
+function showApp(user) {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('nav-user-email').textContent = user.email;
+  const saved = safeGet('pei_api_key', '');
+  if (saved) document.getElementById('api-key').value = saved;
+}
+
+// ── Google News RSS ──
+async function fetchRealNews(company) {
+  const PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
+  const queries = [
+    { q: company + ' LNG',      tag:'lng',       tl:'LNG'      },
+    { q: company + ' shipping', tag:'shipping',  tl:'Shipping' },
+    { q: company + ' sanctions',tag:'sanctions', tl:'Sanctions'},
+  ];
+  const allItems = [];
+  for (const { q, tag, tl } of queries) {
+    try {
+      const rssUrl = 'https://news.google.com/rss/search?q=' + encodeURIComponent(q) + '&hl=en&gl=US&ceid=US:en';
+      const res  = await fetch(PROXY + encodeURIComponent(rssUrl));
+      if (!res.ok) continue;
+      const json = await res.json();
+      (json.items||[]).slice(0,2).forEach(item => {
+        let hostname = '—';
+        try { hostname = new URL(item.link).hostname.replace('www.',''); } catch(e) {}
+        allItems.push({
+          hl: item.title, src: item.author || hostname,
+          url: item.link, tag, tl,
+          date: new Date(item.pubDate).toLocaleDateString('ko-KR'),
+        });
+      });
+    } catch(e) { console.warn('news fetch:', e.message); }
+  }
+  if (allItems.length < 4) {
+    try {
+      const rssUrl = 'https://news.google.com/rss/search?q=' + encodeURIComponent('LNG trading energy') + '&hl=en&gl=US&ceid=US:en';
+      const res  = await fetch(PROXY + encodeURIComponent(rssUrl));
+      const json = await res.json();
+      (json.items||[]).slice(0, 4 - allItems.length).forEach(item => {
+        let hostname = '—';
+        try { hostname = new URL(item.link).hostname.replace('www.',''); } catch(e) {}
+        allItems.push({ hl: item.title, src: hostname, url: item.link, tag:'lng', tl:'LNG',
+          date: new Date(item.pubDate).toLocaleDateString('ko-KR') });
+      });
+    } catch(e) {}
+  }
+  return allItems.slice(0,6);
+}
+
+// ── Real AI analysis — direct Claude API call ──
 async function startAnalysis() {
   const company = document.getElementById('cname').value.trim();
+  const apiKey  = document.getElementById('api-key').value.trim();
   if (!company) { alert('회사명을 입력해주세요.'); return; }
+  if (!apiKey)  { alert('Anthropic API Key를 입력해주세요.'); return; }
+  safeSet('pei_api_key', apiKey);
 
   const finFiles = document.getElementById('file-fin').files;
   const orgFiles = document.getElementById('file-org').files;
@@ -1135,157 +1287,98 @@ async function startAnalysis() {
   if (!finFiles.length) { alert('최소 재무제표 파일을 업로드해주세요.'); return; }
 
   showLoading();
-
   try {
     const country = document.getElementById('ccountry').value || 'Unknown';
-    const sector  = document.getElementById('csector').value || 'Unknown';
-
-    // Build content blocks from uploaded files
+    const sector  = document.getElementById('csector').value  || 'Unknown';
     const contentBlocks = [];
 
-    contentBlocks.push({ type:'text', text: `You are a senior KYC and credit analyst for an LNG and shipping trading company. Analyze the following documents for counterparty: "${company}" (Country: ${country}, Sector: ${sector}).
+    contentBlocks.push({ type:'text', text: `You are a senior KYC analyst for an LNG and shipping trading company. Analyze the following documents for counterparty: "${company}" (Country: ${country}, Sector: ${sector}).
 
 Extract and return a JSON object ONLY (no markdown, no explanation) with exactly this structure:
 {
-  "company": "${company}",
-  "country": "${country}",
-  "sector": "${sector}",
-
-  "moodys": "official Moody's rating string, or null if not disclosed in documents",
-  "sp": "official S&P/Fitch rating string, or null if not disclosed in documents",
-  "estGrade": "if moodys AND sp are both null, your own estimated Moody's-equivalent rating (e.g. Baa2) based on the financial statements; otherwise null",
-  "estRationale": "if estGrade is set, a 2-3 sentence rationale in Korean explaining which financial ratios/metrics led to this estimate (e.g. interest coverage, leverage, liquidity, profitability trend)",
-
-  "years": ["2021","2022","2023","2024"],
-  "currency": "USD millions",
-
-  "revenue": [num, num, num, num],
-  "cogs": [num, num, num, num],
-  "grossProfit": [num, num, num, num],
-  "operatingExpense": [num, num, num, num],
-  "ebitda": [num, num, num, num],
-  "depreciation": [num, num, num, num],
-  "ebit": [num, num, num, num],
-  "interestExpense": [num, num, num, num],
-  "netIncome": [num, num, num, num],
-
-  "totalAssets": [num, num, num, num],
-  "currentAssets": [num, num, num, num],
-  "totalLiabilities": [num, num, num, num],
-  "currentLiabilities": [num, num, num, num],
-  "totalEquity": [num, num, num, num],
-  "netDebt": [num, num, num, num],
-
-  "operatingCF": [num, num, num, num],
-  "investingCF": [num, num, num, num],
-  "financingCF": [num, num, num, num],
-  "netChangeInCash": [num, num, num, num],
-  "endingCash": [num, num, num, num],
-
-  "shareholders": "major shareholders",
-  "employees": "headcount",
-  "subsidiaries": "number and countries",
-  "founded": "year",
-  "orgAnalysis": "governance analysis in Korean",
-  "sanctionsClear": true or false,
-  "pepFound": true or false,
-  "pepDetail": "detail or null",
-  "sanctionsSummary": "summary in Korean",
-  "financialSummary": "financial health summary in Korean, mentioning liquidity, leverage, and profitability trends across B/S, P&L and Cash Flow",
-  "riskFactors": "risk factors in Korean",
-  "aiCommentary": "comprehensive KYC opinion in Korean (3-4 paragraphs)",
-  "score": number between 0-100,
-  "dimFinancial": number 0-100,
-  "dimSanctions": number 0-100,
-  "dimGovernance": number 0-100,
-  "dimHistory": number 0-100
+  "company":"${company}","country":"${country}","sector":"${sector}",
+  "moodys":"official Moody rating or null","sp":"official S&P/Fitch rating or null",
+  "estGrade":"estimated Moody equivalent if both null, else null",
+  "estRationale":"2-3 sentence Korean rationale if estGrade set",
+  "years":["2021","2022","2023","2024"],"currency":"USD millions",
+  "revenue":[n,n,n,n],"cogs":[n,n,n,n],"grossProfit":[n,n,n,n],
+  "operatingExpense":[n,n,n,n],"ebitda":[n,n,n,n],"depreciation":[n,n,n,n],
+  "ebit":[n,n,n,n],"interestExpense":[n,n,n,n],"netIncome":[n,n,n,n],
+  "totalAssets":[n,n,n,n],"currentAssets":[n,n,n,n],
+  "totalLiabilities":[n,n,n,n],"currentLiabilities":[n,n,n,n],
+  "totalEquity":[n,n,n,n],"netDebt":[n,n,n,n],
+  "operatingCF":[n,n,n,n],"investingCF":[n,n,n,n],"financingCF":[n,n,n,n],
+  "netChangeInCash":[n,n,n,n],"endingCash":[n,n,n,n],
+  "shareholders":"major shareholders","employees":"headcount",
+  "subsidiaries":"number and countries","founded":"year",
+  "orgAnalysis":"Korean governance analysis",
+  "sanctionsClear":true,"pepFound":false,"pepDetail":null,
+  "sanctionsSummary":"Korean summary","financialSummary":"Korean summary",
+  "riskFactors":"Korean risk factors","aiCommentary":"3-4 paragraph Korean KYC opinion",
+  "score":0-100,"dimFinancial":0-100,"dimSanctions":0-100,"dimGovernance":0-100,"dimHistory":0-100
 }
+Normalize all figures to USD millions. Watch for unit markers (thousands/US$000). Use null for missing data.` });
 
-Rules:
-- For score: 85-100=excellent, 70-84=good, 55-69=caution, 40-54=high risk, below 40=very high risk.
-- If a line item is not present or not derivable from the documents, use null for that year (do not guess a fake number).
-- Normalize ALL figures to USD millions. Watch carefully for unit markers like "in thousands", "US$'000", "단위: 천원" etc. — these are common sources of error. If statements are in thousands, divide by 1000 to get millions.
-- Only fill estGrade/estRationale when both moodys and sp are null. If either official rating exists, leave estGrade null.` });
-
-    // Attach financial statement files
     for (const file of finFiles) {
       const b64 = await toBase64(file);
-      if (file.type === 'application/pdf') {
-        contentBlocks.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 }, title:`Financial Statement: ${file.name}` });
-      } else {
-        contentBlocks.push({ type:'image', source:{ type:'base64', media_type: file.type || 'image/png', data:b64 } });
-      }
+      if (file.type==='application/pdf') contentBlocks.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 }, title:'Financial Statement: '+file.name });
+      else contentBlocks.push({ type:'image', source:{ type:'base64', media_type:file.type||'image/png', data:b64 } });
     }
-    // Attach org chart
     for (const file of orgFiles) {
       const b64 = await toBase64(file);
-      if (file.type === 'application/pdf') {
-        contentBlocks.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 }, title:`Organization Chart: ${file.name}` });
-      } else {
-        contentBlocks.push({ type:'image', source:{ type:'base64', media_type: file.type || 'image/png', data:b64 } });
-      }
+      if (file.type==='application/pdf') contentBlocks.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 }, title:'Org Chart: '+file.name });
+      else contentBlocks.push({ type:'image', source:{ type:'base64', media_type:file.type||'image/png', data:b64 } });
     }
-    // Attach sanctions questionnaire
     for (const file of sanFiles) {
       const b64 = await toBase64(file);
-      contentBlocks.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 }, title:`Sanctions Questionnaire: ${file.name}` });
+      contentBlocks.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 }, title:'Sanctions Questionnaire: '+file.name });
     }
 
     updateStep(1);
-
-    // Call our own Netlify Function — it holds the Anthropic API key server-side
-    const resp = await fetch('/.netlify/functions/analyze-kyc', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: contentBlocks })
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:4000, messages:[{ role:'user', content:contentBlocks }] })
     });
-
     if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.error || `서버 오류 (${resp.status})`);
+      const err = await resp.json().catch(()=>({}));
+      throw new Error(err.error?.message || 'API 오류 ('+resp.status+')');
     }
-
     updateStep(3);
     const data = await resp.json();
-    const raw  = data.content?.find(b => b.type === 'text')?.text || '';
-
-    // Parse JSON from response
+    const raw  = data.content?.find(b=>b.type==='text')?.text || '';
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI 응답 파싱 실패');
     const parsed = JSON.parse(jsonMatch[0]);
 
+    updateStep(4);
+    const newsItems = await fetchRealNews(parsed.company || company);
+
     updateStep(5);
-    await new Promise(r => setTimeout(r, 600));
+    await new Promise(r=>setTimeout(r,400));
     hideLoading();
     render({ ...parsed,
-      yrs: parsed.years || ['2021','2022','2023','2024'],
-      rev: parsed.revenue || [0,0,0,0],
-      ebi: parsed.ebitda  || [0,0,0,0],
-      net: parsed.netIncome || [0,0,0,0],
-      dbt: parsed.netDebt || [0,0,0,0],
-      cogs: parsed.cogs || null,
-      grossProfit: parsed.grossProfit || null,
-      operatingExpense: parsed.operatingExpense || null,
-      depreciation: parsed.depreciation || null,
-      ebit: parsed.ebit || null,
-      interestExpense: parsed.interestExpense || null,
-      totalAssets: parsed.totalAssets || null,
-      currentAssets: parsed.currentAssets || null,
-      totalLiabilities: parsed.totalLiabilities || null,
-      currentLiabilities: parsed.currentLiabilities || null,
-      totalEquity: parsed.totalEquity || null,
-      operatingCF: parsed.operatingCF || null,
-      investingCF: parsed.investingCF || null,
-      financingCF: parsed.financingCF || null,
-      netChangeInCash: parsed.netChangeInCash || null,
-      endingCash: parsed.endingCash || null,
-      date: new Date().toLocaleDateString('ko-KR'),
-      fromAI: true
+      yrs: parsed.years||['2021','2022','2023','2024'],
+      rev: parsed.revenue||[0,0,0,0], ebi: parsed.ebitda||[0,0,0,0],
+      net: parsed.netIncome||[0,0,0,0], dbt: parsed.netDebt||[0,0,0,0],
+      cogs:parsed.cogs||null, grossProfit:parsed.grossProfit||null,
+      operatingExpense:parsed.operatingExpense||null, depreciation:parsed.depreciation||null,
+      ebit:parsed.ebit||null, interestExpense:parsed.interestExpense||null,
+      totalAssets:parsed.totalAssets||null, currentAssets:parsed.currentAssets||null,
+      totalLiabilities:parsed.totalLiabilities||null, currentLiabilities:parsed.currentLiabilities||null,
+      totalEquity:parsed.totalEquity||null, operatingCF:parsed.operatingCF||null,
+      investingCF:parsed.investingCF||null, financingCF:parsed.financingCF||null,
+      netChangeInCash:parsed.netChangeInCash||null, endingCash:parsed.endingCash||null,
+      newsItems, date:new Date().toLocaleDateString('ko-KR'), fromAI:true
     });
-
   } catch(e) {
     hideLoading();
-    alert('분석 중 오류가 발생했습니다:\n\n' + e.message + '\n\n데모 모드로 전환합니다.');
+    alert('분석 중 오류가 발생했습니다:\n\n'+e.message+'\n\n데모 모드로 전환합니다.');
     loadDemo();
   }
 }
@@ -1512,18 +1605,20 @@ function render(d) {
   renderCreditTiers(tier);
 
   // News
+  // News — use real fetched items if available, else demo fallback
   const t2 = new Date();
   const dd = n => { const x=new Date(t2); x.setDate(t2.getDate()-n); return x.toLocaleDateString('ko-KR'); };
-  const news = [
-    {tag:'lng',      tl:'LNG',      date:dd(1),  hl:'Asia LNG spot prices rise as summer demand peaks in Japan and South Korea',  src:'Bloomberg Energy'},
-    {tag:'shipping', tl:'Shipping', date:dd(3),  hl:'VLCC charter rates firm on increased Middle East Gulf cargo flow to Asia',    src:'Platts Shipping'},
-    {tag:'sanctions',tl:'Sanctions',date:dd(5),  hl:'OFAC issues updated guidance on LNG trade with sanctioned jurisdictions',     src:'Reuters'},
-    {tag:'credit',   tl:'Credit',   date:dd(8),  hl:"Moody's affirms stable outlook for Singapore-based energy trading firms",     src:"Moody's Ratings"},
-    {tag:'lng',      tl:'LNG',      date:dd(11), hl:'Qatar Petroleum expands LNG supply agreements with Asian counterparties',     src:'S&P Global Commodity'},
-    {tag:'shipping', tl:'Shipping', date:dd(14), hl:'LNG carrier spot rates surge on Atlantic basin tightness ahead of winter',    src:'Argus Media'},
+  const demoNews = [
+    {tag:'lng',      tl:'LNG',      date:dd(1),  hl:'Asia LNG spot prices rise as summer demand peaks in Japan and South Korea',  src:'Bloomberg Energy', url:'#'},
+    {tag:'shipping', tl:'Shipping', date:dd(3),  hl:'VLCC charter rates firm on increased Middle East Gulf cargo flow to Asia',    src:'Platts Shipping', url:'#'},
+    {tag:'sanctions',tl:'Sanctions',date:dd(5),  hl:'OFAC issues updated guidance on LNG trade with sanctioned jurisdictions',     src:'Reuters', url:'#'},
+    {tag:'credit',   tl:'Credit',   date:dd(8),  hl:"Moody's affirms stable outlook for Singapore-based energy trading firms",     src:"Moody's Ratings", url:'#'},
+    {tag:'lng',      tl:'LNG',      date:dd(11), hl:'Qatar Petroleum expands LNG supply agreements with Asian counterparties',     src:'S&P Global Commodity', url:'#'},
+    {tag:'shipping', tl:'Shipping', date:dd(14), hl:'LNG carrier spot rates surge on Atlantic basin tightness ahead of winter',    src:'Argus Media', url:'#'},
   ];
+  const news = (d.newsItems && d.newsItems.length > 0) ? d.newsItems : demoNews;
   document.getElementById('news-el').innerHTML = news.map(n =>
-    `<div class="news-item">
+    `<div class="news-item" onclick="if('${n.url}'!=='#')window.open('${n.url}','_blank')">
       <div class="news-top"><span class="ntag ntag-${n.tag}">${n.tl}</span><span class="news-date">${n.date}</span></div>
       <div class="news-hl">${n.hl}</div><div class="news-src">${n.src}</div>
     </div>`).join('');
@@ -1587,8 +1682,17 @@ function reloadResult(i) {
   render(current);
 }
 
-// Real site: starts empty. API key now lives server-side in Netlify env var.
-window.addEventListener('DOMContentLoaded', () => {});
+// Real site: check Supabase session on load
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) showApp(session.user);
+  document.getElementById('login-email')?.addEventListener('keydown', e => {
+    if (e.key==='Enter') document.getElementById('login-password')?.focus();
+  });
+  document.getElementById('api-key')?.addEventListener('change', e => {
+    if (e.target.value) safeSet('pei_api_key', e.target.value);
+  });
+});
 </script>
 </body>
 </html>
