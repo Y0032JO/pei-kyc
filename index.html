@@ -402,21 +402,21 @@
     </div>
 
     <div class="upload-zones">
-      <div class="uz" id="z-fin" onclick="this.querySelector('input').click()">
+      <div class="uz" id="z-fin">
         <input type="file" accept=".pdf,.xlsx,.xls,.docx" multiple id="file-fin" onchange="uploaded('z-fin','st-fin',this)">
         <span class="uz-icon"><i class="ti ti-report-money"></i></span>
         <div class="uz-label">재무제표</div>
         <div class="uz-hint">3~4년치 · PDF / Excel</div>
         <div class="uz-status" id="st-fin"></div>
       </div>
-      <div class="uz" id="z-org" onclick="this.querySelector('input').click()">
+      <div class="uz" id="z-org">
         <input type="file" accept=".pdf,.png,.jpg,.docx" id="file-org" onchange="uploaded('z-org','st-org',this)">
         <span class="uz-icon"><i class="ti ti-sitemap"></i></span>
         <div class="uz-label">조직도</div>
         <div class="uz-hint">Organization Chart · PDF / PNG</div>
         <div class="uz-status" id="st-org"></div>
       </div>
-      <div class="uz" id="z-san" onclick="this.querySelector('input').click()">
+      <div class="uz" id="z-san">
         <input type="file" accept=".pdf,.docx" id="file-san" onchange="uploaded('z-san','st-san',this)">
         <span class="uz-icon"><i class="ti ti-shield-check"></i></span>
         <div class="uz-label">제재 질문지</div>
