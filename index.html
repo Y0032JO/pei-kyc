@@ -704,7 +704,7 @@
   </div>
   <div class="card">
     <table class="hist-table">
-      <thead><tr><th>회사명</th><th>국가</th><th>섹터</th><th>KYC 점수</th><th>등급</th><th>신용보강</th><th>판정</th><th>분석일</th><th></th></tr></thead>
+      <thead><tr><th>회사명</th><th>국가</th><th>섹터</th><th>KYC 점수</th><th>등급</th><th>신용보강</th><th>판정</th><th>저장일 / 저장자</th><th></th></tr></thead>
       <tbody id="hist-body"></tbody>
     </table>
     <div id="hist-empty" style="text-align:center;padding:48px;color:var(--dim)">
@@ -1667,22 +1667,100 @@ function render(d) {
   }
 }
 
-function saveHistory() {
+// ── 분석 이력 — Supabase 공유 저장 ──
+async function saveHistory() {
   if (!current) return;
   if (current.isDemo) {
-    const proceed = confirm('⚠️ 이 결과는 데모 데이터입니다.\n\n실제 분석 이력에 저장하지 않는 것을 권장합니다.\n그래도 저장하시겠습니까?');
+    const proceed = confirm('⚠️ 이 결과는 데모 데이터입니다.\n실제 분석 이력에 저장하지 않는 것을 권장합니다.\n그래도 저장하시겠습니까?');
     if (!proceed) return;
   }
+
+  const { data: { session } } = await sb.auth.getSession();
   const tier = getTier(current.sp, current.moodys, current.estGrade);
   const tierInfo = TIERS.find(t => t.id === tier);
-  savedHistory = savedHistory.filter(h => !(h.company===current.company && h.date===current.date));
-  savedHistory.unshift({...current, tierLabel: tierInfo.label, creditPct: tierInfo.pct});
-  if (savedHistory.length > 50) savedHistory = savedHistory.slice(0,50);
-  safeSet('kyc_h', JSON.stringify(savedHistory));
-  alert('✅ 분석 결과가 저장되었습니다.');
+
+  const row = {
+    company:    current.company,
+    country:    current.country,
+    sector:     current.sector,
+    score:      current.score,
+    moodys:     current.moodys || null,
+    sp:         current.sp || null,
+    est_grade:  current.estGrade || null,
+    tier_label: tierInfo.label,
+    credit_pct: tierInfo.pct,
+    data:       current,
+    created_by: session?.user?.email || '알 수 없음',
+  };
+
+  const { error } = await sb.from('kyc_analyses').insert(row);
+
+  if (error) {
+    // fallback to localStorage if Supabase fails
+    console.warn('Supabase save failed, falling back to localStorage:', error.message);
+    savedHistory = savedHistory.filter(h => !(h.company===current.company));
+    savedHistory.unshift({...current, tierLabel: tierInfo.label, creditPct: tierInfo.pct});
+    safeSet('kyc_h', JSON.stringify(savedHistory));
+    alert('✅ 저장되었습니다. (로컬 저장)');
+  } else {
+    alert('✅ 분석 결과가 팀 이력에 저장되었습니다.');
+    // Refresh history if currently viewing it
+    if (document.getElementById('page-history').classList.contains('active')) {
+      renderHistory();
+    }
+  }
 }
 
-function exportReport() {
+async function renderHistory() {
+  const body  = document.getElementById('hist-body');
+  const empty = document.getElementById('hist-empty');
+
+  body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">
+    <i class="ti ti-loader" style="animation:spin .8s linear infinite;display:inline-block"></i> 불러오는 중...
+  </td></tr>`;
+  empty.style.display = 'none';
+
+  // Load from Supabase
+  const { data, error } = await sb
+    .from('kyc_analyses')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (error || !data || !data.length) {
+    body.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  savedHistory = data.map(row => row.data);
+
+  body.innerHTML = data.map((row, i) => {
+    const h = row.data;
+    const color   = h.score>=75?'g':h.score>=55?'a':'r';
+    const verdict = h.score>=75?'승인 권고':h.score>=55?'조건부':'추가심사';
+    const grade   = h.moodys || h.sp || (h.estGrade ? h.estGrade+'*' : '—');
+    const savedBy = row.created_by || '—';
+    const savedAt = new Date(row.created_at).toLocaleDateString('ko-KR');
+    return `<tr>
+      <td style="font-weight:700">${h.company}</td>
+      <td style="color:var(--muted)">${h.country||'—'}</td>
+      <td style="color:var(--muted)">${h.sector||'—'}</td>
+      <td><strong style="color:${h.score>=75?'var(--green)':h.score>=55?'var(--amber)':'var(--red)'}">${h.score}</strong></td>
+      <td><span class="pill pill-b">${grade}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${row.credit_pct||'—'}</td>
+      <td><span class="pill pill-${color}">${verdict}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${savedAt}<br><span style="font-size:11px;color:var(--dim)">${savedBy}</span></td>
+      <td><button class="btn btn-ghost" style="padding:5px 11px;font-size:12px" onclick="reloadResult(${i})"><i class="ti ti-eye"></i> 보기</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function reloadResult(i) {
+  current = savedHistory[i];
+  showPage('upload');
+  render(current);
+}
   if (!current) return;
 
   // Build a clean printable HTML page
@@ -1847,12 +1925,6 @@ function renderHistory() {
       <td><button class="btn btn-ghost" style="padding:5px 11px;font-size:12px" onclick="reloadResult(${i})"><i class="ti ti-eye"></i> 보기</button></td>
     </tr>`;
   }).join('');
-}
-
-function reloadResult(i) {
-  current = savedHistory[i];
-  showPage('upload');
-  render(current);
 }
 
 // Real site: check Supabase session on load
