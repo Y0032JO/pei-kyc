@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PEI KYC — LNG & Shipping Due Diligence</title>
+<title>ClearGate — AI-powered Automated KYC & Risk Gateway</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -120,7 +120,7 @@
   .save-bar-info{font-size:13px;color:rgba(253,246,240,.75)}
   .save-bar-info strong{color:#fdf6f0;font-weight:700}
 
-  .score-card{background:var(--cream);border:1px solid var(--border);border-radius:18px;padding:26px;box-shadow:var(--sh2);display:grid;grid-template-columns:auto 1fr auto;gap:30px;align-items:start;position:relative;overflow:hidden}
+  .score-card{background:var(--cream);border:1px solid var(--border);border-radius:18px;padding:26px;box-shadow:var(--sh2);display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:start;position:relative;overflow:hidden}
   .score-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--clay),#e8925a,#d4a96a)}
   .score-ring{position:relative;width:120px;height:120px;flex-shrink:0}
   .score-ring svg{width:120px;height:120px;filter:drop-shadow(0 2px 8px rgba(90,50,20,.12))}
@@ -160,6 +160,7 @@
   #rt-news.active      {background:var(--teal);border-color:#094e50;color:#fff;box-shadow:0 3px 10px rgba(14,110,112,.35)}
   #rt-credit.active    {background:#1e5fc2;border-color:#134099;color:#fff;box-shadow:0 3px 10px rgba(30,95,194,.35)}
   #rt-opinion.active   {background:var(--ink);border-color:#000;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+  #rt-team.active      {background:#2d3748;border-color:#1a2233;color:#fff;box-shadow:0 3px 10px rgba(45,55,72,.35)}
   .rtab-panel{display:none;padding:26px}
   .rtab-panel.active{display:block}
 
@@ -276,7 +277,7 @@
   <div class="login-card">
     <div class="login-logo">
       <div class="login-logo-icon"><i class="ti ti-ship"></i></div>
-      <div style="font-size:20px;font-weight:800;color:var(--ink)">PEI KYC</div>
+      <div style="font-size:20px;font-weight:800;color:var(--ink)">ClearGate</div>
     </div>
     <div class="login-title">로그인</div>
     <div class="login-sub">LNG & Shipping KYC Platform<br>PRISM Finance 내부 전용</div>
@@ -301,11 +302,15 @@
 <nav>
   <a class="nav-logo" href="#">
     <div class="nav-logo-icon"><i class="ti ti-ship"></i></div>
-    PEI KYC
+    <div>
+      <div>ClearGate</div>
+      <div style="font-size:10px;font-weight:400;opacity:.6;letter-spacing:.01em">AI-powered Automated KYC & Risk Gateway</div>
+    </div>
   </a>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('upload')" id="tab-upload"><i class="ti ti-upload"></i> 분석 시작</button>
     <button class="nav-tab" onclick="showPage('history')" id="tab-history"><i class="ti ti-history"></i> 분석 이력</button>
+    <button class="nav-tab" onclick="showPage('alerts')" id="tab-alerts"><i class="ti ti-bell"></i> 등급 알람</button>
   </div>
   <div class="nav-user">
     <span class="nav-user-email" id="nav-user-email"></span>
@@ -442,7 +447,8 @@
     </div>
 
     <div class="score-card gap">
-      <div style="text-align:center">
+      <!-- 점수 링 -->
+      <div style="text-align:center;flex-shrink:0">
         <div class="score-ring">
           <svg viewBox="0 0 120 120">
             <circle cx="60" cy="60" r="50" fill="none" stroke="var(--border2)" stroke-width="10"/>
@@ -455,49 +461,46 @@
         </div>
         <div id="verdict-wrap" style="margin-top:10px"></div>
       </div>
-      <div>
-        <div class="score-company" id="rname">—</div>
-        <div class="score-meta" id="rmeta"></div>
-        <div class="dims" id="dims-el"></div>
-      </div>
-      <div class="rating-col">
-        <div class="rating-box" id="mg-box">
-          <div class="rating-src">Moody's</div>
-          <div class="rating-grade" id="mg" style="color:var(--blue)">—</div>
-          <div class="rating-desc" id="md"></div>
+
+      <!-- 가운데: 회사명 + 등급 -->
+      <div style="display:flex;flex-direction:column;justify-content:center;gap:12px">
+        <div>
+          <div class="score-company" id="rname">—</div>
+          <div class="score-meta" id="rmeta"></div>
         </div>
-        <div class="rating-box" id="sg-box">
-          <div class="rating-src">S&amp;P / Fitch</div>
-          <div class="rating-grade" id="sg" style="color:var(--purple)">—</div>
-          <div class="rating-desc" id="sd"></div>
+        <!-- 신용등급 가로 배치 -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="rating-box" style="flex:1;min-width:110px">
+            <div class="rating-src">Moody's</div>
+            <div class="rating-grade" id="mg" style="color:var(--blue)">—</div>
+            <div class="rating-desc" id="md"></div>
+          </div>
+          <div class="rating-box" style="flex:1;min-width:110px">
+            <div class="rating-src">S&amp;P / Fitch</div>
+            <div class="rating-grade" id="sg" style="color:var(--purple)">—</div>
+            <div class="rating-desc" id="sd"></div>
+          </div>
+          <div class="rating-box" id="est-box" style="display:none;flex:1;min-width:110px;border:2px solid var(--amber);background:var(--amber-lt)">
+            <div class="rating-src" style="color:var(--amber)"><i class="ti ti-sparkles"></i> AI 추정</div>
+            <div class="rating-grade" id="eg" style="color:var(--amber)">—</div>
+            <div class="rating-est">재무 기반 추정</div>
+          </div>
+          <div class="rating-box" id="parent-box" style="display:none;flex:1;min-width:110px;border:2px solid var(--teal);background:var(--teal-lt)">
+            <div class="rating-src" style="color:var(--teal)"><i class="ti ti-building"></i> 모회사</div>
+            <div class="rating-grade" id="parent-grade" style="color:var(--teal)">—</div>
+            <div class="rating-desc" id="parent-name" style="font-size:11px;color:var(--teal)"></div>
+            <div class="rating-est" id="parent-pcg"></div>
+          </div>
         </div>
-        <div class="rating-box" id="est-box" style="display:none;border:2px solid var(--amber);background:var(--amber-lt)">
-          <div class="rating-src" style="color:var(--amber)"><i class="ti ti-sparkles"></i> AI 추정 등급</div>
-          <div class="rating-grade" id="eg" style="color:var(--amber)">—</div>
-          <div class="rating-est">공시 등급 없음 · 재무 기반 추정</div>
-        </div>
-        <div class="rating-box" id="parent-box" style="display:none;border:2px solid var(--teal);background:var(--teal-lt)">
-          <div class="rating-src" style="color:var(--teal)"><i class="ti ti-building"></i> 모회사 등급</div>
-          <div class="rating-grade" id="parent-grade" style="color:var(--teal)">—</div>
-          <div class="rating-desc" id="parent-name" style="font-size:11px;color:var(--teal)"></div>
-          <div class="rating-est" id="parent-pcg" style="color:var(--green)"></div>
+        <div id="est-rationale-inline" style="display:none"></div>
+        <div id="pcg-notice" style="display:none;background:var(--teal-lt);border:1.5px solid #5bbfc4;border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--teal);line-height:1.6">
+          <i class="ti ti-shield-check"></i> <span id="pcg-notice-text"></span>
         </div>
       </div>
     </div>
 
-    <!-- AI rating rationale (shown only when estimated) -->
-    <div id="est-rationale-box" style="display:none;margin-top:14px;background:var(--amber-lt);border:1.5px solid #f0bf7a;border-radius:var(--r);padding:14px 16px">
-      <div style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;display:flex;align-items:center;gap:6px">
-        <i class="ti ti-sparkles"></i> AI 신용등급 추정 근거
-      </div>
-      <div style="font-size:13px;color:var(--ink2);line-height:1.7" id="est-rationale-text"></div>
-    </div>
-
-    <!-- Parent company PCG notice -->
-    <div id="pcg-notice" style="display:none;margin-top:10px;background:var(--teal-lt);border:1.5px solid #5bbfc4;border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:10px">
-      <i class="ti ti-shield-check" style="color:var(--teal);font-size:18px;flex-shrink:0"></i>
-      <div style="font-size:13px;color:var(--teal);line-height:1.6" id="pcg-notice-text"></div>
-    </div>
+    <!-- AI 추정 근거 (별도 박스, 백업) -->
+    <div id="est-rationale-box" style="display:none"></div>
 
     <div class="rtabs-wrap">
       <div class="rtabs-header">
@@ -508,6 +511,7 @@
         <button class="rtab"        onclick="switchTab('credit')"    id="rt-credit"   ><i class="ti ti-building-bank"></i><span>신용보강 조건</span></button>
         <button class="rtab"        onclick="switchTab('news')"      id="rt-news"     ><i class="ti ti-news"></i><span>관련 뉴스</span></button>
         <button class="rtab"        onclick="switchTab('opinion')"   id="rt-opinion"  ><i class="ti ti-brain"></i><span>AI 의견</span></button>
+        <button class="rtab"        onclick="switchTab('team')"      id="rt-team"     ><i class="ti ti-message-2"></i><span>재무팀 의견</span></button>
       </div>
 
       <div class="rtab-panel active" id="tp-overview">
@@ -703,8 +707,92 @@
         <div class="sec-label">AI 종합 의견</div>
         <div style="font-size:14px;line-height:1.9;color:var(--muted)" id="ai-text"></div>
       </div>
+
+      <div class="rtab-panel" id="tp-team">
+        <div class="sec-label">재무팀 의견</div>
+        <div id="team-comments-list" style="margin-bottom:16px"></div>
+        <div style="background:var(--sand);border:1px solid var(--border);border-radius:var(--r);padding:16px">
+          <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px">새 의견 작성</div>
+          <textarea id="team-comment-input" placeholder="거래 조건, 리스크 사항, 내부 검토 의견 등을 자유롭게 입력하세요..." style="width:100%;height:100px;border:1.5px solid var(--border2);border-radius:var(--r);padding:10px 13px;font-size:13px;color:var(--ink);outline:none;resize:vertical;font-family:inherit;line-height:1.6" onfocus="this.style.borderColor='var(--clay)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:10px">
+            <button class="btn btn-primary" onclick="saveTeamComment()"><i class="ti ti-send"></i> 의견 저장</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
+</div>
+
+<!-- PAGE: ALERTS -->
+<div class="page" id="page-alerts">
+<div class="main">
+
+  <div style="margin-bottom:22px">
+    <div style="font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px"><i class="ti ti-bell" style="color:var(--clay)"></i> 신용등급 하락 알람</div>
+    <div style="font-size:13px;color:var(--muted)">모니터링 중인 거래처에서 등급 하락 관련 뉴스 감지 시 이메일로 알림을 보냅니다</div>
+  </div>
+
+  <!-- 이메일 설정 상태 -->
+  <div style="background:var(--amber-lt);border:1.5px solid #f0bf7a;border-radius:var(--rlg);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+    <i class="ti ti-settings" style="font-size:20px;color:var(--amber);flex-shrink:0"></i>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:2px">이메일 알람 설정 필요</div>
+      <div style="font-size:12px;color:var(--muted)">Resend 이메일 서비스 연동 후 자동 알람이 활성화됩니다. 현재는 수동 뉴스 체크만 가능합니다.</div>
+    </div>
+  </div>
+
+  <!-- 모니터링 거래처 목록 -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="card-title" style="margin:0"><i class="ti ti-list-check"></i> 모니터링 중인 거래처</div>
+      <span style="font-size:12px;color:var(--muted)">분석 이력에서 🔔 버튼으로 추가</span>
+    </div>
+
+    <div id="watchlist-empty" style="text-align:center;padding:32px;color:var(--dim)">
+      <i class="ti ti-eye-off" style="font-size:32px;display:block;margin-bottom:10px;color:var(--border2)"></i>
+      <div style="font-size:14px;font-weight:600;margin-bottom:6px">모니터링 중인 거래처가 없습니다</div>
+      <div style="font-size:12px">분석 이력 탭에서 거래처 옆 🔔 버튼을 눌러 추가하세요</div>
+    </div>
+    <div id="watchlist-items"></div>
+  </div>
+
+  <!-- 수동 뉴스 체크 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title"><i class="ti ti-search"></i> 수동 뉴스 체크</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">회사명을 입력하면 최신 뉴스에서 신용등급 하락 관련 기사를 검색합니다</div>
+    <div style="display:flex;gap:10px;align-items:flex-end">
+      <div class="field" style="flex:2">
+        <label>회사명</label>
+        <input type="text" id="alert-manual-company" placeholder="예: Shell Singapore, BP, Equinor">
+      </div>
+      <button class="btn btn-primary" onclick="manualNewsCheck()"><i class="ti ti-search"></i> 뉴스 체크</button>
+    </div>
+    <div id="alert-manual-result" style="margin-top:14px"></div>
+  </div>
+
+  <!-- 이메일 알람 작동 방식 미리보기 -->
+  <div class="card">
+    <div class="card-title"><i class="ti ti-mail"></i> 이메일 알람 미리보기 (설정 후 이렇게 발송됩니다)</div>
+    <div style="background:white;border:1px solid var(--border);border-radius:var(--r);padding:20px;font-family:Arial,sans-serif;font-size:13px">
+      <div style="background:#f5ede3;padding:14px 18px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <div style="width:32px;height:32px;background:linear-gradient(135deg,#d97757,#b85c38);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:14px;flex-shrink:0">CG</div>
+        <div>
+          <div style="font-weight:700;color:#1a1410">ClearGate 알람</div>
+          <div style="font-size:11px;color:#7a6356">noreply@cleargate.prismfinance.com</div>
+        </div>
+      </div>
+      <div style="font-size:16px;font-weight:700;color:#9b2020;margin-bottom:12px">⚠️ 신용등급 하락 관련 뉴스 감지</div>
+      <div style="color:#3d2f25;margin-bottom:12px"><strong>Pacific LNG Trading Pte. Ltd.</strong>에 대한 신용등급 하락 관련 뉴스가 감지되었습니다.</div>
+      <div style="background:#fdeaea;border:1px solid #fecdca;border-radius:6px;padding:12px;margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700;color:#9b2020;margin-bottom:6px">감지된 뉴스</div>
+        <div style="font-size:13px;color:#3d2f25">• Moody's downgrades Pacific LNG Trading to Ba1 from Baa3 on weaker cash flow outlook</div>
+        <div style="font-size:11px;color:#7a6356;margin-top:4px">Reuters · 오늘</div>
+      </div>
+      <div style="font-size:12px;color:#7a6356;border-top:1px solid #e8d9cc;padding-top:12px">현재 등록 등급: <strong>Baa2</strong> · 신용보강 조건 재검토가 필요할 수 있습니다.<br>ClearGate에서 자세히 확인하세요 →</div>
+    </div>
+  </div>
+
 </div>
 </div>
 
@@ -1208,12 +1296,200 @@ function renderCreditTiers(matchTierId) {
 }
 
 // ── Page / Tab navigation ──
+// ── 재무팀 의견 ──
+async function saveTeamComment() {
+  const text = document.getElementById('team-comment-input').value.trim();
+  if (!text) { alert('의견을 입력해주세요.'); return; }
+  if (!current) { alert('분석 결과가 없습니다.'); return; }
+
+  const { data: { session } } = await sb.auth.getSession();
+
+  const { error } = await sb.from('team_comments').insert({
+    company:    current.company,
+    comment:    text,
+    created_by: session?.user?.email || '—',
+  });
+
+  if (error) {
+    console.warn('Comment save error:', error.message);
+    alert('저장 중 오류가 발생했습니다.');
+    return;
+  }
+
+  document.getElementById('team-comment-input').value = '';
+  loadTeamComments(current.company);
+}
+
+async function loadTeamComments(company) {
+  const { data, error } = await sb
+    .from('team_comments')
+    .select('*')
+    .eq('company', company)
+    .order('created_at', { ascending: false });
+
+  const el = document.getElementById('team-comments-list');
+  if (error || !data || !data.length) {
+    el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--dim);font-size:13px">아직 등록된 의견이 없습니다</div>`;
+    return;
+  }
+
+  const statusMap = {
+    approve:     '✅ 거래 승인',
+    conditional: '⚠️ 조건부 승인',
+    reject:      '❌ 거래 거절',
+    review:      '🔍 추가 검토 필요',
+    info:        '💬 정보 공유',
+  };
+
+  el.innerHTML = data.map(c => `
+    <div style="background:var(--sand);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:12px;font-weight:600;color:var(--muted)">${c.created_by}</span>
+        <span style="font-size:11px;color:var(--dim)">${new Date(c.created_at).toLocaleString('ko-KR')}</span>
+        ${c.status ? `<span style="margin-left:auto;font-size:12px;font-weight:600">${statusMap[c.status]||c.status}</span>` : ''}
+      </div>
+      <div style="font-size:13px;color:var(--ink);line-height:1.7">${c.comment}</div>
+    </div>`).join('');
+}
+
+// ── 신용등급 알람 워치리스트 ──
+function getWatchlist() {
+  return JSON.parse(safeGet('cg_watchlist', '[]'));
+}
+function saveWatchlist(list) {
+  safeSet('cg_watchlist', JSON.stringify(list));
+}
+
+function addToWatchlist(company, grade) {
+  const list = getWatchlist();
+  if (list.find(w => w.company === company)) {
+    alert(`${company}는 이미 모니터링 중이에요!`);
+    return;
+  }
+  list.push({ company, grade, addedAt: new Date().toISOString() });
+  saveWatchlist(list);
+  alert(`✅ ${company} 알람이 추가됐습니다!\n"등급 알람" 탭에서 확인하세요.`);
+  renderWatchlist();
+}
+
+function removeFromWatchlist(company) {
+  const list = getWatchlist().filter(w => w.company !== company);
+  saveWatchlist(list);
+  renderWatchlist();
+}
+
+async function renderWatchlist() {
+  const list = getWatchlist();
+  const empty = document.getElementById('watchlist-empty');
+  const items = document.getElementById('watchlist-items');
+  if (!list.length) { empty.style.display='block'; items.innerHTML=''; return; }
+  empty.style.display = 'none';
+
+  // For each company, fetch latest news to check for rating alerts
+  items.innerHTML = list.map((w,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)" id="wl-${i}">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700;color:var(--ink)">${w.company}</div>
+        <div style="font-size:12px;color:var(--muted)">등록 등급: <strong>${w.grade||'—'}</strong> · 추가일: ${new Date(w.addedAt).toLocaleDateString('ko-KR')}</div>
+      </div>
+      <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="checkSingleAlert('${w.company}','wl-news-${i}')">
+        <i class="ti ti-refresh"></i> 체크
+      </button>
+      <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;color:var(--red);border-color:var(--red-lt)" onclick="removeFromWatchlist('${w.company}')">
+        <i class="ti ti-trash"></i>
+      </button>
+    </div>
+    <div id="wl-news-${i}" style="padding:0 16px;background:var(--sand)"></div>
+  `).join('');
+}
+
+const ALERT_KEYWORDS = ['downgrade','rating cut','credit watch negative','outlook negative','등급 하락','신용등급 하락','강등','부정적'];
+
+async function checkSingleAlert(company, resultElId) {
+  const el = document.getElementById(resultElId);
+  if (el) el.innerHTML = `<div style="padding:10px;font-size:12px;color:var(--muted)"><i class="ti ti-loader"></i> 뉴스 확인 중...</div>`;
+
+  const PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
+  const queries = [company + ' credit rating', company + ' downgrade'];
+  const alerts = [];
+
+  for (const q of queries) {
+    try {
+      const rssUrl = 'https://news.google.com/rss/search?q=' + encodeURIComponent(q) + '&hl=en&gl=US&ceid=US:en';
+      const res  = await fetch(PROXY + encodeURIComponent(rssUrl));
+      const json = await res.json();
+      (json.items||[]).slice(0,3).forEach(item => {
+        const title = (item.title||'').toLowerCase();
+        if (ALERT_KEYWORDS.some(kw => title.includes(kw.toLowerCase()))) {
+          alerts.push({ hl: item.title, src: item.author||'—', url: item.link, date: new Date(item.pubDate).toLocaleDateString('ko-KR') });
+        }
+      });
+    } catch(e) {}
+  }
+
+  if (el) {
+    if (alerts.length) {
+      el.innerHTML = alerts.map(a => `
+        <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--red);font-weight:700;margin-bottom:3px">⚠️ 등급 하락 관련 뉴스</div>
+          <div style="font-size:13px;color:var(--ink);cursor:pointer" onclick="window.open('${a.url}','_blank')">${a.hl}</div>
+          <div style="font-size:11px;color:var(--dim)">${a.src} · ${a.date}</div>
+        </div>`).join('') + '<div style="height:8px"></div>';
+    } else {
+      el.innerHTML = `<div style="padding:10px;font-size:12px;color:var(--green)">✅ 최근 등급 하락 관련 뉴스 없음</div>`;
+    }
+    setTimeout(() => { if(el) el.innerHTML=''; }, 30000);
+  }
+  return alerts;
+}
+
+async function manualNewsCheck() {
+  const company = document.getElementById('alert-manual-company').value.trim();
+  if (!company) { alert('회사명을 입력해주세요.'); return; }
+  const el = document.getElementById('alert-manual-result');
+  el.innerHTML = `<div style="font-size:13px;color:var(--muted)"><i class="ti ti-loader"></i> 뉴스 확인 중...</div>`;
+  const alerts = await checkSingleAlert(company, null);
+
+  if (alerts.length) {
+    el.innerHTML = `<div style="background:var(--red-lt);border:1px solid #fecdca;border-radius:var(--r);padding:14px">
+      <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px">⚠️ ${alerts.length}건의 등급 하락 관련 뉴스 발견</div>
+      ${alerts.map(a=>`<div style="font-size:13px;margin-bottom:6px;cursor:pointer;color:var(--ink)" onclick="window.open('${a.url}','_blank')">• ${a.hl} <span style="color:var(--dim);font-size:11px">${a.date}</span></div>`).join('')}
+    </div>`;
+  } else {
+    el.innerHTML = `<div style="background:var(--green-lt);border:1px solid #8bcfad;border-radius:var(--r);padding:14px;font-size:13px;color:var(--green)">✅ ${company} — 최근 등급 하락 관련 뉴스 없음</div>`;
+  }
+}
+
+// Auto-check watchlist on login
+async function autoCheckAlerts() {
+  const list = getWatchlist();
+  if (!list.length) return;
+  const allAlerts = [];
+  for (const w of list) {
+    const alerts = await checkSingleAlert(w.company, null);
+    if (alerts.length) allAlerts.push({ company: w.company, alerts });
+  }
+  if (allAlerts.length) {
+    const banner = document.getElementById('alert-banner');
+    const bannerItems = document.getElementById('alert-banner-items');
+    if (banner && bannerItems) {
+      banner.style.display = 'block';
+      bannerItems.innerHTML = allAlerts.map(a =>
+        `<div style="font-size:13px;color:var(--red);margin-bottom:4px">• <strong>${a.company}</strong>: ${a.alerts[0].hl}</div>`
+      ).join('');
+      // Also show in nav
+      document.getElementById('tab-alerts').innerHTML = `<i class="ti ti-bell-ringing" style="color:var(--amber)"></i> 등급 알람 <span style="background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:10px">${allAlerts.length}</span>`;
+    }
+  }
+}
+
 function showPage(n) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + n).classList.add('active');
   document.getElementById('tab-' + n).classList.add('active');
   if (n === 'history') renderHistory();
+  if (n === 'alerts')  renderWatchlist();
 }
 
 function switchTab(name) {
@@ -1226,6 +1502,7 @@ function switchTab(name) {
     if (finCharts[active]) finCharts[active].update();
   }
   if (name === 'credit') bindCalcInputs();
+  if (name === 'team' && current) loadTeamComments(current.company);
 }
 
 function uploaded(zid, sid, inp) {
@@ -1281,6 +1558,8 @@ function showApp(user) {
   document.getElementById('nav-user-email').textContent = user.email;
   const saved = safeGet('pei_api_key', '');
   if (saved) document.getElementById('api-key').value = saved;
+  // Auto-check alerts on login
+  setTimeout(() => autoCheckAlerts(), 2000);
 }
 
 // ── Google News RSS ──
@@ -1579,17 +1858,6 @@ function render(d) {
   else if (score>=55) vw.innerHTML = '<span class="verdict v-caution"><i class="ti ti-alert-triangle"></i> 조건부 검토</span>';
   else                vw.innerHTML = '<span class="verdict v-fail"><i class="ti ti-x"></i> 추가 심사 필요</span>';
 
-  // Dimension bars
-  const dims = [
-    {l:'재무 건전성', v:dimFinancial||70,  c:'#2a7d4f'},
-    {l:'제재 위험',   v:dimSanctions||80,  c:'#1e5fc2'},
-    {l:'지배구조',    v:dimGovernance||65, c:'#5b33b8'},
-    {l:'거래 이력',   v:dimHistory||75,    c:'#0e6e70'},
-  ];
-  document.getElementById('dims-el').innerHTML = dims.map(d =>
-    `<div class="dim"><div class="dim-lbl">${d.l}</div><div class="dim-row">
-    <div class="dim-bar"><div class="dim-fill" style="width:${d.v}%;background:${d.c}"></div></div>
-    <div class="dim-val" style="color:${d.c}">${d.v}</div></div></div>`).join('');
 
   // Ratings
   document.getElementById('mg').textContent = moodys || '미공시';
@@ -1627,13 +1895,14 @@ function render(d) {
     pcgNotice.style.display = 'none';
   }
 
-  const rationaleBox = document.getElementById('est-rationale-box');
-  if (noOfficial && estRationale) {
-    document.getElementById('est-rationale-text').textContent = estRationale;
-    rationaleBox.style.display = 'block';
-  } else {
-    rationaleBox.style.display = 'none';
+  const rationaleInline = document.getElementById('est-rationale-inline');
+  const rationaleText2  = document.getElementById('est-rationale-text2');
+  if (rationaleInline) {
+    rationaleInline.style.display = (noOfficial && estRationale) ? 'block' : 'none';
+    if (rationaleText2 && estRationale) rationaleText2.textContent = estRationale;
   }
+  const rationaleBox = document.getElementById('est-rationale-box');
+  if (rationaleBox) rationaleBox.style.display = 'none';
 
   // Overview flags
   const tier = getTier(sp, moodys, estGrade);
@@ -1803,7 +2072,10 @@ async function renderHistory() {
       <td style="font-size:12px;color:var(--muted)">${row.credit_pct||'—'}</td>
       <td><span class="pill pill-${color}">${verdict}</span></td>
       <td style="font-size:12px;color:var(--muted)">${savedAt}<br><span style="font-size:11px;color:var(--dim)">${savedBy}</span></td>
-      <td><button class="btn btn-ghost" style="padding:5px 11px;font-size:12px" onclick="reloadResult(${i})"><i class="ti ti-eye"></i> 보기</button></td>
+      <td>
+        <button class="btn btn-ghost" style="padding:5px 11px;font-size:12px" onclick="reloadResult(${i})"><i class="ti ti-eye"></i> 보기</button>
+        <button class="btn btn-ghost" style="padding:5px 11px;font-size:12px;margin-top:4px" onclick="addToWatchlist('${row.company}','${grade}')"><i class="ti ti-bell"></i></button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -1971,5 +2243,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
 });
 </script>
+<footer style="text-align:center;padding:24px;margin-top:12px;border-top:1px solid var(--border);background:var(--cream)">
+  <div style="font-size:12px;color:var(--dim);margin-bottom:4px">by <strong style="color:var(--muted)">PEI Finance Team</strong> · Established 2026</div>
+  <div style="font-size:11px;color:var(--dim)">ClearGate · AI-powered Automated KYC & Risk Gateway · Internal Use Only</div>
+</footer>
+
 </body>
 </html>
