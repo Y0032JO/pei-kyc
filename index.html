@@ -742,6 +742,20 @@
     </div>
   </div>
 
+  <!-- 이메일 수신자 설정 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title"><i class="ti ti-mail"></i> 알람 수신자 설정</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">등급 하락 뉴스 감지 시 아래 이메일로 알람이 발송됩니다</div>
+    <div id="recipients-list" style="margin-bottom:12px"></div>
+    <div style="display:flex;gap:10px">
+      <input type="email" id="recipient-input" placeholder="이메일 주소 입력 (예: jo@prismfinance.com)"
+        style="flex:1;border:1.5px solid var(--border2);border-radius:var(--r);padding:9px 13px;font-size:13px;color:var(--ink);outline:none"
+        onfocus="this.style.borderColor='var(--clay)'" onblur="this.style.borderColor='var(--border2)'"
+        onkeydown="if(event.key==='Enter')addRecipient()">
+      <button class="btn btn-primary" onclick="addRecipient()"><i class="ti ti-plus"></i> 추가</button>
+    </div>
+  </div>
+
   <!-- 모니터링 거래처 목록 -->
   <div class="card" style="margin-bottom:16px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
@@ -1352,6 +1366,50 @@ async function loadTeamComments(company) {
     </div>`).join('');
 }
 
+// ── 알람 수신자 관리 ──
+function getRecipients() {
+  return JSON.parse(safeGet('cg_recipients', '[]'));
+}
+function saveRecipients(list) {
+  safeSet('cg_recipients', JSON.stringify(list));
+}
+
+function addRecipient() {
+  const input = document.getElementById('recipient-input');
+  const email = input.value.trim();
+  if (!email || !email.includes('@')) { alert('올바른 이메일 주소를 입력해주세요.'); return; }
+  const list = getRecipients();
+  if (list.includes(email)) { alert('이미 추가된 이메일이에요!'); return; }
+  list.push(email);
+  saveRecipients(list);
+  input.value = '';
+  renderRecipients();
+}
+
+function removeRecipient(email) {
+  const list = getRecipients().filter(e => e !== email);
+  saveRecipients(list);
+  renderRecipients();
+}
+
+function renderRecipients() {
+  const list = getRecipients();
+  const el = document.getElementById('recipients-list');
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = `<div style="font-size:12px;color:var(--dim);padding:8px 0">아직 수신자가 없습니다. 이메일을 추가해주세요.</div>`;
+    return;
+  }
+  el.innerHTML = list.map(email => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--sand);border-radius:var(--r);border:1px solid var(--border);margin-bottom:8px">
+      <i class="ti ti-mail" style="color:var(--clay);font-size:15px"></i>
+      <span style="flex:1;font-size:13px;color:var(--ink)">${email}</span>
+      <button onclick="removeRecipient('${email}')" style="border:none;background:none;cursor:pointer;color:var(--red);font-size:13px;padding:2px 6px;border-radius:4px">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>`).join('');
+}
+
 // ── 신용등급 알람 워치리스트 ──
 function getWatchlist() {
   return JSON.parse(safeGet('cg_watchlist', '[]'));
@@ -1483,9 +1541,11 @@ async function autoCheckAlerts() {
 
     // Send email via Supabase Edge Function
     try {
-      const { data: { session } } = await sb.auth.getSession();
-      const recipients = session?.user?.email ? [session.user.email] : [];
-      if (!recipients.length) return;
+      const recipients = getRecipients();
+      if (!recipients.length) {
+        console.warn('알람 수신자가 없습니다. 등급 알람 탭에서 추가해주세요.');
+        return;
+      }
 
       for (const a of allAlerts) {
         await fetch(`${SUPABASE_URL}/functions/v1/send-alert-email`, {
@@ -1515,7 +1575,7 @@ function showPage(n) {
   document.getElementById('page-' + n).classList.add('active');
   document.getElementById('tab-' + n).classList.add('active');
   if (n === 'history') renderHistory();
-  if (n === 'alerts')  renderWatchlist();
+  if (n === 'alerts')  { renderWatchlist(); renderRecipients(); }
 }
 
 function switchTab(name) {
