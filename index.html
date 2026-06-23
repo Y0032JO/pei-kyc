@@ -1467,18 +1467,44 @@ async function autoCheckAlerts() {
   const allAlerts = [];
   for (const w of list) {
     const alerts = await checkSingleAlert(w.company, null);
-    if (alerts.length) allAlerts.push({ company: w.company, alerts });
+    if (alerts.length) allAlerts.push({ company: w.company, grade: w.grade, alerts });
   }
   if (allAlerts.length) {
-    const banner = document.getElementById('alert-banner');
+    // Show banner in UI
+    const banner    = document.getElementById('alert-banner');
     const bannerItems = document.getElementById('alert-banner-items');
     if (banner && bannerItems) {
       banner.style.display = 'block';
       bannerItems.innerHTML = allAlerts.map(a =>
         `<div style="font-size:13px;color:var(--red);margin-bottom:4px">• <strong>${a.company}</strong>: ${a.alerts[0].hl}</div>`
       ).join('');
-      // Also show in nav
       document.getElementById('tab-alerts').innerHTML = `<i class="ti ti-bell-ringing" style="color:var(--amber)"></i> 등급 알람 <span style="background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:10px">${allAlerts.length}</span>`;
+    }
+
+    // Send email via Supabase Edge Function
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const recipients = session?.user?.email ? [session.user.email] : [];
+      if (!recipients.length) return;
+
+      for (const a of allAlerts) {
+        await fetch(`${SUPABASE_URL}/functions/v1/send-alert-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON}`
+          },
+          body: JSON.stringify({
+            company:    a.company,
+            grade:      a.grade || '—',
+            news:       a.alerts.slice(0, 3),
+            recipients
+          })
+        });
+      }
+      console.log('Alert emails sent to:', recipients);
+    } catch(e) {
+      console.warn('Email send failed:', e.message);
     }
   }
 }
