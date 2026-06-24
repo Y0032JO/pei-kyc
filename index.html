@@ -853,13 +853,29 @@
   <div class="card" style="margin-bottom:16px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <div class="card-title" style="margin:0"><i class="ti ti-list-check"></i> 모니터링 중인 거래처</div>
-      <span style="font-size:12px;color:var(--muted)">분석 이력에서 🔔 버튼으로 추가</span>
     </div>
 
-    <div id="watchlist-empty" style="text-align:center;padding:32px;color:var(--dim)">
-      <i class="ti ti-eye-off" style="font-size:32px;display:block;margin-bottom:10px;color:var(--border2)"></i>
-      <div style="font-size:14px;font-weight:600;margin-bottom:6px">모니터링 중인 거래처가 없습니다</div>
-      <div style="font-size:12px">분석 이력 탭에서 거래처 옆 🔔 버튼을 눌러 추가하세요</div>
+    <!-- 직접 추가 -->
+    <div style="display:flex;gap:10px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div class="field" style="flex:2;margin:0">
+        <input type="text" id="watchlist-add-company" placeholder="회사명 직접 입력 (예: Shell, BP, Equinor)"
+          style="width:100%;border:1.5px solid var(--border2);border-radius:var(--r);padding:9px 13px;font-size:13px;color:var(--ink);outline:none"
+          onfocus="this.style.borderColor='var(--clay)'" onblur="this.style.borderColor='var(--border2)'"
+          onkeydown="if(event.key==='Enter')addToWatchlistDirect()">
+      </div>
+      <div class="field" style="flex:1;margin:0">
+        <input type="text" id="watchlist-add-grade" placeholder="등급 (선택사항, 예: Baa2)"
+          style="width:100%;border:1.5px solid var(--border2);border-radius:var(--r);padding:9px 13px;font-size:13px;color:var(--ink);outline:none"
+          onfocus="this.style.borderColor='var(--clay)'" onblur="this.style.borderColor='var(--border2)'">
+      </div>
+      <button class="btn btn-primary" onclick="addToWatchlistDirect()" style="white-space:nowrap">
+        <i class="ti ti-bell-plus"></i> 추가
+      </button>
+    </div>
+
+    <div id="watchlist-empty" style="display:none;text-align:center;padding:24px;color:var(--dim)">
+      <i class="ti ti-eye-off" style="font-size:28px;display:block;margin-bottom:8px;color:var(--border2)"></i>
+      <div style="font-size:13px">위 입력칸에서 회사명을 입력해 추가하거나<br>분석 이력 탭에서 🔔 버튼으로 추가하세요</div>
     </div>
     <div id="watchlist-items"></div>
   </div>
@@ -867,11 +883,12 @@
   <!-- 수동 뉴스 체크 -->
   <div class="card" style="margin-bottom:16px">
     <div class="card-title"><i class="ti ti-search"></i> 수동 뉴스 체크</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">회사명을 입력하면 최신 뉴스에서 신용등급 하락 관련 기사를 검색합니다</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">회사명을 입력하면 최신 뉴스에서 알람 조건 관련 기사를 검색합니다</div>
     <div style="display:flex;gap:10px;align-items:flex-end">
       <div class="field" style="flex:2">
         <label>회사명</label>
-        <input type="text" id="alert-manual-company" placeholder="예: Shell Singapore, BP, Equinor">
+        <input type="text" id="alert-manual-company" placeholder="예: Shell Singapore, BP, Equinor"
+          onkeydown="if(event.key==='Enter')manualNewsCheck()">
       </div>
       <button class="btn btn-primary" onclick="manualNewsCheck()"><i class="ti ti-search"></i> 뉴스 체크</button>
     </div>
@@ -1509,6 +1526,15 @@ function getWatchlist() {
 }
 function saveWatchlist(list) {
   safeSet('cg_watchlist', JSON.stringify(list));
+}
+
+function addToWatchlistDirect() {
+  const company = document.getElementById('watchlist-add-company').value.trim();
+  const grade   = document.getElementById('watchlist-add-grade').value.trim();
+  if (!company) { alert('회사명을 입력해주세요.'); return; }
+  addToWatchlist(company, grade || null);
+  document.getElementById('watchlist-add-company').value = '';
+  document.getElementById('watchlist-add-grade').value = '';
 }
 
 function addToWatchlist(company, grade) {
