@@ -1120,6 +1120,16 @@ function applyCurrencyEdit() {
   else if (origCcy && origCcy !== 'USD') fxLabel = `USD (백만) · 원문: ${origCcy}`;
   document.getElementById('fin-ccy').textContent = fxLabel;
   document.getElementById('currency-edit-panel').style.display = 'none';
+
+  // Show reminder to save if this is a previously-saved analysis
+  if (current._rowId) {
+    const note = document.createElement('div');
+    note.style.cssText = 'background:var(--amber-lt);border:1.5px solid #f0bf7a;border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--amber);display:flex;align-items:center;gap:8px';
+    note.innerHTML = '<i class="ti ti-alert-circle"></i> 통화 정보가 변경되었습니다. 상단 "분석 저장" 버튼을 눌러야 이력에 반영됩니다.';
+    const panel = document.getElementById('tp-financial');
+    panel.insertBefore(note, panel.firstChild);
+    setTimeout(() => note.remove(), 6000);
+  }
 }
 
 function toggleFinEdit() {
@@ -1200,7 +1210,7 @@ function applyFinEdit() {
   document.getElementById('fin-edit-btn').innerHTML = '<i class="ti ti-pencil"></i> 숫자 직접 수정';
   const confirmBox = document.createElement('div');
   confirmBox.style.cssText = 'background:var(--green-lt);border:1.5px solid #8bcfad;border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:8px';
-  confirmBox.innerHTML = '<i class="ti ti-circle-check"></i> 수정사항이 적용되었습니다. 표와 차트가 업데이트되었습니다.';
+  confirmBox.innerHTML = '<i class="ti ti-circle-check"></i> 수정사항이 적용되었습니다. 표와 차트가 업데이트되었습니다.' + (current._rowId ? ' 상단 "분석 저장" 버튼을 눌러야 이력에 반영됩니다.' : '');
   const panel = document.getElementById('tp-financial');
   panel.insertBefore(confirmBox, panel.firstChild.nextSibling);
   setTimeout(() => confirmBox.remove(), 4000);
@@ -2113,7 +2123,21 @@ async function saveHistory() {
     tier_label: tierInfo.label, credit_pct: tierInfo.pct, data: current,
     created_by: session?.user?.email || '알 수 없음',
   };
-  const { error } = await sb.from('kyc_analyses').insert(row);
+
+  // If this result came from an existing saved row (_rowId present), update it instead of creating a new one
+  if (current._rowId) {
+    const { error } = await sb.from('kyc_analyses').update(row).eq('id', current._rowId);
+    if (error) {
+      console.warn('Supabase update failed:', error.message);
+      alert('업데이트 중 오류가 발생했습니다.');
+    } else {
+      alert('✅ 기존 분석 이력이 업데이트되었습니다.');
+      if (document.getElementById('page-history').classList.contains('active')) renderHistory();
+    }
+    return;
+  }
+
+  const { data: inserted, error } = await sb.from('kyc_analyses').insert(row).select().single();
   if (error) {
     console.warn('Supabase save failed, falling back to localStorage:', error.message);
     savedHistory = savedHistory.filter(h => !(h.company===current.company));
@@ -2121,9 +2145,24 @@ async function saveHistory() {
     safeSet('kyc_h', JSON.stringify(savedHistory));
     alert('✅ 저장되었습니다. (로컬 저장)');
   } else {
+    if (inserted) current._rowId = inserted.id; // remember row id so future saves update instead of duplicate
     alert('✅ 분석 결과가 팀 이력에 저장되었습니다.');
     if (document.getElementById('page-history').classList.contains('active')) renderHistory();
   }
+}
+
+async function deleteHistoryRow(rowId) {
+  if (!rowId || rowId === 'undefined') { alert('삭제할 수 없는 항목입니다.'); return; }
+  const proceed = confirm('이 분석 이력을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.');
+  if (!proceed) return;
+  const { error } = await sb.from('kyc_analyses').delete().eq('id', rowId);
+  if (error) {
+    console.warn('Delete failed:', error.message);
+    alert('삭제 중 오류가 발생했습니다.');
+    return;
+  }
+  alert('🗑️ 삭제되었습니다.');
+  renderHistory();
 }
 
 async function renderHistory() {
@@ -2135,7 +2174,7 @@ async function renderHistory() {
   empty.style.display = 'none';
   const { data, error } = await sb.from('kyc_analyses').select('*').order('created_at', { ascending: false }).limit(100);
   if (error || !data || !data.length) { body.innerHTML = ''; empty.style.display = 'block'; return; }
-  savedHistory = data.map(row => row.data);
+  savedHistory = data.map(row => ({ ...row.data, _rowId: row.id }));
   body.innerHTML = data.map((row, i) => {
     const h = row.data;
     const scoreColor = h.score>=85?'#1b5e20':h.score>=70?'#0d47a1':h.score>=55?'#f57f17':h.score>=40?'#e65100':'#9b2020';
@@ -2157,6 +2196,7 @@ async function renderHistory() {
       <td style="white-space:nowrap">
         <button class="btn btn-ghost" style="padding:5px 11px;font-size:12px" onclick="reloadResult(${i})"><i class="ti ti-eye"></i> 보기</button>
         <button class="btn btn-ghost" style="padding:5px 11px;font-size:12px;margin-left:4px" onclick="addToWatchlist('${row.company}','${grade}')"><i class="ti ti-bell"></i></button>
+        <button class="btn btn-ghost" style="padding:5px 11px;font-size:12px;margin-left:4px;color:var(--red);border-color:var(--red-lt)" onclick="deleteHistoryRow('${row.id}')"><i class="ti ti-trash"></i></button>
       </td>
     </tr>`;
   }).join('');
