@@ -48,7 +48,7 @@
   .hero-title{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:5px;letter-spacing:-.02em}
   .hero-sub{color:var(--muted);font-size:13px;margin-bottom:26px}
 
-  .company-row{display:flex;gap:12px;margin-bottom:20px}
+  .company-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
   .field{flex:1}
   .field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}
   .field input,.field select{width:100%;background:#fff;border:1.5px solid var(--border2);border-radius:var(--r);padding:9px 13px;color:var(--ink);font-size:13px;outline:none;transition:all .15s;box-shadow:inset 0 1px 3px rgba(90,50,20,.06)}
@@ -83,8 +83,6 @@
   .page.active{display:block}
   #results{display:none}
 
-  /* API key prompt */
-  /* ── LOGIN SCREEN ── */
   #login-screen{position:fixed;inset:0;z-index:999;background:var(--sand);display:flex;align-items:center;justify-content:center}
   #login-screen.hidden{display:none}
   .login-card{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:400px;box-shadow:var(--sh2);position:relative;overflow:hidden}
@@ -103,13 +101,11 @@
   .login-error{background:var(--red-lt);border:1px solid #fecdca;border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
   .login-api-note{font-size:11px;color:var(--dim);text-align:center;margin-top:16px;line-height:1.5}
 
-  /* ── USER INFO IN NAV ── */
   .nav-user{display:flex;align-items:center;gap:8px;margin-left:auto}
   .nav-user-email{font-size:12px;color:rgba(253,246,240,.6)}
   .nav-logout{font-size:12px;color:rgba(253,246,240,.5);cursor:pointer;border:none;background:none;padding:4px 8px;border-radius:6px;transition:all .15s}
   .nav-logout:hover{color:rgba(253,246,240,.9);background:rgba(253,246,240,.1)}
 
-  /* ── API KEY INPUT IN HERO ── */
   .api-key-row{display:flex;gap:10px;align-items:center;background:var(--blue-lt);border:1px solid #c0d4f5;border-radius:var(--r);padding:10px 14px;margin-bottom:16px}
   .api-key-row i{color:var(--blue);font-size:16px;flex-shrink:0}
   .api-key-row input{flex:1;border:1.5px solid #c0d4f5;border-radius:6px;padding:7px 10px;font-size:12px;outline:none;background:white;color:var(--ink)}
@@ -212,7 +208,6 @@
   .org-lbl{font-size:11px;color:var(--dim);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
   .org-val{font-size:14px;font-weight:700;color:var(--ink)}
 
-  /* ── CREDIT ENHANCEMENT TABLE ── */
   .credit-hero{background:linear-gradient(135deg,#1e3a6e,#1e5fc2);border-radius:var(--rlg);padding:20px 24px;margin-bottom:20px;color:white;position:relative;overflow:hidden}
   .credit-hero::after{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.06)}
   .credit-hero-title{font-size:15px;font-weight:700;margin-bottom:4px}
@@ -232,18 +227,15 @@
   .method-cash{background:var(--red-lt);color:var(--red);border-color:#e89494}
   .method-pcg{background:var(--purple-lt);color:var(--purple);border-color:#b8a0f0}
 
-  /* tier colors */
   .tier-a   {background:linear-gradient(90deg,#1a4731,#2a7d4f);color:white}
   .tier-bbb {background:linear-gradient(90deg,#0e4a70,#1e5fc2);color:white}
   .tier-bb  {background:linear-gradient(90deg,#5a3a00,#92550a);color:white}
   .tier-b   {background:linear-gradient(90deg,#6a1a00,#c04020);color:white}
   .tier-ccc {background:linear-gradient(90deg,#5a0a0a,#9b2020);color:white}
 
-  /* current counterparty highlight */
   .cpty-match{border:2.5px solid var(--clay)!important;box-shadow:0 0 0 3px rgba(217,119,87,.2)!important}
   .cpty-match .credit-tier-header::after{content:'← 현재 거래처';font-size:11px;font-weight:600;opacity:.85;margin-left:auto;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:10px}
 
-  /* formula box */
   .formula-box{background:var(--sand);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;font-size:13px}
   .formula-box code{background:var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;color:var(--ink)}
 
@@ -272,7 +264,6 @@
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">
@@ -340,7 +331,6 @@
     <div class="hero-title">거래 상대방 KYC 분석</div>
     <div class="hero-sub">재무제표 · 조직도 · 제재 질문지를 업로드하면 Claude AI가 자동으로 분석하고 KYC 점수, 신용등급 및 신용보강 조건을 산출합니다</div>
 
-    <!-- API Key -->
     <div class="api-key-row">
       <i class="ti ti-key"></i>
       <span>Anthropic API Key</span>
@@ -404,6 +394,26 @@
           <option>Commodity Trader</option><option>Energy Utility</option>
         </select>
       </div>
+      <div class="field">
+        <label>재무제표 통화</label>
+        <select id="cstatement-currency">
+          <option value="USD">USD ($)</option>
+          <option value="KRW">KRW (₩) 원화</option>
+          <option value="JPY">JPY (¥) 엔화</option>
+          <option value="EUR">EUR (€) 유로</option>
+          <option value="GBP">GBP (£) 파운드</option>
+          <option value="SGD">SGD ($) 싱가포르달러</option>
+          <option value="CNY">CNY (¥) 위안</option>
+          <option value="AUD">AUD ($) 호주달러</option>
+          <option value="QAR">QAR 카타르 리알</option>
+          <option value="AED">AED UAE 디르함</option>
+          <option value="SAR">SAR 사우디 리얄</option>
+          <option value="NOK">NOK 노르웨이 크로네</option>
+          <option value="INR">INR (₹) 인도 루피</option>
+          <option value="THB">THB (฿) 태국 바트</option>
+          <option value="OTHER">기타 (AI 자동 인식)</option>
+        </select>
+      </div>
     </div>
 
     <div class="upload-zones">
@@ -447,7 +457,6 @@
     </div>
 
     <div class="score-card gap">
-      <!-- 점수 링 -->
       <div style="text-align:center;flex-shrink:0">
         <div class="score-ring">
           <svg viewBox="0 0 120 120">
@@ -462,13 +471,11 @@
         <div id="verdict-wrap" style="margin-top:10px"></div>
       </div>
 
-      <!-- 가운데: 회사명 + 등급 -->
       <div style="display:flex;flex-direction:column;justify-content:center;gap:12px">
         <div>
           <div class="score-company" id="rname">—</div>
           <div class="score-meta" id="rmeta"></div>
         </div>
-        <!-- 신용등급 가로 배치 -->
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <div class="rating-box" style="flex:1;min-width:110px">
             <div class="rating-src">Moody's</div>
@@ -499,7 +506,6 @@
       </div>
     </div>
 
-    <!-- KYC 점수 기준 -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
       <div style="font-size:11px;font-weight:700;color:var(--muted);width:100%;margin-bottom:2px">KYC 점수 기준</div>
       <div style="display:flex;align-items:center;gap:6px;padding:5px 11px;background:#e8f5e9;border:1px solid #66bb6a;border-radius:20px">
@@ -525,7 +531,6 @@
     </div>
   </div>
 
-  <!-- AI 추정 근거 (별도 박스, 백업) -->
   <div id="est-rationale-box" style="display:none"></div>
 
     <div class="rtabs-wrap">
@@ -546,17 +551,38 @@
       </div>
 
       <div class="rtab-panel" id="tp-financial">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
           <div class="sec-label" style="margin:0">재무 분석 (최근 4년)</div>
-          <span style="font-size:11px;color:var(--dim)" id="fin-ccy"></span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:var(--dim)" id="fin-ccy"></span>
+            <button onclick="toggleCurrencyEdit()" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:600;border:1.5px solid var(--border2);background:white;color:var(--muted);cursor:pointer">
+              <i class="ti ti-currency-dollar"></i> 통화 수정
+            </button>
+          </div>
+        </div>
+
+        <div id="currency-edit-panel" style="display:none;background:var(--sand);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px">
+          <div style="display:flex;gap:10px;margin-bottom:10px">
+            <div style="flex:1">
+              <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px">원본 통화</label>
+              <input type="text" id="edit-orig-currency" placeholder="예: KRW" style="width:100%;background:#fff;border:1.5px solid var(--border2);border-radius:var(--r);padding:9px 13px;color:var(--ink);font-size:13px;outline:none">
+            </div>
+            <div style="flex:1">
+              <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px">적용 환율</label>
+              <input type="text" id="edit-fx-rate" placeholder="예: 1 USD = 1,350 KRW" style="width:100%;background:#fff;border:1.5px solid var(--border2);border-radius:var(--r);padding:9px 13px;color:var(--ink);font-size:13px;outline:none">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" style="padding:7px 14px;font-size:12px" onclick="applyCurrencyEdit()">적용</button>
+            <button class="btn btn-ghost" style="padding:7px 14px;font-size:12px" onclick="toggleCurrencyEdit()">취소</button>
+          </div>
         </div>
 
         <div id="fin-ai-warning" style="display:none;background:var(--amber-lt);border:1.5px solid #f0bf7a;border-radius:var(--r);padding:11px 14px;margin-bottom:16px;font-size:12px;color:var(--amber);display:flex;align-items:flex-start;gap:8px">
           <i class="ti ti-alert-triangle" style="margin-top:1px;flex-shrink:0"></i>
-          <div>AI가 PDF에서 읽은 수치는 단위 오류(예: US$'000 vs 백만) 등으로 틀릴 수 있습니다. 원본 재무제표와 대조 후 아래 "숫자 직접 수정"으로 정정해주세요.</div>
+          <div>AI가 PDF에서 읽은 수치는 단위 오류(예: US$'000 vs 백만) 및 <strong>환율 적용 오차</strong>로 틀릴 수 있습니다. 원본 재무제표 및 적용된 환율과 대조 후 아래 "숫자 직접 수정"으로 정정해주세요.</div>
         </div>
 
-        <!-- Sub-tabs: B/S, P&L, Cash Flow -->
         <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
           <button class="fin-subtab active" id="fst-pl" onclick="switchFinSubtab('pl')">
             <i class="ti ti-receipt"></i> Profit &amp; Loss
@@ -572,9 +598,7 @@
           </button>
         </div>
 
-        <!-- VIEW MODE -->
         <div id="fin-view-mode">
-          <!-- P&L -->
           <div class="fin-subpanel active" id="fsp-pl">
             <div style="overflow-x:auto;margin-bottom:20px"><table class="fin-table" id="fin-tbl-pl"></table></div>
             <div class="sec-label">매출 · EBITDA · 순이익 추이</div>
@@ -586,7 +610,6 @@
             </div>
           </div>
 
-          <!-- Balance Sheet -->
           <div class="fin-subpanel" id="fsp-bs">
             <div style="overflow-x:auto;margin-bottom:20px"><table class="fin-table" id="fin-tbl-bs"></table></div>
             <div class="sec-label">자산 · 부채 · 자본 구조</div>
@@ -598,7 +621,6 @@
             </div>
           </div>
 
-          <!-- Cash Flow -->
           <div class="fin-subpanel" id="fsp-cf">
             <div style="overflow-x:auto;margin-bottom:20px"><table class="fin-table" id="fin-tbl-cf"></table></div>
             <div class="sec-label">영업 · 투자 · 재무 현금흐름</div>
@@ -611,7 +633,6 @@
           </div>
         </div>
 
-        <!-- EDIT MODE -->
         <div id="fin-edit-mode" style="display:none;margin-bottom:26px">
           <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
             <button class="fin-subtab active" id="fet-pl" onclick="switchFinEditSubtab('pl')"><i class="ti ti-receipt"></i> P&amp;L</button>
@@ -642,7 +663,6 @@
         <div class="info-box" id="org-analysis"></div>
       </div>
 
-      <!-- ── CREDIT ENHANCEMENT TAB ── -->
       <div class="rtab-panel" id="tp-credit">
         <div class="credit-hero">
           <div class="credit-hero-title"><i class="ti ti-building-bank"></i> 계약 이행 신용보강 조건 (내부 규정)</div>
@@ -651,7 +671,6 @@
 
         <div id="credit-tiers"></div>
 
-        <!-- ── SBLC CALCULATOR ── -->
         <div style="margin-top:24px;background:var(--cream);border:2px solid var(--clay);border-radius:16px;overflow:hidden;box-shadow:var(--sh2)">
           <div style="background:linear-gradient(135deg,var(--clay),var(--clay-dk));padding:16px 22px;display:flex;align-items:center;gap:10px">
             <i class="ti ti-calculator" style="font-size:20px;color:white"></i>
@@ -684,7 +703,6 @@
               </div>
             </div>
 
-            <!-- Result -->
             <div style="margin-bottom:20px">
               <button onclick="calcSBLC()" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--clay),var(--clay-dk));color:white;border:none;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 3px 10px rgba(217,119,87,.35)">
                 <i class="ti ti-calculator"></i> SBLC 금액 계산하기
@@ -750,7 +768,6 @@
 </div>
 </div>
 
-<!-- PAGE: ALERTS -->
 <div class="page" id="page-alerts">
 <div class="main">
 
@@ -759,7 +776,6 @@
     <div style="font-size:13px;color:var(--muted)">모니터링 중인 거래처에서 등급 하락 관련 뉴스 감지 시 이메일로 알림을 보냅니다</div>
   </div>
 
-  <!-- 이메일 설정 상태 -->
   <div style="background:var(--amber-lt);border:1.5px solid #f0bf7a;border-radius:var(--rlg);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
     <i class="ti ti-settings" style="font-size:20px;color:var(--amber);flex-shrink:0"></i>
     <div>
@@ -768,7 +784,6 @@
     </div>
   </div>
 
-  <!-- 알람 조건 -->
   <div class="card" style="margin-bottom:16px">
     <div class="card-title"><i class="ti ti-alert-triangle"></i> 알람 트리거 조건</div>
     <table style="width:100%;border-collapse:collapse;font-size:13px">
@@ -835,7 +850,6 @@
     </table>
   </div>
 
-  <!-- 이메일 수신자 설정 -->
   <div class="card" style="margin-bottom:16px">
     <div class="card-title"><i class="ti ti-mail"></i> 알람 수신자 설정</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:14px">등급 하락 뉴스 감지 시 아래 이메일로 알람이 발송됩니다</div>
@@ -849,13 +863,11 @@
     </div>
   </div>
 
-  <!-- 모니터링 거래처 목록 -->
   <div class="card" style="margin-bottom:16px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <div class="card-title" style="margin:0"><i class="ti ti-list-check"></i> 모니터링 중인 거래처</div>
     </div>
 
-    <!-- 직접 추가 -->
     <div style="display:flex;gap:10px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
       <div class="field" style="flex:2;margin:0">
         <input type="text" id="watchlist-add-company" placeholder="회사명 직접 입력 (예: Shell, BP, Equinor)"
@@ -880,7 +892,6 @@
     <div id="watchlist-items"></div>
   </div>
 
-  <!-- 수동 뉴스 체크 -->
   <div class="card" style="margin-bottom:16px">
     <div class="card-title"><i class="ti ti-search"></i> 수동 뉴스 체크</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:14px">회사명을 입력하면 최신 뉴스에서 알람 조건 관련 기사를 검색합니다</div>
@@ -895,7 +906,6 @@
     <div id="alert-manual-result" style="margin-top:14px"></div>
   </div>
 
-  <!-- 이메일 알람 작동 방식 미리보기 -->
   <div class="card">
     <div class="card-title"><i class="ti ti-mail"></i> 이메일 알람 미리보기 (설정 후 이렇게 발송됩니다)</div>
     <div style="background:white;border:1px solid var(--border);border-radius:var(--r);padding:20px;font-family:Arial,sans-serif;font-size:13px">
@@ -942,8 +952,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-// Safe localStorage wrapper — some browser contexts (file://, private mode,
-// sandboxed iframes) throw on localStorage access. Never let that kill the whole script.
 function safeGet(key, fallback) {
   try { return localStorage.getItem(key) || fallback; }
   catch (e) { console.warn('localStorage unavailable:', e.message); return fallback; }
@@ -955,51 +963,32 @@ function safeSet(key, value) {
 
 let savedHistory = JSON.parse(safeGet('kyc_h', '[]'));
 let current = null;
-let finChart = null; // (unused legacy var, kept for safety)
+let finChart = null;
 
-// ── Credit enhancement tiers (internal policy) ──
 const TIERS = [
-  {
-    id:'a', label:'A- 이상 / A3 이상', sp:'A- and above', moodys:'A3 and above',
+  { id:'a', label:'A- 이상 / A3 이상', sp:'A- and above', moodys:'A3 and above',
     pct:'0–5%', cargo:'3–4개월分', method:['open','pcg','sblc'],
-    methodLabel:'Open Credit or PCG or SBLC',
-    cls:'tier-a', desc:'최우량 등급. 신용보강 최소화 또는 불필요.'
-  },
-  {
-    id:'bbb', label:'BBB+ ~ BBB- / Baa1 ~ Baa3', sp:'BBB+ to BBB-', moodys:'Baa1 to Baa3',
+    methodLabel:'Open Credit or PCG or SBLC', cls:'tier-a', desc:'최우량 등급. 신용보강 최소화 또는 불필요.' },
+  { id:'bbb', label:'BBB+ ~ BBB- / Baa1 ~ Baa3', sp:'BBB+ to BBB-', moodys:'Baa1 to Baa3',
     pct:'7–10%', cargo:'5–6개월分', method:['open','pcg','sblc'],
-    methodLabel:'Open Credit or PCG or SBLC',
-    cls:'tier-bbb', desc:'투자적격 하위. PCG 또는 SBLC 권장.'
-  },
-  {
-    id:'bb', label:'BB+ ~ BB- / Ba1 ~ Ba3', sp:'BB+ to BB-', moodys:'Ba1 to Ba3',
+    methodLabel:'Open Credit or PCG or SBLC', cls:'tier-bbb', desc:'투자적격 하위. PCG 또는 SBLC 권장.' },
+  { id:'bb', label:'BB+ ~ BB- / Ba1 ~ Ba3', sp:'BB+ to BB-', moodys:'Ba1 to Ba3',
     pct:'12–18%', cargo:'7–9개월分', method:['sblc'],
-    methodLabel:'SBLC',
-    cls:'tier-bb', desc:'투기적 등급 진입. SBLC 필수.'
-  },
-  {
-    id:'b', label:'B+ ~ B- / B1 ~ B3', sp:'B+ to B-', moodys:'B1 to B3',
+    methodLabel:'SBLC', cls:'tier-bb', desc:'투기적 등급 진입. SBLC 필수.' },
+  { id:'b', label:'B+ ~ B- / B1 ~ B3', sp:'B+ to B-', moodys:'B1 to B3',
     pct:'20–30%', cargo:'9–12개월分', method:['sblc'],
-    methodLabel:'SBLC',
-    cls:'tier-b', desc:'고위험 등급. 높은 SBLC 요구.'
-  },
-  {
-    id:'ccc', label:'CCC 이하 / Caa1 이하 / 미공시', sp:'CCC and below / Unrated', moodys:'Caa1 and below',
+    methodLabel:'SBLC', cls:'tier-b', desc:'고위험 등급. 높은 SBLC 요구.' },
+  { id:'ccc', label:'CCC 이하 / Caa1 이하 / 미공시', sp:'CCC and below / Unrated', moodys:'Caa1 and below',
     pct:'≥40% 또는 전액 선납', cargo:'12개월分 이상', method:['sblc','cash'],
-    methodLabel:'SBLC or Cash Collateral',
-    cls:'tier-ccc', desc:'최고위험. 전액 담보 또는 선납 요구.'
-  },
+    methodLabel:'SBLC or Cash Collateral', cls:'tier-ccc', desc:'최고위험. 전액 담보 또는 선납 요구.' },
 ];
 
-// ── Financial table / chart rendering (P&L / Balance Sheet / Cash Flow) ──
 let finCharts = { pl:null, bs:null, cf:null };
 let finEditSubtab = 'pl';
 
 function getFinRowsPL() {
   const { yrs, rev, cogs, grossProfit, operatingExpense, ebi, depreciation, ebit, interestExpense, net, dbt } = current;
-  const rows = [
-    {l:'매출액 (Revenue)', data:rev, bold:true},
-  ];
+  const rows = [{l:'매출액 (Revenue)', data:rev, bold:true}];
   if (cogs)             rows.push({l:'매출원가 (COGS)', data:cogs});
   if (grossProfit)      rows.push({l:'매출총이익 (Gross Profit)', data:grossProfit});
   if (operatingExpense) rows.push({l:'영업비용 (OpEx)', data:operatingExpense});
@@ -1020,14 +1009,10 @@ function getFinRowsBS() {
   if (currentAssets)      rows.push({l:'유동자산 (Current Assets)', data:currentAssets});
   if (totalLiabilities)   rows.push({l:'총부채 (Total Liabilities)', data:totalLiabilities, bold:true});
   if (currentLiabilities) rows.push({l:'유동부채 (Current Liabilities)', data:currentLiabilities});
-  if (totalEquity)         rows.push({l:'자본총계 (Total Equity)', data:totalEquity, bold:true});
+  if (totalEquity)        rows.push({l:'자본총계 (Total Equity)', data:totalEquity, bold:true});
   rows.push({l:'순부채 (Net Debt)', data:dbt});
-  if (totalLiabilities && totalEquity) {
-    rows.push({l:'부채비율 (D/E)', data:totalLiabilities.map((l,i)=>totalEquity[i]?(l/totalEquity[i]).toFixed(2)+'x':'—'), str:true});
-  }
-  if (currentAssets && currentLiabilities) {
-    rows.push({l:'유동비율 (Current Ratio)', data:currentAssets.map((a,i)=>currentLiabilities[i]?(a/currentLiabilities[i]).toFixed(2)+'x':'—'), str:true});
-  }
+  if (totalLiabilities && totalEquity) rows.push({l:'부채비율 (D/E)', data:totalLiabilities.map((l,i)=>totalEquity[i]?(l/totalEquity[i]).toFixed(2)+'x':'—'), str:true});
+  if (currentAssets && currentLiabilities) rows.push({l:'유동비율 (Current Ratio)', data:currentAssets.map((a,i)=>currentLiabilities[i]?(a/currentLiabilities[i]).toFixed(2)+'x':'—'), str:true});
   rows.push({l:'순부채/EBITDA', data:dbt.map((d,i)=>ebi[i]?(d/ebi[i]).toFixed(1)+'x':'—'), str:true});
   return rows;
 }
@@ -1040,12 +1025,8 @@ function getFinRowsCF() {
   if (financingCF) rows.push({l:'재무활동 현금흐름 (Financing CF)', data:financingCF});
   if (netChangeInCash) rows.push({l:'현금 증감 (Net Change)', data:netChangeInCash, bold:true});
   if (endingCash) rows.push({l:'기말 현금 (Ending Cash)', data:endingCash});
-  if (operatingCF) {
-    rows.push({l:'OCF/순이익 비율', data:operatingCF.map((o,i)=>net[i]?(o/net[i]).toFixed(2)+'x':'—'), str:true});
-  }
-  if (!operatingCF && !investingCF && !financingCF) {
-    rows.push({l:'데이터 없음', data:['—','—','—','—'], str:true});
-  }
+  if (operatingCF) rows.push({l:'OCF/순이익 비율', data:operatingCF.map((o,i)=>net[i]?(o/net[i]).toFixed(2)+'x':'—'), str:true});
+  if (!operatingCF && !investingCF && !financingCF) rows.push({l:'데이터 없음', data:['—','—','—','—'], str:true});
   return rows;
 }
 
@@ -1064,60 +1045,47 @@ function renderFinTable() {
   renderTableHTML('fin-tbl-cf', getFinRowsCF(), current.yrs);
 }
 
-function destroyChart(key) {
-  if (finCharts[key]) { finCharts[key].destroy(); finCharts[key] = null; }
-}
+function destroyChart(key) { if (finCharts[key]) { finCharts[key].destroy(); finCharts[key] = null; } }
 
 function renderFinChart() {
   const { yrs, rev, ebi, net, totalAssets, totalLiabilities, totalEquity, operatingCF, investingCF, financingCF } = current;
-
   destroyChart('pl');
   finCharts.pl = new Chart(document.getElementById('fin-chart-pl'), {
-    type:'bar',
-    data:{labels:yrs, datasets:[
+    type:'bar', data:{labels:yrs, datasets:[
       {label:'매출액', data:rev, backgroundColor:'rgba(30,95,194,.75)', borderRadius:5},
       {label:'EBITDA', data:ebi, backgroundColor:'rgba(42,125,79,.75)', borderRadius:5},
       {label:'순이익', data:net, backgroundColor:'rgba(91,51,184,.75)', borderRadius:5},
-    ]},
-    options: chartOptions()
+    ]}, options: chartOptions()
   });
-
   destroyChart('bs');
   if (totalAssets && totalLiabilities && totalEquity) {
     finCharts.bs = new Chart(document.getElementById('fin-chart-bs'), {
-      type:'bar',
-      data:{labels:yrs, datasets:[
+      type:'bar', data:{labels:yrs, datasets:[
         {label:'총자산', data:totalAssets, backgroundColor:'rgba(30,95,194,.75)', borderRadius:5},
         {label:'총부채', data:totalLiabilities, backgroundColor:'rgba(155,32,32,.75)', borderRadius:5},
         {label:'자본총계', data:totalEquity, backgroundColor:'rgba(42,125,79,.75)', borderRadius:5},
-      ]},
-      options: chartOptions()
+      ]}, options: chartOptions()
     });
   }
-
   destroyChart('cf');
   if (operatingCF && investingCF && financingCF) {
     finCharts.cf = new Chart(document.getElementById('fin-chart-cf'), {
-      type:'bar',
-      data:{labels:yrs, datasets:[
+      type:'bar', data:{labels:yrs, datasets:[
         {label:'영업활동', data:operatingCF, backgroundColor:'rgba(42,125,79,.75)', borderRadius:5},
         {label:'투자활동', data:investingCF, backgroundColor:'rgba(155,32,32,.75)', borderRadius:5},
         {label:'재무활동', data:financingCF, backgroundColor:'rgba(30,95,194,.75)', borderRadius:5},
-      ]},
-      options: chartOptions()
+      ]}, options: chartOptions()
     });
   }
 }
 
 function chartOptions() {
-  return {
-    responsive:true, maintainAspectRatio:false,
+  return { responsive:true, maintainAspectRatio:false,
     plugins:{legend:{display:false}},
     scales:{
       x:{grid:{color:'rgba(90,50,20,.06)'},ticks:{color:'#b0998a'}},
       y:{grid:{color:'rgba(90,50,20,.06)'},ticks:{color:'#b0998a',callback:v=>Math.abs(v)>=1000?(v/1000).toFixed(1)+'B':v+'M'}}
-    }
-  };
+    } };
 }
 
 function switchFinSubtab(name) {
@@ -1128,13 +1096,37 @@ function switchFinSubtab(name) {
   if (finCharts[name]) finCharts[name].update();
 }
 
-// ── Manual edit mode for financials ──
+// ── 통화/환율 수정 ──
+function toggleCurrencyEdit() {
+  const panel = document.getElementById('currency-edit-panel');
+  const isOpen = panel.style.display !== 'none';
+  if (isOpen) {
+    panel.style.display = 'none';
+  } else {
+    document.getElementById('edit-orig-currency').value = current?.originalCurrency || '';
+    document.getElementById('edit-fx-rate').value = current?.fxRateUsed || '';
+    panel.style.display = 'block';
+  }
+}
+
+function applyCurrencyEdit() {
+  if (!current) return;
+  const origCcy = document.getElementById('edit-orig-currency').value.trim();
+  const fxRate  = document.getElementById('edit-fx-rate').value.trim();
+  current.originalCurrency = origCcy || null;
+  current.fxRateUsed = fxRate || null;
+  let fxLabel = 'USD (백만)';
+  if (origCcy && origCcy !== 'USD' && fxRate) fxLabel = `USD (백만) · 원문: ${origCcy} · ${fxRate}`;
+  else if (origCcy && origCcy !== 'USD') fxLabel = `USD (백만) · 원문: ${origCcy}`;
+  document.getElementById('fin-ccy').textContent = fxLabel;
+  document.getElementById('currency-edit-panel').style.display = 'none';
+}
+
 function toggleFinEdit() {
   const viewMode = document.getElementById('fin-view-mode');
   const editMode = document.getElementById('fin-edit-mode');
   const btn = document.getElementById('fin-edit-btn');
   const isEditing = editMode.style.display !== 'none';
-
   if (isEditing) {
     editMode.style.display = 'none';
     viewMode.style.display = 'block';
@@ -1153,7 +1145,6 @@ function switchFinEditSubtab(name) {
   buildFinEditTable(name);
 }
 
-// Field map: which raw keys are editable per statement, with Korean labels
 const EDIT_FIELDS = {
   pl: [
     {key:'rev', l:'매출액'}, {key:'cogs', l:'매출원가'}, {key:'grossProfit', l:'매출총이익'},
@@ -1200,15 +1191,13 @@ function applyFinEdit() {
     if (!current[key]) current[key] = [null,null,null,null];
     current[key][idx] = isNaN(val) ? null : val;
   });
-  current.fromAI = false; // manually verified now
-
+  current.fromAI = false;
   renderFinTable();
   renderFinChart();
   document.getElementById('fin-ai-warning').style.display = 'none';
   document.getElementById('fin-edit-mode').style.display = 'none';
   document.getElementById('fin-view-mode').style.display = 'block';
   document.getElementById('fin-edit-btn').innerHTML = '<i class="ti ti-pencil"></i> 숫자 직접 수정';
-
   const confirmBox = document.createElement('div');
   confirmBox.style.cssText = 'background:var(--green-lt);border:1.5px solid #8bcfad;border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:8px';
   confirmBox.innerHTML = '<i class="ti ti-circle-check"></i> 수정사항이 적용되었습니다. 표와 차트가 업데이트되었습니다.';
@@ -1221,7 +1210,6 @@ function bindCalcInputs() {
   const cargo = document.getElementById('calc-cargo');
   const total = document.getElementById('calc-total');
   if (!cargo || !total) return;
-  // remove old listeners by cloning
   const newCargo = cargo.cloneNode(true);
   const newTotal = total.cloneNode(true);
   cargo.parentNode.replaceChild(newCargo, cargo);
@@ -1234,7 +1222,6 @@ function bindCalcInputs() {
   newTotal.addEventListener('blur',  () => newTotal.style.borderColor = 'var(--border2)');
 }
 
-
 const TIER_CALC = {
   a:   { pctMin:0,   pctMax:5,   mMin:3,  mMax:4  },
   bbb: { pctMin:7,   pctMax:10,  mMin:5,  mMax:6  },
@@ -1244,8 +1231,8 @@ const TIER_CALC = {
 };
 
 function fmt(n) {
-  if (n >= 1_000_000) return '$' + (n/1_000_000).toFixed(2) + 'M';
-  if (n >= 1_000)     return '$' + (n/1_000).toFixed(1) + 'K';
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
+  if (n >= 1000)     return '$' + (n/1000).toFixed(1) + 'K';
   return '$' + n.toFixed(0);
 }
 
@@ -1253,55 +1240,40 @@ function calcSBLC() {
   const cargoEl = document.getElementById('calc-cargo');
   const totalEl = document.getElementById('calc-total');
   if (!cargoEl || !totalEl) return;
-
   const cargo = parseFloat(cargoEl.value);
   const total = parseFloat(totalEl.value);
-
   if (!cargo || !total || isNaN(cargo) || isNaN(total)) {
     document.getElementById('calc-result').style.display = 'none';
     document.getElementById('calc-placeholder').style.display = 'block';
     return;
   }
-
   const tier = current ? getTier(current.sp, current.moodys, current.estGrade) : 'bbb';
   const tc   = TIER_CALC[tier];
-
-  // A: total * pct range
   const aMin = total * tc.pctMin / 100;
   const aMax = total * tc.pctMax / 100;
-
-  // B: cargo * months range
   const bMin = cargo * tc.mMin;
   const bMax = cargo * tc.mMax;
-
-  // Min(A, B) range then Max with 1 cargo
   const minValLow  = Math.min(aMin, bMin);
   const minValHigh = Math.min(aMax, bMax);
   const finalLow   = Math.max(minValLow,  cargo);
   const finalHigh  = Math.max(minValHigh, cargo);
-
   document.getElementById('calc-a').textContent = fmt(aMin) + ' ~ ' + fmt(aMax);
   document.getElementById('calc-a-detail').textContent = tc.pctMin + '~' + tc.pctMax + '%';
   document.getElementById('calc-b').textContent = fmt(bMin) + ' ~ ' + fmt(bMax);
   document.getElementById('calc-b-detail').textContent = tc.mMin + '~' + tc.mMax + '개월';
   document.getElementById('calc-min').textContent = fmt(cargo);
-
   const isSame = finalLow === finalHigh;
   document.getElementById('calc-final').textContent = isSame ? fmt(finalLow) : fmt(finalLow) + ' ~ ' + fmt(finalHigh);
-
-  // Explain which constraint hit
   let why = '';
   if (finalLow === cargo) why = '1개 Cargo Value가 Min(A,B)보다 커서 최솟값으로 적용됨';
   else if (aMin <= bMin)  why = 'A(총거래금액 ×%)가 B(Cargo×개월)보다 작아 A 기준 적용';
   else                    why = 'B(Cargo×개월)가 A(총거래금액 ×%)보다 작아 B 기준 적용';
   document.getElementById('calc-explain').textContent = why;
-
   document.getElementById('calc-result').style.display = 'block';
   document.getElementById('calc-placeholder').style.display = 'none';
 }
 
 function isPCGEligible(moodys, sp) {
-  // PCG permitted when parent rating >= BBB- (S&P/Fitch) or Baa3 (Moody's)
   const spEligible = sp && /^(AAA|AA|A|BBB[+]?$|BBB$|BBB-$)/i.test(sp.trim());
   const moEligible = moodys && /^(Aaa|Aa|A|Baa[123])/i.test(moodys.trim());
   return spEligible || moEligible;
@@ -1326,10 +1298,7 @@ function renderCreditTiers(matchTierId) {
   const t = TIERS.find(t => t.id === matchTierId);
   if (!t) return;
   document.getElementById('credit-tiers').innerHTML = `
-    <!-- MATCHED TIER — big clear card -->
     <div style="background:var(--cream);border:2px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--sh2)">
-
-      <!-- Header -->
       <div class="${t.cls}" style="padding:20px 24px;display:flex;align-items:center;gap:12px">
         <i class="ti ti-building-bank" style="font-size:24px;opacity:.9"></i>
         <div>
@@ -1337,11 +1306,7 @@ function renderCreditTiers(matchTierId) {
           <div style="font-size:17px;font-weight:800">${t.sp} &nbsp;/&nbsp; ${t.moodys}</div>
         </div>
       </div>
-
-      <!-- Body -->
       <div style="padding:24px">
-
-        <!-- Formula result -->
         <div style="background:var(--sand);border:1.5px solid var(--border2);border-radius:12px;padding:18px 22px;margin-bottom:20px;text-align:center">
           <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">SBLC 필요 금액 산출 기준</div>
           <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Max ( Min ( A, B ), 1개 Cargo Value )</div>
@@ -1358,8 +1323,6 @@ function renderCreditTiers(matchTierId) {
           </div>
           <div style="margin-top:12px;font-size:12px;color:var(--muted)">→ 둘 중 <strong>작은 금액</strong>을 적용하되, 최소 <strong>1개 Cargo Value</strong> 이상</div>
         </div>
-
-        <!-- Method -->
         <div style="margin-bottom:16px">
           <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">권장 신용보강 방법</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px">
@@ -1379,15 +1342,11 @@ function renderCreditTiers(matchTierId) {
           </div>
           ${t.method.includes('pcg') ? `<div style="margin-top:8px;font-size:12px;color:var(--muted)">* PCG 사용 조건: 모회사 신용등급 ≥ S&P/Fitch BBB- 또는 Moody's Baa3 이상</div>` : ''}
         </div>
-
-        <!-- Description -->
         <div style="background:${t.id==='ccc'?'var(--red-lt)':t.id==='b'?'var(--amber-lt)':'var(--green-lt)'};border-radius:8px;padding:12px 14px;font-size:13px;color:var(--muted);line-height:1.6">
           <i class="ti ti-info-circle" style="margin-right:5px"></i>${t.desc}
         </div>
       </div>
     </div>
-
-    <!-- Reference table (collapsed, small) -->
     <details style="margin-top:16px">
       <summary style="font-size:12px;color:var(--muted);cursor:pointer;padding:8px 12px;background:var(--sand);border-radius:8px;border:1px solid var(--border);list-style:none;display:flex;align-items:center;gap:6px">
         <i class="ti ti-table"></i> 전체 등급별 기준 보기
@@ -1419,70 +1378,38 @@ function renderCreditTiers(matchTierId) {
   `;
 }
 
-// ── Page / Tab navigation ──
-// ── 재무팀 의견 ──
 async function saveTeamComment() {
   const text = document.getElementById('team-comment-input').value.trim();
   if (!text) { alert('의견을 입력해주세요.'); return; }
   if (!current) { alert('분석 결과가 없습니다.'); return; }
-
   const { data: { session } } = await sb.auth.getSession();
-
   const { error } = await sb.from('team_comments').insert({
-    company:    current.company,
-    comment:    text,
-    created_by: session?.user?.email || '—',
+    company: current.company, comment: text, created_by: session?.user?.email || '—',
   });
-
-  if (error) {
-    console.warn('Comment save error:', error.message);
-    alert('저장 중 오류가 발생했습니다.');
-    return;
-  }
-
+  if (error) { console.warn('Comment save error:', error.message); alert('저장 중 오류가 발생했습니다.'); return; }
   document.getElementById('team-comment-input').value = '';
   loadTeamComments(current.company);
 }
 
 async function loadTeamComments(company) {
-  const { data, error } = await sb
-    .from('team_comments')
-    .select('*')
-    .eq('company', company)
-    .order('created_at', { ascending: false });
-
+  const { data, error } = await sb.from('team_comments').select('*').eq('company', company).order('created_at', { ascending: false });
   const el = document.getElementById('team-comments-list');
   if (error || !data || !data.length) {
     el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--dim);font-size:13px">아직 등록된 의견이 없습니다</div>`;
     return;
   }
-
-  const statusMap = {
-    approve:     '✅ 거래 승인',
-    conditional: '⚠️ 조건부 승인',
-    reject:      '❌ 거래 거절',
-    review:      '🔍 추가 검토 필요',
-    info:        '💬 정보 공유',
-  };
-
   el.innerHTML = data.map(c => `
     <div style="background:var(--sand);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
         <span style="font-size:12px;font-weight:600;color:var(--muted)">${c.created_by}</span>
         <span style="font-size:11px;color:var(--dim)">${new Date(c.created_at).toLocaleString('ko-KR')}</span>
-        ${c.status ? `<span style="margin-left:auto;font-size:12px;font-weight:600">${statusMap[c.status]||c.status}</span>` : ''}
       </div>
       <div style="font-size:13px;color:var(--ink);line-height:1.7">${c.comment}</div>
     </div>`).join('');
 }
 
-// ── 알람 수신자 관리 ──
-function getRecipients() {
-  return JSON.parse(safeGet('cg_recipients', '[]'));
-}
-function saveRecipients(list) {
-  safeSet('cg_recipients', JSON.stringify(list));
-}
+function getRecipients() { return JSON.parse(safeGet('cg_recipients', '[]')); }
+function saveRecipients(list) { safeSet('cg_recipients', JSON.stringify(list)); }
 
 function addRecipient() {
   const input = document.getElementById('recipient-input');
@@ -1506,10 +1433,7 @@ function renderRecipients() {
   const list = getRecipients();
   const el = document.getElementById('recipients-list');
   if (!el) return;
-  if (!list.length) {
-    el.innerHTML = `<div style="font-size:12px;color:var(--dim);padding:8px 0">아직 수신자가 없습니다. 이메일을 추가해주세요.</div>`;
-    return;
-  }
+  if (!list.length) { el.innerHTML = `<div style="font-size:12px;color:var(--dim);padding:8px 0">아직 수신자가 없습니다. 이메일을 추가해주세요.</div>`; return; }
   el.innerHTML = list.map(email => `
     <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--sand);border-radius:var(--r);border:1px solid var(--border);margin-bottom:8px">
       <i class="ti ti-mail" style="color:var(--clay);font-size:15px"></i>
@@ -1520,13 +1444,8 @@ function renderRecipients() {
     </div>`).join('');
 }
 
-// ── 신용등급 알람 워치리스트 ──
-function getWatchlist() {
-  return JSON.parse(safeGet('cg_watchlist', '[]'));
-}
-function saveWatchlist(list) {
-  safeSet('cg_watchlist', JSON.stringify(list));
-}
+function getWatchlist() { return JSON.parse(safeGet('cg_watchlist', '[]')); }
+function saveWatchlist(list) { safeSet('cg_watchlist', JSON.stringify(list)); }
 
 function addToWatchlistDirect() {
   const company = document.getElementById('watchlist-add-company').value.trim();
@@ -1539,10 +1458,7 @@ function addToWatchlistDirect() {
 
 function addToWatchlist(company, grade) {
   const list = getWatchlist();
-  if (list.find(w => w.company === company)) {
-    alert(`${company}는 이미 모니터링 중이에요!`);
-    return;
-  }
+  if (list.find(w => w.company === company)) { alert(`${company}는 이미 모니터링 중이에요!`); return; }
   list.push({ company, grade, addedAt: new Date().toISOString() });
   saveWatchlist(list);
   alert(`✅ ${company} 알람이 추가됐습니다!\n"등급 알람" 탭에서 확인하세요.`);
@@ -1561,8 +1477,6 @@ async function renderWatchlist() {
   const items = document.getElementById('watchlist-items');
   if (!list.length) { empty.style.display='block'; items.innerHTML=''; return; }
   empty.style.display = 'none';
-
-  // For each company, fetch latest news to check for rating alerts
   items.innerHTML = list.map((w,i) => `
     <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)" id="wl-${i}">
       <div style="flex:1">
@@ -1581,45 +1495,30 @@ async function renderWatchlist() {
 }
 
 const CRITICAL_KEYWORDS = [
-  // 신용등급 Critical
   'downgrade','credit watch negative','review for downgrade','watch negative',
   'junk','high yield','speculative grade','fallen angel',
-  // 재무 Critical
   'net loss','operating loss','interest coverage','audit qualification',
-  'qualified opinion','adverse opinion','disclaimer of opinion',
-  'insolvency','going concern',
-  // 이벤트 Critical
+  'qualified opinion','adverse opinion','disclaimer of opinion','insolvency','going concern',
   'default','missed payment','debt restructuring','refinancing failure',
   'letter of credit rejected','lc rejection','sanctions','aml investigation',
   'money laundering','criminal investigation','moratorium',
-  // 한국어
   '디폴트','채무불이행','상환유예','차환 실패','제재','자금세탁','범죄수사',
   '감사의견 한정','부적정','의견거절','적자전환','순손실'
 ];
 
 const WARNING_KEYWORDS = [
-  // 신용등급 Warning
   'outlook negative','negative outlook','downgraded one notch','one-notch downgrade',
   'credit deterioration','credit pressure','rating under pressure',
-  // 재무 Warning
-  'ebitda decline','profit warning','earnings miss','revenue decline',
-  'leverage increase','debt increase',
-  // 한국어
+  'ebitda decline','profit warning','earnings miss','revenue decline','leverage increase','debt increase',
   '전망 부정적','등급 하락','신용 악화','실적 부진','매출 감소'
 ];
 
 async function checkSingleAlert(company, resultElId) {
   const el = document.getElementById(resultElId);
   if (el) el.innerHTML = `<div style="padding:10px;font-size:12px;color:var(--muted)"><i class="ti ti-loader"></i> 뉴스 확인 중...</div>`;
-
   const PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
-  const queries = [
-    company + ' credit rating downgrade',
-    company + ' default sanctions',
-    company + ' financial results',
-  ];
+  const queries = [ company + ' credit rating downgrade', company + ' default sanctions', company + ' financial results' ];
   const allItems = [];
-
   for (const q of queries) {
     try {
       const rssUrl = 'https://news.google.com/rss/search?q=' + encodeURIComponent(q) + '&hl=en&gl=US&ceid=US:en';
@@ -1632,26 +1531,15 @@ async function checkSingleAlert(company, resultElId) {
         const isCritical = CRITICAL_KEYWORDS.some(kw => title.includes(kw.toLowerCase()));
         const isWarning  = WARNING_KEYWORDS.some(kw => title.includes(kw.toLowerCase()));
         if (isCritical || isWarning) {
-          allItems.push({
-            hl: item.title,
-            src: item.author || '—',
-            url: item.link,
-            date: pubDate.toLocaleDateString('ko-KR'),
-            pubDate,
-            level: isCritical ? 'critical' : 'warning'
-          });
+          allItems.push({ hl: item.title, src: item.author || '—', url: item.link,
+            date: pubDate.toLocaleDateString('ko-KR'), pubDate, level: isCritical ? 'critical' : 'warning' });
         }
       });
     } catch(e) { console.warn('news fetch:', e.message); }
   }
-
-  // Check for repeated negative issues within 7 days (Warning → Critical)
   const sevenDaysAgo = new Date(Date.now() - 7*24*60*60*1000);
   const recentItems = allItems.filter(i => i.pubDate >= sevenDaysAgo);
-  if (recentItems.length >= 2) {
-    recentItems.forEach(i => { i.level = 'critical'; i.repeated = true; });
-  }
-
+  if (recentItems.length >= 2) recentItems.forEach(i => { i.level = 'critical'; i.repeated = true; });
   if (el) {
     if (allItems.length) {
       el.innerHTML = allItems.map(a => `
@@ -1674,7 +1562,6 @@ async function manualNewsCheck() {
   const el = document.getElementById('alert-manual-result');
   el.innerHTML = `<div style="font-size:13px;color:var(--muted)"><i class="ti ti-loader"></i> 뉴스 확인 중...</div>`;
   const alerts = await checkSingleAlert(company, null);
-
   if (alerts.length) {
     el.innerHTML = `<div style="background:var(--red-lt);border:1px solid #fecdca;border-radius:var(--r);padding:14px">
       <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px">⚠️ ${alerts.length}건의 등급 하락 관련 뉴스 발견</div>
@@ -1685,7 +1572,6 @@ async function manualNewsCheck() {
   }
 }
 
-// Auto-check watchlist on login
 async function autoCheckAlerts() {
   const list = getWatchlist();
   if (!list.length) return;
@@ -1695,47 +1581,26 @@ async function autoCheckAlerts() {
     if (alerts.length) allAlerts.push({ company: w.company, grade: w.grade, alerts });
   }
   if (allAlerts.length) {
-    // Show banner in UI
-    const banner    = document.getElementById('alert-banner');
+    const banner = document.getElementById('alert-banner');
     const bannerItems = document.getElementById('alert-banner-items');
     if (banner && bannerItems) {
       banner.style.display = 'block';
-      bannerItems.innerHTML = allAlerts.map(a =>
-        `<div style="font-size:13px;color:var(--red);margin-bottom:4px">• <strong>${a.company}</strong>: ${a.alerts[0].hl}</div>`
-      ).join('');
+      bannerItems.innerHTML = allAlerts.map(a => `<div style="font-size:13px;color:var(--red);margin-bottom:4px">• <strong>${a.company}</strong>: ${a.alerts[0].hl}</div>`).join('');
       document.getElementById('tab-alerts').innerHTML = `<i class="ti ti-bell-ringing" style="color:var(--amber)"></i> 등급 알람 <span style="background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:10px">${allAlerts.length}</span>`;
     }
-
-    // Send email via Supabase Edge Function
     try {
       const recipients = getRecipients();
-      if (!recipients.length) {
-        console.warn('알람 수신자가 없습니다. 등급 알람 탭에서 추가해주세요.');
-        return;
-      }
-
+      if (!recipients.length) { console.warn('알람 수신자가 없습니다.'); return; }
       for (const a of allAlerts) {
         const hasCritical = a.alerts.some(i => i.level === 'critical');
         const level = hasCritical ? '🚨 CRITICAL' : '⚠️ WARNING';
         await fetch(`${SUPABASE_URL}/functions/v1/send-alert-email`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${SUPABASE_ANON}`
-          },
-          body: JSON.stringify({
-            company:    a.company,
-            grade:      a.grade || '—',
-            news:       a.alerts.slice(0, 3),
-            recipients,
-            level
-          })
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}` },
+          body: JSON.stringify({ company: a.company, grade: a.grade || '—', news: a.alerts.slice(0, 3), recipients, level })
         });
       }
-      console.log('Alert emails sent to:', recipients);
-    } catch(e) {
-      console.warn('Email send failed:', e.message);
-    }
+    } catch(e) { console.warn('Email send failed:', e.message); }
   }
 }
 
@@ -1768,7 +1633,6 @@ function uploaded(zid, sid, inp) {
   document.getElementById(sid).textContent = '✓ ' + name;
 }
 
-// ── Convert file to base64 ──
 function toBase64(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
@@ -1778,12 +1642,10 @@ function toBase64(file) {
   });
 }
 
-// ── Supabase config ──
 const SUPABASE_URL = 'https://sxpfgqirggqmabgkakfd.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_J5kWJreJDx4tdpk9b41-FQ_HCo14-Z7';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// ── Auth ──
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-password').value;
@@ -1795,11 +1657,7 @@ async function doLogin() {
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   btn.disabled = false;
   btn.innerHTML = '<i class="ti ti-login"></i> 로그인';
-  if (error) {
-    errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
-    errEl.style.display = 'block';
-    return;
-  }
+  if (error) { errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.'; errEl.style.display = 'block'; return; }
   showApp(data.user);
 }
 
@@ -1814,11 +1672,9 @@ function showApp(user) {
   document.getElementById('nav-user-email').textContent = user.email;
   const saved = safeGet('pei_api_key', '');
   if (saved) document.getElementById('api-key').value = saved;
-  // Auto-check alerts on login
   setTimeout(() => autoCheckAlerts(), 2000);
 }
 
-// ── Google News RSS ──
 async function fetchRealNews(company) {
   const PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
   const queries = [
@@ -1836,11 +1692,8 @@ async function fetchRealNews(company) {
       (json.items||[]).slice(0,2).forEach(item => {
         let hostname = '—';
         try { hostname = new URL(item.link).hostname.replace('www.',''); } catch(e) {}
-        allItems.push({
-          hl: item.title, src: item.author || hostname,
-          url: item.link, tag, tl,
-          date: new Date(item.pubDate).toLocaleDateString('ko-KR'),
-        });
+        allItems.push({ hl: item.title, src: item.author || hostname, url: item.link, tag, tl,
+          date: new Date(item.pubDate).toLocaleDateString('ko-KR') });
       });
     } catch(e) { console.warn('news fetch:', e.message); }
   }
@@ -1860,7 +1713,6 @@ async function fetchRealNews(company) {
   return allItems.slice(0,6);
 }
 
-// ── Real AI analysis — direct Claude API call ──
 async function startAnalysis() {
   const company = document.getElementById('cname').value.trim();
   const apiKey  = document.getElementById('api-key').value.trim();
@@ -1875,11 +1727,21 @@ async function startAnalysis() {
 
   showLoading();
   try {
-    const country = document.getElementById('ccountry').value || 'Unknown';
-    const sector  = document.getElementById('csector').value  || 'Unknown';
+    const country  = document.getElementById('ccountry').value || 'Unknown';
+    const sector   = document.getElementById('csector').value  || 'Unknown';
+    const stmtCcy  = document.getElementById('cstatement-currency').value || 'USD';
+    const stmtCcyLabel = document.getElementById('cstatement-currency').selectedOptions[0].text;
     const contentBlocks = [];
 
+    const currencyInstruction = stmtCcy === 'USD'
+      ? 'The financial statements are expected to be in USD. If you detect a different currency in the actual documents, convert to USD millions using a reasonable recent exchange rate and note the original currency and rate used in financialSummary.'
+      : stmtCcy === 'OTHER'
+      ? 'The user did not specify the currency — detect it from the documents (look for currency symbols, unit labels like "단위: 백만원", "in thousands of EUR", etc.) and convert all figures to USD millions using a reasonable recent exchange rate. State the detected original currency and the exchange rate you used in financialSummary.'
+      : `The financial statements are denominated in ${stmtCcyLabel} (${stmtCcy}). Convert ALL financial figures to USD millions using a reasonable recent exchange rate for ${stmtCcy}/USD. State the exchange rate you used in financialSummary (e.g. "원문 통화: KRW, 환율 1,350원/USD 적용"). Watch carefully for the statement's own unit (e.g. "단위: 백만원" means figures are already in millions of KRW — don't double-convert).`;
+
     contentBlocks.push({ type:'text', text: `You are a senior KYC analyst for an LNG and shipping trading company. Analyze the following documents for counterparty: "${company}" (Country: ${country}, Sector: ${sector}).
+
+IMPORTANT — CURRENCY HANDLING: ${currencyInstruction}
 
 Extract and return a JSON object ONLY (no markdown, no explanation) with exactly this structure:
 {
@@ -1888,6 +1750,8 @@ Extract and return a JSON object ONLY (no markdown, no explanation) with exactly
   "estGrade":"estimated Moody equivalent if both null, else null",
   "estRationale":"2-3 sentence Korean rationale if estGrade set",
   "years":["2021","2022","2023","2024"],"currency":"USD millions",
+  "originalCurrency":"the ISO currency code detected/used in the original statements (e.g. KRW, EUR)",
+  "fxRateUsed":"the exchange rate used to convert to USD, as a string (e.g. '1 USD = 1,350 KRW'), or null if statements were already in USD",
   "revenue":[n,n,n,n],"cogs":[n,n,n,n],"grossProfit":[n,n,n,n],
   "operatingExpense":[n,n,n,n],"ebitda":[n,n,n,n],"depreciation":[n,n,n,n],
   "ebit":[n,n,n,n],"interestExpense":[n,n,n,n],"netIncome":[n,n,n,n],
@@ -1900,14 +1764,14 @@ Extract and return a JSON object ONLY (no markdown, no explanation) with exactly
   "subsidiaries":"number and countries","founded":"year",
   "orgAnalysis":"Korean governance analysis",
   "sanctionsClear":true,"pepFound":false,"pepDetail":null,
-  "sanctionsSummary":"Korean summary","financialSummary":"Korean summary",
+  "sanctionsSummary":"Korean summary","financialSummary":"Korean summary (include currency/FX note here if converted)",
   "riskFactors":"Korean risk factors","aiCommentary":"3-4 paragraph Korean KYC opinion",
   "score":0-100,"dimFinancial":0-100,"dimSanctions":0-100,"dimGovernance":0-100,"dimHistory":0-100,
   "parentCompany": "parent company name if identifiable from org chart or financial statements, else null",
   "parentMoodys": "parent company Moody's rating if disclosed, else null",
   "parentSP": "parent company S&P/Fitch rating if disclosed, else null"
 }
-Normalize all figures to USD millions. Watch for unit markers (thousands/US$000). Use null for missing data.` });
+All revenue/cogs/ebitda/etc figures in the JSON MUST be normalized to USD millions regardless of original currency. Watch for unit markers (thousands/millions, 천원/백만원 etc) in addition to currency — these are common sources of error. Use null for missing data.` });
 
     for (const file of finFiles) {
       const b64 = await toBase64(file);
@@ -1928,17 +1792,12 @@ Normalize all figures to USD millions. Watch for unit markers (thousands/US$000)
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
       headers:{
-        'Content-Type':'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
+        'Content-Type':'application/json', 'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true'
       },
       body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:4000, messages:[{ role:'user', content:contentBlocks }] })
     });
-    if (!resp.ok) {
-      const err = await resp.json().catch(()=>({}));
-      throw new Error(err.error?.message || 'API 오류 ('+resp.status+')');
-    }
+    if (!resp.ok) { const err = await resp.json().catch(()=>({})); throw new Error(err.error?.message || 'API 오류 ('+resp.status+')'); }
     updateStep(3);
     const data = await resp.json();
     const raw  = data.content?.find(b=>b.type==='text')?.text || '';
@@ -1973,7 +1832,6 @@ Normalize all figures to USD millions. Watch for unit markers (thousands/US$000)
   }
 }
 
-// ── Loading helpers ──
 var loadStep = 0;
 function showLoading() {
   loadStep = 0;
@@ -1991,7 +1849,6 @@ function hideLoading() {
   setTimeout(() => document.getElementById('loading-overlay').classList.remove('show'), 400);
 }
 
-// ── Demo ──
 function loadDemo() {
   showLoading();
   const steps = ['s1','s2','s3','s4','s5'];
@@ -2023,13 +1880,11 @@ function makeDemoData() {
   const interestExpense = rev.map(r => Math.round(r * (0.015 + Math.random()*0.01)));
   const net = ebi.map(e => Math.round(e * (0.55 + Math.random() * 0.15)));
   const dbt = rev.map(r => Math.round(r * (0.28 + Math.random() * 0.18)));
-
   const totalAssets = rev.map(r => Math.round(r * (1.6 + Math.random()*0.3)));
   const currentAssets = totalAssets.map(a => Math.round(a * (0.42 + Math.random()*0.08)));
   const totalEquity = totalAssets.map(a => Math.round(a * (0.38 + Math.random()*0.08)));
   const totalLiabilities = totalAssets.map((a,i) => a - totalEquity[i]);
   const currentLiabilities = totalLiabilities.map(l => Math.round(l * (0.45 + Math.random()*0.1)));
-
   const operatingCF = ebi.map(e => Math.round(e * (0.75 + Math.random()*0.15)));
   const investingCF = rev.map(r => -Math.round(r * (0.06 + Math.random()*0.04)));
   const financingCF = rev.map(r => -Math.round(r * (0.04 + Math.random()*0.04)));
@@ -2039,7 +1894,7 @@ function makeDemoData() {
   netChangeInCash.forEach(c => { cashAcc += c; endingCash.push(cashAcc); });
 
   const enteredName = document.getElementById('cname').value.trim();
-  const noRating = Math.random() > 0.5; // randomly demo the "no official rating" scenario
+  const noRating = Math.random() > 0.5;
   const moG = ['Baa1','Baa2','Baa3','Ba1','Ba2'];
   const spG = ['BBB+','BBB','BBB-','BB+','BB'];
   const gi = Math.floor(Math.random()*moG.length);
@@ -2058,13 +1913,13 @@ function makeDemoData() {
     estGrade: noRating ? moG[gi] : null,
     estRationale: noRating ? `EBITDA 대비 이자비용 커버리지가 ${(ebi[3]/interestExpense[3]).toFixed(1)}배로 안정적이며, 총부채/EBITDA 비율은 ${(dbt[3]/ebi[3]).toFixed(1)}배 수준으로 ${moG[gi]} 등급 회사들과 유사한 재무 프로필을 보입니다. 최근 3년간 매출 및 현금흐름이 꾸준히 개선되는 추세입니다.` : null,
     currency: 'USD (백만)',
+    originalCurrency: document.getElementById('cstatement-currency').value !== 'USD' ? document.getElementById('cstatement-currency').value : null,
+    fxRateUsed: document.getElementById('cstatement-currency').value !== 'USD' ? '(데모) 환율 미적용' : null,
     shareholders: 'Pacific Holdings Group (72%), Institutional Investors (28%)',
     employees: '약 340명', subsidiaries: '7개 (한국·일본·카타르·UAE)', founded: '2008년',
     orgAnalysis: '단일 모회사 지배 구조. 싱가포르 법인 아래 4개국 자회사 운영. 이사회 독립이사 2인 포함. SPC를 통한 프로젝트 파이낸싱 구조 확인. 특수관계인 거래 공시 이상 없음.',
     sanctionsClear: true, pepFound: false, pepDetail: null,
-    parentCompany: 'Pacific Holdings Group',
-    parentMoodys: 'Baa1',
-    parentSP: 'BBB+',
+    parentCompany: 'Pacific Holdings Group', parentMoodys: 'Baa1', parentSP: 'BBB+',
     sanctionsSummary: '주요 제재 리스트(OFAC·EU·UN·BIS·OFSI) 이상 없음. PEP 연관 임원 없음 확인. 자기신고 내용과 외부 DB 교차 검증 완료.',
     financialSummary: `최근 4년간 매출 CAGR 약 ${Math.round(8+Math.random()*5)}%. EBITDA 마진 안정적 유지. 부채비율 업종 평균 수준. 영업현금흐름이 순이익을 안정적으로 상회.`,
     riskFactors: 'LNG 시장 변동성 노출. 카타르 자회사 지정학적 리스크 경미. 전반적 리스크 관리 양호.',
@@ -2091,7 +1946,6 @@ function rDesc(g) {
 function render(d) {
   current = d;
   const {company, country, sector, score, yrs, rev, ebi, net, dbt, moodys, sp, estGrade, date,
-    dimFinancial, dimSanctions, dimGovernance, dimHistory,
     shareholders, employees, subsidiaries, founded, orgAnalysis,
     sanctionsClear, pepFound, sanctionsSummary, aiCommentary, estRationale} = d;
 
@@ -2100,7 +1954,6 @@ function render(d) {
   document.getElementById('rmeta').textContent = country + ' · ' + sector + ' · 분석일: ' + date;
   document.getElementById('rdate-bar').textContent = date;
 
-  // Score ring — 5 levels
   const circ = 314, off = circ - (score/100)*circ;
   const arc = document.getElementById('score-arc');
   arc.style.strokeDashoffset = off;
@@ -2116,8 +1969,6 @@ function render(d) {
   else if (score>=40) vw.innerHTML = '<span class="verdict" style="background:#fff3e0;color:#e65100;border:1.5px solid #ffa726"><i class="ti ti-alert-triangle"></i> 고위험 · 추가 심사</span>';
   else                vw.innerHTML = '<span class="verdict" style="background:var(--red-lt);color:var(--red);border:1.5px solid #fecdca"><i class="ti ti-x"></i> 매우 고위험 · 거래 불가</span>';
 
-
-  // Ratings
   document.getElementById('mg').textContent = moodys || '미공시';
   document.getElementById('md').textContent = moodys ? rDesc(moodys) : '공시 등급 없음';
   document.getElementById('sg').textContent = sp || '미공시';
@@ -2126,7 +1977,6 @@ function render(d) {
   document.getElementById('est-box').style.display = noOfficial ? 'block' : 'none';
   document.getElementById('eg').textContent = estGrade || '—';
 
-  // Parent company rating
   const parentCompany  = d.parentCompany  || null;
   const parentMoodys   = d.parentMoodys   || null;
   const parentSP       = d.parentSP       || null;
@@ -2138,12 +1988,9 @@ function render(d) {
     parentBox.style.display = 'block';
     document.getElementById('parent-grade').textContent = parentGrade;
     document.getElementById('parent-name').textContent = parentCompany;
-
-    // Check if PCG is eligible (BBB- / Baa3 or above)
     const pcgEligible = isPCGEligible(parentMoodys, parentSP);
     document.getElementById('parent-pcg').textContent = pcgEligible ? '✅ PCG 사용 가능' : '❌ PCG 조건 미충족';
     document.getElementById('parent-pcg').style.color = pcgEligible ? 'var(--green)' : 'var(--red)';
-
     pcgNotice.style.display = 'flex';
     document.getElementById('pcg-notice-text').innerHTML = pcgEligible
       ? `<strong>${parentCompany}</strong>의 신용등급(${parentGrade})이 BBB- / Baa3 이상으로 <strong>PCG(모회사 보증) 사용 가능</strong>합니다. 신용보강 조건 탭에서 PCG 옵션을 확인하세요.`
@@ -2154,15 +2001,13 @@ function render(d) {
   }
 
   const rationaleInline = document.getElementById('est-rationale-inline');
-  const rationaleText2  = document.getElementById('est-rationale-text2');
   if (rationaleInline) {
     rationaleInline.style.display = (noOfficial && estRationale) ? 'block' : 'none';
-    if (rationaleText2 && estRationale) rationaleText2.textContent = estRationale;
+    if (estRationale) rationaleInline.innerHTML = `<div style="background:var(--amber-lt);border:1.5px solid #f0bf7a;border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--amber);line-height:1.6"><i class="ti ti-sparkles"></i> <strong>AI 추정 근거:</strong> ${estRationale}</div>`;
   }
   const rationaleBox = document.getElementById('est-rationale-box');
   if (rationaleBox) rationaleBox.style.display = 'none';
 
-  // Overview flags — color matches 5-level score system
   const tier = getTier(sp, moodys, estGrade);
   const tierInfo = TIERS.find(t => t.id === tier);
   const flags = [
@@ -2191,36 +2036,34 @@ function render(d) {
     org: 'border-color:#ffa726;background:#fff3e0',
     red: 'border-color:#fecdca;background:var(--red-lt)',
   };
-  const flagIconColor = {
-    g:'#1b5e20', bl:'#0d47a1', yel:'#f57f17', org:'#e65100', red:'var(--red)',
-  };
+  const flagIconColor = { g:'#1b5e20', bl:'#0d47a1', yel:'#f57f17', org:'#e65100', red:'var(--red)' };
   document.getElementById('flags-el').innerHTML = flags.map(f =>
     `<div class="flag" style="border-left:4px solid;${flagStyles[f.t]||flagStyles.g};margin-bottom:10px">
       <i class="ti ti-${f.icon}" style="font-size:16px;margin-top:1px;flex-shrink:0;color:${flagIconColor[f.t]||flagIconColor.g}"></i>
       <div><div class="flag-title">${f.title}</div><div class="flag-detail">${f.det}</div></div>
     </div>`).join('');
 
-  // Sanctions
   const sancs = [
-    {l:'OFAC SDN List',        ok:sanctionsClear},
-    {l:'EU Consolidated List', ok:sanctionsClear},
-    {l:'UN Sanctions',         ok:sanctionsClear},
-    {l:'BIS Entity List',      ok:sanctionsClear},
-    {l:'OFSI UK List',         ok:sanctionsClear},
-    {l:'PEP Screening',        ok:!pepFound, warn:false},
+    {l:'OFAC SDN List', ok:sanctionsClear}, {l:'EU Consolidated List', ok:sanctionsClear},
+    {l:'UN Sanctions', ok:sanctionsClear}, {l:'BIS Entity List', ok:sanctionsClear},
+    {l:'OFSI UK List', ok:sanctionsClear}, {l:'PEP Screening', ok:!pepFound, warn:false},
   ];
   document.getElementById('sanc-el').innerHTML = sancs.map(s =>
     `<div class="sanc-item ${s.warn?'sanc-warn':s.ok?'sanc-ok':'sanc-fail'}">
     <i class="ti ti-${s.warn?'alert-triangle':s.ok?'circle-check':'circle-x'}"></i>${s.l}</div>`).join('');
   document.getElementById('sanc-summary').textContent = sanctionsSummary || '';
 
-  // Financials
-  document.getElementById('fin-ccy').textContent = d.currency || 'USD (백만)';
+  let fxLabel = d.currency || 'USD (백만)';
+  if (d.originalCurrency && d.originalCurrency !== 'USD' && d.fxRateUsed) {
+    fxLabel = `USD (백만) · 원문: ${d.originalCurrency} · ${d.fxRateUsed}`;
+  } else if (d.originalCurrency && d.originalCurrency !== 'USD') {
+    fxLabel = `USD (백만) · 원문: ${d.originalCurrency}`;
+  }
+  document.getElementById('fin-ccy').textContent = fxLabel;
   document.getElementById('fin-ai-warning').style.display = d.fromAI ? 'flex' : 'none';
   renderFinTable();
   renderFinChart();
 
-  // Org
   document.getElementById('org-el').innerHTML = `
     <div class="org-item"><div class="org-lbl">최대주주</div><div class="org-val">${shareholders||'—'}</div></div>
     <div class="org-item"><div class="org-lbl">임직원 수</div><div class="org-val">${employees||'—'}</div></div>
@@ -2228,11 +2071,8 @@ function render(d) {
     <div class="org-item"><div class="org-lbl">설립연도</div><div class="org-val">${founded||'—'}</div></div>`;
   document.getElementById('org-analysis').textContent = orgAnalysis || '';
 
-  // Credit enhancement tiers
   renderCreditTiers(tier);
 
-  // News
-  // News — use real fetched items if available, else demo fallback
   const t2 = new Date();
   const dd = n => { const x=new Date(t2); x.setDate(t2.getDate()-n); return x.toLocaleDateString('ko-KR'); };
   const demoNews = [
@@ -2250,47 +2090,31 @@ function render(d) {
       <div class="news-hl">${n.hl}</div><div class="news-src">${n.src}</div>
     </div>`).join('');
 
-  // AI opinion
   document.getElementById('ai-text').innerHTML = (aiCommentary||'').replace(/\n/g,'<br>');
 
   document.getElementById('results').style.display = 'block';
   switchTab('overview');
   const resultsEl = document.getElementById('results');
-  if (resultsEl && typeof resultsEl.scrollIntoView === 'function') {
-    resultsEl.scrollIntoView({behavior:'smooth', block:'start'});
-  }
+  if (resultsEl && typeof resultsEl.scrollIntoView === 'function') resultsEl.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-// ── 분석 이력 — Supabase 공유 저장 ──
 async function saveHistory() {
   if (!current) return;
   if (current.isDemo) {
     const proceed = confirm('⚠️ 이 결과는 데모 데이터입니다.\n실제 분석 이력에 저장하지 않는 것을 권장합니다.\n그래도 저장하시겠습니까?');
     if (!proceed) return;
   }
-
   const { data: { session } } = await sb.auth.getSession();
   const tier = getTier(current.sp, current.moodys, current.estGrade);
   const tierInfo = TIERS.find(t => t.id === tier);
-
   const row = {
-    company:    current.company,
-    country:    current.country,
-    sector:     current.sector,
-    score:      current.score,
-    moodys:     current.moodys || null,
-    sp:         current.sp || null,
-    est_grade:  current.estGrade || null,
-    tier_label: tierInfo.label,
-    credit_pct: tierInfo.pct,
-    data:       current,
+    company: current.company, country: current.country, sector: current.sector, score: current.score,
+    moodys: current.moodys || null, sp: current.sp || null, est_grade: current.estGrade || null,
+    tier_label: tierInfo.label, credit_pct: tierInfo.pct, data: current,
     created_by: session?.user?.email || '알 수 없음',
   };
-
   const { error } = await sb.from('kyc_analyses').insert(row);
-
   if (error) {
-    // fallback to localStorage if Supabase fails
     console.warn('Supabase save failed, falling back to localStorage:', error.message);
     savedHistory = savedHistory.filter(h => !(h.company===current.company));
     savedHistory.unshift({...current, tierLabel: tierInfo.label, creditPct: tierInfo.pct});
@@ -2298,37 +2122,20 @@ async function saveHistory() {
     alert('✅ 저장되었습니다. (로컬 저장)');
   } else {
     alert('✅ 분석 결과가 팀 이력에 저장되었습니다.');
-    // Refresh history if currently viewing it
-    if (document.getElementById('page-history').classList.contains('active')) {
-      renderHistory();
-    }
+    if (document.getElementById('page-history').classList.contains('active')) renderHistory();
   }
 }
 
 async function renderHistory() {
   const body  = document.getElementById('hist-body');
   const empty = document.getElementById('hist-empty');
-
   body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">
     <i class="ti ti-loader" style="animation:spin .8s linear infinite;display:inline-block"></i> 불러오는 중...
   </td></tr>`;
   empty.style.display = 'none';
-
-  // Load from Supabase
-  const { data, error } = await sb
-    .from('kyc_analyses')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(100);
-
-  if (error || !data || !data.length) {
-    body.innerHTML = '';
-    empty.style.display = 'block';
-    return;
-  }
-
+  const { data, error } = await sb.from('kyc_analyses').select('*').order('created_at', { ascending: false }).limit(100);
+  if (error || !data || !data.length) { body.innerHTML = ''; empty.style.display = 'block'; return; }
   savedHistory = data.map(row => row.data);
-
   body.innerHTML = data.map((row, i) => {
     const h = row.data;
     const scoreColor = h.score>=85?'#1b5e20':h.score>=70?'#0d47a1':h.score>=55?'#f57f17':h.score>=40?'#e65100':'#9b2020';
@@ -2355,43 +2162,26 @@ async function renderHistory() {
   }).join('');
 }
 
-function reloadResult(i) {
-  current = savedHistory[i];
-  showPage('upload');
-  render(current);
-}
+function reloadResult(i) { current = savedHistory[i]; showPage('upload'); render(current); }
 
 function exportReport() {
   if (!current) return;
-
-  // Build a clean printable HTML page
   const { company, country, sector, score, date, moodys, sp, estGrade,
     rev, ebi, net, dbt, yrs, aiCommentary, sanctionsSummary, orgAnalysis,
     shareholders, employees, subsidiaries, founded } = current;
-
   const tier = getTier(sp, moodys, estGrade);
   const tierInfo = TIERS.find(t => t.id === tier);
-  const grade = moodys || sp || (estGrade ? estGrade + ' (AI 추정)' : '—');
   const scoreColor = score>=75?'#2a7d4f':score>=55?'#92550a':'#9b2020';
   const verdict = score>=75?'거래 승인 권고':score>=55?'조건부 검토':'추가 심사 필요';
-
-  const finRows = [
-    ['매출액', rev],
-    ['EBITDA', ebi],
-    ['당기순이익', net],
-    ['순부채', dbt],
-  ];
+  const finRows = [['매출액', rev],['EBITDA', ebi],['당기순이익', net],['순부채', dbt]];
 
   const html = `<!DOCTYPE html>
-<html><head>
-<meta charset="UTF-8">
-<title>PEI KYC Report — ${company}</title>
+<html><head><meta charset="UTF-8"><title>ClearGate Report — ${company}</title>
 <style>
   body { font-family: 'Inter', Arial, sans-serif; font-size: 13px; color: #1a1410; margin: 0; padding: 0; }
   .page { max-width: 800px; margin: 0 auto; padding: 40px; }
   .header { border-bottom: 3px solid #d97757; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
-  .logo { font-size: 18px; font-weight: 800; color: #1a1410; }
-  .logo span { color: #d97757; }
+  .logo { font-size: 18px; font-weight: 800; color: #1a1410; } .logo span { color: #d97757; }
   .report-date { font-size: 11px; color: #7a6356; }
   h2 { font-size: 15px; font-weight: 700; color: #1a1410; border-left: 4px solid #d97757; padding-left: 10px; margin: 24px 0 12px; }
   .score-row { display: flex; gap: 20px; align-items: center; background: #fdf8f4; border: 1px solid #e8d9cc; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; }
@@ -2417,18 +2207,12 @@ function exportReport() {
   .credit-val { font-size: 16px; font-weight: 800; color: #1e5fc2; }
   .text-block { background: #fdf8f4; border: 1px solid #e8d9cc; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: #3d2f25; line-height: 1.7; }
   .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e8d9cc; font-size: 11px; color: #b0998a; display: flex; justify-content: space-between; }
-  @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .page { padding: 20px; }
-  }
-</style>
-</head><body><div class="page">
-
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .page { padding: 20px; } }
+</style></head><body><div class="page">
   <div class="header">
-    <div class="logo">PEI <span>KYC</span> — LNG &amp; Shipping Due Diligence</div>
+    <div class="logo">Clear<span>Gate</span> — LNG &amp; Shipping Due Diligence</div>
     <div class="report-date">분석일: ${date} &nbsp;|&nbsp; CONFIDENTIAL</div>
   </div>
-
   <div class="score-row">
     <div class="score-big">${score}</div>
     <div class="score-info">
@@ -2437,24 +2221,11 @@ function exportReport() {
       <div class="verdict">${verdict}</div>
     </div>
     <div class="rating-row">
-      <div class="rating-box">
-        <div class="rating-src">Moody's</div>
-        <div class="rating-grade" style="color:#1e5fc2">${moodys||'—'}</div>
-        <div style="font-size:11px;color:#7a6356">${moodys?rDesc(moodys):'미공시'}</div>
-      </div>
-      <div class="rating-box">
-        <div class="rating-src">S&amp;P / Fitch</div>
-        <div class="rating-grade" style="color:#5b33b8">${sp||'—'}</div>
-        <div style="font-size:11px;color:#7a6356">${sp?rDesc(sp):'미공시'}</div>
-      </div>
-      ${!moodys&&!sp?`<div class="rating-box">
-        <div class="rating-src">AI 추정</div>
-        <div class="rating-grade" style="color:#92550a">${estGrade||'—'}</div>
-        <div style="font-size:11px;color:#92550a">재무 기반 추정</div>
-      </div>`:''}
+      <div class="rating-box"><div class="rating-src">Moody's</div><div class="rating-grade" style="color:#1e5fc2">${moodys||'—'}</div><div style="font-size:11px;color:#7a6356">${moodys?rDesc(moodys):'미공시'}</div></div>
+      <div class="rating-box"><div class="rating-src">S&amp;P / Fitch</div><div class="rating-grade" style="color:#5b33b8">${sp||'—'}</div><div style="font-size:11px;color:#7a6356">${sp?rDesc(sp):'미공시'}</div></div>
+      ${!moodys&&!sp?`<div class="rating-box"><div class="rating-src">AI 추정</div><div class="rating-grade" style="color:#92550a">${estGrade||'—'}</div><div style="font-size:11px;color:#92550a">재무 기반 추정</div></div>`:''}
     </div>
   </div>
-
   <h2>신용보강 조건</h2>
   <div class="credit-box">
     <div class="credit-title">${tierInfo.sp} / ${tierInfo.moodys} 구간 적용</div>
@@ -2464,64 +2235,44 @@ function exportReport() {
       <div class="credit-item"><div class="credit-lbl">권장 방법</div><div class="credit-val" style="font-size:12px">${tierInfo.methodLabel}</div></div>
     </div>
   </div>
-
   <h2>재무 분석 (USD 백만)</h2>
   <table>
     <thead><tr><th>항목</th>${(yrs||[]).map(y=>`<th>${y}</th>`).join('')}</tr></thead>
     <tbody>${finRows.map(([l,data])=>`<tr><td>${l}</td>${data.map(v=>`<td>${typeof v==='number'?v.toLocaleString():'—'}</td>`).join('')}</tr>`).join('')}</tbody>
   </table>
-
   <h2>조직 구조</h2>
-  <table>
-    <tbody>
-      <tr><td>최대주주</td><td colspan="3">${shareholders||'—'}</td></tr>
-      <tr><td>임직원 수</td><td>${employees||'—'}</td><td>자회사</td><td>${subsidiaries||'—'}</td></tr>
-      <tr><td>설립연도</td><td colspan="3">${founded||'—'}</td></tr>
-    </tbody>
-  </table>
+  <table><tbody>
+    <tr><td>최대주주</td><td colspan="3">${shareholders||'—'}</td></tr>
+    <tr><td>임직원 수</td><td>${employees||'—'}</td><td>자회사</td><td>${subsidiaries||'—'}</td></tr>
+    <tr><td>설립연도</td><td colspan="3">${founded||'—'}</td></tr>
+  </tbody></table>
   ${orgAnalysis?`<div class="text-block">${orgAnalysis}</div>`:''}
-
   <h2>제재 스크리닝</h2>
   <div class="text-block">${sanctionsSummary||'—'}</div>
-
   <h2>AI 종합 의견</h2>
   <div class="text-block">${(aiCommentary||'').replace(/\n/g,'<br>')}</div>
-
   <div class="footer">
-    <span>PEI KYC Platform — PRISM Finance Internal Use Only</span>
+    <span>ClearGate — PRISM Finance Internal Use Only</span>
     <span>Generated: ${new Date().toLocaleString('ko-KR')}</span>
   </div>
-
 </div></body></html>`;
 
-  // Open print dialog in new window
   const win = window.open('', '_blank', 'width=900,height=700');
   win.document.write(html);
   win.document.close();
-  win.onload = () => {
-    setTimeout(() => {
-      win.print();
-    }, 500);
-  };
+  win.onload = () => { setTimeout(() => { win.print(); }, 500); };
 }
 
-
-// Real site: check Supabase session on load
 window.addEventListener('DOMContentLoaded', async () => {
   const { data: { session } } = await sb.auth.getSession();
   if (session) showApp(session.user);
-  document.getElementById('login-email')?.addEventListener('keydown', e => {
-    if (e.key==='Enter') document.getElementById('login-password')?.focus();
-  });
-  document.getElementById('api-key')?.addEventListener('change', e => {
-    if (e.target.value) safeSet('pei_api_key', e.target.value);
-  });
+  document.getElementById('login-email')?.addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('login-password')?.focus(); });
+  document.getElementById('api-key')?.addEventListener('change', e => { if (e.target.value) safeSet('pei_api_key', e.target.value); });
 });
 </script>
 <footer style="text-align:center;padding:24px;margin-top:12px;border-top:1px solid var(--border);background:var(--cream)">
   <div style="font-size:12px;color:var(--dim);margin-bottom:4px">by <strong style="color:var(--muted)">PEI Finance Team</strong> · Established 2026</div>
   <div style="font-size:11px;color:var(--dim)">ClearGate · AI-powered Automated KYC & Risk Gateway · Internal Use Only</div>
 </footer>
-
 </body>
 </html>
