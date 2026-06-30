@@ -551,7 +551,7 @@
       </div>
 
       <div class="rtab-panel" id="tp-financial">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px">
           <div class="sec-label" style="margin:0">재무 분석 (최근 4년)</div>
           <div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:11px;color:var(--dim)" id="fin-ccy"></span>
@@ -560,6 +560,7 @@
             </button>
           </div>
         </div>
+        <div id="fin-fx-source" style="font-size:10px;color:#c8bba8;margin-bottom:10px;display:none"></div>
 
         <div id="currency-edit-panel" style="display:none;background:var(--sand);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px">
           <div style="display:flex;gap:10px;margin-bottom:10px">
@@ -1115,10 +1116,20 @@ function applyCurrencyEdit() {
   const fxRate  = document.getElementById('edit-fx-rate').value.trim();
   current.originalCurrency = origCcy || null;
   current.fxRateUsed = fxRate || null;
+  current.fxSource = (origCcy && origCcy !== 'USD') ? '수동 입력' : null;
   let fxLabel = 'USD (백만)';
   if (origCcy && origCcy !== 'USD' && fxRate) fxLabel = `USD (백만) · 원문: ${origCcy} · ${fxRate}`;
   else if (origCcy && origCcy !== 'USD') fxLabel = `USD (백만) · 원문: ${origCcy}`;
   document.getElementById('fin-ccy').textContent = fxLabel;
+
+  const fxSourceEl = document.getElementById('fin-fx-source');
+  if (origCcy && origCcy !== 'USD') {
+    fxSourceEl.textContent = '출처: 수동 입력';
+    fxSourceEl.style.display = 'block';
+  } else {
+    fxSourceEl.style.display = 'none';
+  }
+
   document.getElementById('currency-edit-panel').style.display = 'none';
 
   // Show reminder to save if this is a previously-saved analysis
@@ -1643,6 +1654,21 @@ function uploaded(zid, sid, inp) {
   document.getElementById(sid).textContent = '✓ ' + name;
 }
 
+// ── 실시간 환율 가져오기 (exchangerate-api.com, XE.com과 동일한 시장 중간환율) ──
+async function fetchExchangeRate(currencyCode) {
+  try {
+    const res = await fetch(`https://open.er-api.com/v6/latest/USD`);
+    if (!res.ok) return null;
+    const json = await res.json();
+    if (json.result !== 'success' || !json.rates || !json.rates[currencyCode]) return null;
+    const rate = json.rates[currencyCode];
+    return rate.toLocaleString('en-US', { maximumFractionDigits: 4 });
+  } catch(e) {
+    console.warn('Exchange rate fetch failed:', e.message);
+    return null;
+  }
+}
+
 function toBase64(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
@@ -1743,10 +1769,18 @@ async function startAnalysis() {
     const stmtCcyLabel = document.getElementById('cstatement-currency').selectedOptions[0].text;
     const contentBlocks = [];
 
+    // Fetch a real, current exchange rate instead of letting the AI guess
+    let liveRate = null;
+    if (stmtCcy !== 'USD' && stmtCcy !== 'OTHER') {
+      liveRate = await fetchExchangeRate(stmtCcy);
+    }
+
     const currencyInstruction = stmtCcy === 'USD'
       ? 'The financial statements are expected to be in USD. If you detect a different currency in the actual documents, convert to USD millions using a reasonable recent exchange rate and note the original currency and rate used in financialSummary.'
       : stmtCcy === 'OTHER'
       ? 'The user did not specify the currency — detect it from the documents (look for currency symbols, unit labels like "단위: 백만원", "in thousands of EUR", etc.) and convert all figures to USD millions using a reasonable recent exchange rate. State the detected original currency and the exchange rate you used in financialSummary.'
+      : liveRate
+      ? `The financial statements are denominated in ${stmtCcyLabel} (${stmtCcy}). Use this EXACT, current exchange rate (fetched live, do not estimate your own): 1 USD = ${liveRate} ${stmtCcy}. Convert ALL financial figures to USD millions using this exact rate. State in financialSummary: "원문 통화: ${stmtCcy}, 환율 1 USD = ${liveRate} ${stmtCcy} 적용 (실시간 환율)". Watch carefully for the statement's own unit (e.g. "단위: 백만원" means figures are already in millions of KRW — don't double-convert).`
       : `The financial statements are denominated in ${stmtCcyLabel} (${stmtCcy}). Convert ALL financial figures to USD millions using a reasonable recent exchange rate for ${stmtCcy}/USD. State the exchange rate you used in financialSummary (e.g. "원문 통화: KRW, 환율 1,350원/USD 적용"). Watch carefully for the statement's own unit (e.g. "단위: 백만원" means figures are already in millions of KRW — don't double-convert).`;
 
     contentBlocks.push({ type:'text', text: `You are a senior KYC analyst for an LNG and shipping trading company. Analyze the following documents for counterparty: "${company}" (Country: ${country}, Sector: ${sector}).
@@ -1833,7 +1867,8 @@ All revenue/cogs/ebitda/etc figures in the JSON MUST be normalized to USD millio
       totalEquity:parsed.totalEquity||null, operatingCF:parsed.operatingCF||null,
       investingCF:parsed.investingCF||null, financingCF:parsed.financingCF||null,
       netChangeInCash:parsed.netChangeInCash||null, endingCash:parsed.endingCash||null,
-      newsItems, date:new Date().toLocaleDateString('ko-KR'), fromAI:true
+      newsItems, date:new Date().toLocaleDateString('ko-KR'), fromAI:true,
+      fxSource: liveRate ? 'exchangerate-api.com (실시간 환율)' : (stmtCcy!=='USD' ? 'AI 추정 환율' : null)
     });
   } catch(e) {
     hideLoading();
@@ -2070,6 +2105,15 @@ function render(d) {
     fxLabel = `USD (백만) · 원문: ${d.originalCurrency}`;
   }
   document.getElementById('fin-ccy').textContent = fxLabel;
+
+  const fxSourceEl = document.getElementById('fin-fx-source');
+  if (d.fxSource && d.originalCurrency && d.originalCurrency !== 'USD') {
+    fxSourceEl.textContent = '출처: ' + d.fxSource;
+    fxSourceEl.style.display = 'block';
+  } else {
+    fxSourceEl.style.display = 'none';
+  }
+
   document.getElementById('fin-ai-warning').style.display = d.fromAI ? 'flex' : 'none';
   renderFinTable();
   renderFinChart();
