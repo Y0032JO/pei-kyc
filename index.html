@@ -551,16 +551,18 @@
       </div>
 
       <div class="rtab-panel" id="tp-financial">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
           <div class="sec-label" style="margin:0">재무 분석 (최근 4년)</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;color:var(--dim)" id="fin-ccy"></span>
-            <button onclick="toggleCurrencyEdit()" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:600;border:1.5px solid var(--border2);background:white;color:var(--muted);cursor:pointer">
-              <i class="ti ti-currency-dollar"></i> 통화 수정
-            </button>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:11px;color:var(--dim)" id="fin-ccy"></span>
+              <button onclick="toggleCurrencyEdit()" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:600;border:1.5px solid var(--border2);background:white;color:var(--muted);cursor:pointer">
+                <i class="ti ti-currency-dollar"></i> 통화 수정
+              </button>
+            </div>
+            <div id="fin-fx-source" style="font-size:10px;color:#c8bba8;display:none"></div>
           </div>
         </div>
-        <div id="fin-fx-source" style="font-size:10px;color:#c8bba8;margin-bottom:10px;display:none"></div>
 
         <div id="currency-edit-panel" style="display:none;background:var(--sand);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px">
           <div style="display:flex;gap:10px;margin-bottom:10px">
