@@ -270,20 +270,60 @@
       <div class="login-logo-icon"><i class="ti ti-ship"></i></div>
       <div style="font-size:20px;font-weight:800;color:var(--ink)">ClearGate</div>
     </div>
-    <div class="login-title">로그인</div>
-    <div class="login-sub">LNG & Shipping KYC Platform<br>PRISM Finance 내부 전용</div>
+
+    <!-- 로그인 / 가입 탭 -->
+    <div style="display:flex;gap:0;margin-bottom:24px;border-radius:10px;overflow:hidden;border:1.5px solid var(--border2)">
+      <button id="tab-login-btn" onclick="switchAuthTab('login')"
+        style="flex:1;padding:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;background:var(--clay);color:white;transition:all .15s">
+        로그인
+      </button>
+      <button id="tab-signup-btn" onclick="switchAuthTab('signup')"
+        style="flex:1;padding:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;background:white;color:var(--muted);transition:all .15s">
+        가입
+      </button>
+    </div>
+
     <div class="login-error" id="login-error"></div>
-    <div class="login-field">
-      <label>이메일</label>
-      <input type="email" id="login-email" placeholder="name@prismfinance.com" autocomplete="email">
+
+    <!-- 로그인 폼 -->
+    <div id="auth-login-form">
+      <div class="login-sub" style="margin-bottom:20px">PRISM Finance 내부 전용</div>
+      <div class="login-field">
+        <label>이메일</label>
+        <input type="email" id="login-email" placeholder="name@sk.com" autocomplete="email">
+      </div>
+      <div class="login-field">
+        <label>비밀번호</label>
+        <input type="password" id="login-password" placeholder="비밀번호 입력" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="login-btn" onclick="doLogin()" id="login-btn">
+        <i class="ti ti-login"></i> 로그인
+      </button>
     </div>
-    <div class="login-field">
-      <label>비밀번호</label>
-      <input type="password" id="login-password" placeholder="비밀번호 입력" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+
+    <!-- 가입 폼 -->
+    <div id="auth-signup-form" style="display:none">
+      <div class="login-sub" style="margin-bottom:20px">
+        가입 시 <strong>@sk.com</strong> 이메일 주소를 사용해 주세요<br>
+        <span style="font-size:11px;color:var(--dim)">관리자 승인 후 로그인 가능합니다</span>
+      </div>
+      <div class="login-field">
+        <label>이메일</label>
+        <input type="email" id="signup-email" placeholder="name@sk.com" autocomplete="email">
+      </div>
+      <div class="login-field">
+        <label>비밀번호</label>
+        <input type="password" id="signup-password" placeholder="비밀번호 설정 (8자 이상)" autocomplete="new-password">
+      </div>
+      <div class="login-field">
+        <label>비밀번호 확인</label>
+        <input type="password" id="signup-password2" placeholder="비밀번호 재입력" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSignup()">
+      </div>
+      <button class="login-btn" onclick="doSignup()" id="signup-btn">
+        <i class="ti ti-user-plus"></i> 가입하기
+      </button>
     </div>
-    <button class="login-btn" onclick="doLogin()" id="login-btn">
-      <i class="ti ti-login"></i> 로그인
-    </button>
+
     <div class="login-api-note">
       <i class="ti ti-info-circle"></i> 로그인 후 Anthropic API Key를 입력하면 실제 AI 분석이 가능합니다
     </div>
@@ -758,12 +798,18 @@
       <div class="rtab-panel" id="tp-team">
         <div class="sec-label">재무팀 의견</div>
         <div id="team-comments-list" style="margin-bottom:16px"></div>
-        <div style="background:var(--sand);border:1px solid var(--border);border-radius:var(--r);padding:16px">
+        <!-- 재무팀만 표시 -->
+        <div id="team-comment-write" style="background:var(--sand);border:1px solid var(--border);border-radius:var(--r);padding:16px">
           <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px">새 의견 작성</div>
           <textarea id="team-comment-input" placeholder="거래 조건, 리스크 사항, 내부 검토 의견 등을 자유롭게 입력하세요..." style="width:100%;height:100px;border:1.5px solid var(--border2);border-radius:var(--r);padding:10px 13px;font-size:13px;color:var(--ink);outline:none;resize:vertical;font-family:inherit;line-height:1.6" onfocus="this.style.borderColor='var(--clay)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
           <div style="display:flex;justify-content:flex-end;margin-top:10px">
             <button class="btn btn-primary" onclick="saveTeamComment()"><i class="ti ti-send"></i> 의견 저장</button>
           </div>
+        </div>
+        <!-- 재무팀 외 표시 -->
+        <div id="team-comment-readonly" style="display:none;background:var(--sand);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center;color:var(--dim)">
+          <i class="ti ti-lock" style="font-size:20px;display:block;margin-bottom:8px;color:var(--border2)"></i>
+          <div style="font-size:13px">재무팀 의견은 담당자만 작성할 수 있습니다</div>
         </div>
       </div>
     </div>
@@ -1402,6 +1448,10 @@ function renderCreditTiers(matchTierId) {
 }
 
 async function saveTeamComment() {
+  if (!isFinanceTeam()) {
+    alert('재무팀 의견은 담당자만 작성할 수 있습니다.');
+    return;
+  }
   const text = document.getElementById('team-comment-input').value.trim();
   if (!text) { alert('의견을 입력해주세요.'); return; }
   if (!current) { alert('분석 결과가 없습니다.'); return; }
@@ -1646,7 +1696,13 @@ function switchTab(name) {
     if (finCharts[active]) finCharts[active].update();
   }
   if (name === 'credit') bindCalcInputs();
-  if (name === 'team' && current) loadTeamComments(current.company);
+  if (name === 'team' && current) {
+    loadTeamComments(current.company);
+    // Show/hide write panel based on permission
+    const canWrite = isFinanceTeam();
+    document.getElementById('team-comment-write').style.display    = canWrite ? 'block' : 'none';
+    document.getElementById('team-comment-readonly').style.display  = canWrite ? 'none'  : 'block';
+  }
 }
 
 function uploaded(zid, sid, inp) {
@@ -1684,18 +1740,123 @@ const SUPABASE_URL = 'https://sxpfgqirggqmabgkakfd.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_J5kWJreJDx4tdpk9b41-FQ_HCo14-Z7';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+// ── 로그인/가입 탭 전환 ──
+function switchAuthTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('auth-login-form').style.display  = isLogin ? 'block' : 'none';
+  document.getElementById('auth-signup-form').style.display = isLogin ? 'none'  : 'block';
+  document.getElementById('tab-login-btn').style.background  = isLogin ? 'var(--clay)' : 'white';
+  document.getElementById('tab-login-btn').style.color       = isLogin ? 'white' : 'var(--muted)';
+  document.getElementById('tab-signup-btn').style.background = isLogin ? 'white' : 'var(--clay)';
+  document.getElementById('tab-signup-btn').style.color      = isLogin ? 'var(--muted)' : 'white';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+// ── 가입 (@sk.com 도메인만 허용) ──
+async function doSignup() {
+  const email = document.getElementById('signup-email').value.trim();
+  const pass  = document.getElementById('signup-password').value;
+  const pass2 = document.getElementById('signup-password2').value;
+  const errEl = document.getElementById('login-error');
+  const btn   = document.getElementById('signup-btn');
+  errEl.style.display = 'none';
+
+  if (!email.endsWith('@sk.com')) {
+    errEl.textContent = '@sk.com 이메일만 가입 가능합니다.';
+    errEl.style.display = 'block'; return;
+  }
+  if (pass.length < 8) {
+    errEl.textContent = '비밀번호는 8자 이상이어야 합니다.';
+    errEl.style.display = 'block'; return;
+  }
+  if (pass !== pass2) {
+    errEl.textContent = '비밀번호가 일치하지 않습니다.';
+    errEl.style.display = 'block'; return;
+  }
+
+  btn.textContent = '가입 중...';
+  btn.disabled = true;
+
+  // 1. Supabase Auth에 계정 생성 (이메일 인증 없이)
+  const { data, error } = await sb.auth.signUp({ email, password: pass });
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-user-plus"></i> 가입하기';
+
+  if (error) {
+    errEl.textContent = error.message.includes('already') ? '이미 가입된 이메일입니다.' : '가입 중 오류가 발생했습니다.';
+    errEl.style.display = 'block'; return;
+  }
+
+  // 2. pending_users 테이블에 승인 대기 등록
+  await sb.from('pending_users').upsert({ email, status: 'pending' });
+
+  // 3. 관리자에게 이메일 알람 발송
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/send-alert-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}` },
+      body: JSON.stringify({
+        company: '신규 가입 요청',
+        grade: '',
+        news: [{ hl: `${email}님이 ClearGate 가입을 요청했습니다.`, src: 'ClearGate', date: new Date().toLocaleDateString('ko-KR'), level: 'warning' }],
+        recipients: ['josephine@sk.com'],
+        level: '⚠️ 가입 승인 요청',
+        subject_override: `[ClearGate] 신규 가입 승인 요청 — ${email}`
+      })
+    });
+  } catch(e) { console.warn('Admin notification failed:', e.message); }
+
+  // 4. 즉시 로그아웃 (승인 전 접근 차단)
+  await sb.auth.signOut();
+
+  // 5. 안내 메시지
+  errEl.textContent = '✅ 가입 요청이 완료됐습니다! 관리자 승인 후 로그인 가능합니다.';
+  errEl.style.cssText = 'background:var(--green-lt);border:1px solid #8bcfad;border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:16px;display:block';
+  document.getElementById('signup-email').value = '';
+  document.getElementById('signup-password').value = '';
+  document.getElementById('signup-password2').value = '';
+  switchAuthTab('login');
+}
+
+// ── 재무팀 의견 권한 체크 ──
+const FINANCE_TEAM = ['josephine@sk.com', 'bkson@sk.com'];
+const ADMIN_EMAIL  = 'josephine@sk.com';
+
+function isFinanceTeam() {
+  const email = document.getElementById('nav-user-email')?.textContent?.trim().toLowerCase();
+  return FINANCE_TEAM.includes(email);
+}
+
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
   const btn   = document.getElementById('login-btn');
+  errEl.style.cssText = '';
   errEl.style.display = 'none';
   btn.textContent = '로그인 중...';
   btn.disabled = true;
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   btn.disabled = false;
   btn.innerHTML = '<i class="ti ti-login"></i> 로그인';
-  if (error) { errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.'; errEl.style.display = 'block'; return; }
+
+  if (error) {
+    errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+    errEl.style.display = 'block'; return;
+  }
+
+  // 승인 여부 체크 (관리자는 무조건 통과)
+  if (email.toLowerCase() !== ADMIN_EMAIL) {
+    const { data: pending } = await sb.from('pending_users').select('status').eq('email', email).single();
+    if (!pending || pending.status !== 'approved') {
+      await sb.auth.signOut();
+      errEl.textContent = pending
+        ? '아직 관리자 승인 대기 중입니다. 승인 후 다시 로그인해주세요.'
+        : '가입 정보를 찾을 수 없습니다. 먼저 가입해주세요.';
+      errEl.style.display = 'block'; return;
+    }
+  }
+
   showApp(data.user);
 }
 
