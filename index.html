@@ -371,7 +371,7 @@
     <div class="hero-title">거래 상대방 KYC 분석</div>
     <div class="hero-sub">재무제표 · 조직도 · 제재 질문지를 업로드하면 Claude AI가 자동으로 분석하고 KYC 점수, 신용등급 및 신용보강 조건을 산출합니다</div>
 
-    <div class="api-key-row">
+    <div class="api-key-row" style="display:none">
       <i class="ti ti-key"></i>
       <span>Anthropic API Key</span>
       <input type="password" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off">
@@ -1869,8 +1869,23 @@ async function doLogout() {
 function showApp(user) {
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('nav-user-email').textContent = user.email;
-  const saved = safeGet('pei_api_key', '');
-  if (saved) document.getElementById('api-key').value = saved;
+
+  // Load API key from Supabase (falls back to localStorage if fails)
+  sb.from('app_config').select('value').eq('key', 'anthropic_api_key').single()
+    .then(({ data }) => {
+      if (data?.value) {
+        document.getElementById('api-key').value = data.value;
+        safeSet('pei_api_key', data.value);
+      } else {
+        const saved = safeGet('pei_api_key', '');
+        if (saved) document.getElementById('api-key').value = saved;
+      }
+    })
+    .catch(() => {
+      const saved = safeGet('pei_api_key', '');
+      if (saved) document.getElementById('api-key').value = saved;
+    });
+
   setTimeout(() => autoCheckAlerts(), 2000);
 }
 
