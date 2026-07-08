@@ -451,6 +451,7 @@
           <option value="NOK">NOK 노르웨이 크로네</option>
           <option value="INR">INR (₹) 인도 루피</option>
           <option value="THB">THB (฿) 태국 바트</option>
+          <option value="VND">VND (₫) 베트남 동</option>
           <option value="OTHER">기타 (AI 자동 인식)</option>
         </select>
       </div>
@@ -588,6 +589,27 @@
       <div class="rtab-panel active" id="tp-overview">
         <div class="sec-label">주요 발견 사항</div>
         <div id="flags-el"></div>
+
+        <!-- KYC 프로세스 안내 -->
+        <div style="margin-top:24px;background:#fff3e0;border:2px solid var(--clay);border-radius:var(--rlg);padding:18px 20px">
+          <div style="font-size:12px;font-weight:700;color:var(--clay-dk);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+            <i class="ti ti-alert-circle"></i> KYC 프로세스 안내
+          </div>
+          <div style="font-size:13px;color:var(--ink2);line-height:1.8">
+            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+              <span style="background:var(--clay);color:white;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px">1</span>
+              <div>본 AI 분석 결과는 <strong>참고 자료</strong>입니다. 실제 KYC 진행을 위해서는 <strong>재무팀에 이메일로 공식 요청</strong>이 필요합니다.</div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <span style="background:var(--clay);color:white;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px">2</span>
+              <div>본 사이트의 <strong>재무팀 의견</strong>이 등록되어야 KYC Supporting 자료로 인정됩니다. 분석 완료 후 재무팀 의견 탭에서 확인해주세요.</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid #ffb74d;display:flex;align-items:center;gap:8px">
+            <i class="ti ti-mail" style="color:var(--clay-dk);font-size:15px"></i>
+            <span style="font-size:12px;color:var(--clay-dk)">재무팀 문의: <strong>josephine@sk.com</strong> · <strong>bkson@sk.com</strong></span>
+          </div>
+        </div>
       </div>
 
       <div class="rtab-panel" id="tp-financial">
@@ -987,7 +1009,7 @@
   </div>
   <div class="card">
     <table class="hist-table">
-      <thead><tr><th>회사명</th><th>국가</th><th>섹터</th><th>KYC 점수</th><th>등급</th><th>신용보강</th><th style="white-space:nowrap">판정</th><th>저장일 / 저장자</th><th></th></tr></thead>
+      <thead><tr><th>회사명</th><th>국가</th><th>섹터</th><th>KYC 점수</th><th>등급</th><th>신용보강</th><th style="white-space:nowrap">판정</th><th>재무팀 의견</th><th>저장일 / 저장자</th><th></th></tr></thead>
       <tbody id="hist-body"></tbody>
     </table>
     <div id="hist-empty" style="text-align:center;padding:48px;color:var(--dim)">
@@ -1866,6 +1888,21 @@ async function doLogout() {
   document.getElementById('nav-user-email').textContent = '';
 }
 
+function showWelcomeModal() {
+  const dismissed = safeGet('cg_welcome_dismissed', '');
+  if (dismissed === 'true') return;
+  const modal = document.getElementById('welcome-modal');
+  modal.style.display = 'flex';
+}
+
+function closeWelcomeModal() {
+  const modal = document.getElementById('welcome-modal');
+  modal.style.display = 'none';
+  if (document.getElementById('dont-show-again').checked) {
+    safeSet('cg_welcome_dismissed', 'true');
+  }
+}
+
 function showApp(user) {
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('nav-user-email').textContent = user.email;
@@ -1886,7 +1923,7 @@ function showApp(user) {
       if (saved) document.getElementById('api-key').value = saved;
     });
 
-  setTimeout(() => autoCheckAlerts(), 2000);
+  setTimeout(() => { showWelcomeModal(); autoCheckAlerts(); }, 500);
 }
 
 async function fetchRealNews(company) {
@@ -2391,22 +2428,31 @@ async function deleteHistoryRow(rowId) {
 async function renderHistory() {
   const body  = document.getElementById('hist-body');
   const empty = document.getElementById('hist-empty');
-  body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">
+  body.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--muted)">
     <i class="ti ti-loader" style="animation:spin .8s linear infinite;display:inline-block"></i> 불러오는 중...
   </td></tr>`;
   empty.style.display = 'none';
+
   const { data, error } = await sb.from('kyc_analyses').select('*').order('created_at', { ascending: false }).limit(100);
   if (error || !data || !data.length) { body.innerHTML = ''; empty.style.display = 'block'; return; }
   savedHistory = data.map(row => ({ ...row.data, _rowId: row.id }));
+
+  // 재무팀 의견 있는 회사 목록 한꺼번에 조회
+  const companies = [...new Set(data.map(r => r.company))];
+  const { data: comments } = await sb.from('team_comments').select('company').in('company', companies);
+  const companiesWithComments = new Set((comments||[]).map(c => c.company));
+
   body.innerHTML = data.map((row, i) => {
     const h = row.data;
     const scoreColor = h.score>=85?'#1b5e20':h.score>=70?'#0d47a1':h.score>=55?'#f57f17':h.score>=40?'#e65100':'#9b2020';
     const verdict    = h.score>=85?'우수':h.score>=70?'승인 권고':h.score>=55?'조건부':h.score>=40?'추가 심사':'거래 불가';
     const vBg        = h.score>=85?'#e8f5e9':h.score>=70?'#e3f2fd':h.score>=55?'#fffde7':h.score>=40?'#fff3e0':'#fdeaea';
     const vBd        = h.score>=85?'#66bb6a':h.score>=70?'#42a5f5':h.score>=55?'#fdd835':h.score>=40?'#ffa726':'#fecdca';
-    const grade   = h.moodys || h.sp || (h.estGrade ? h.estGrade+'*' : '—');
-    const savedBy = row.created_by || '—';
-    const savedAt = new Date(row.created_at).toLocaleDateString('ko-KR');
+    const grade      = h.moodys || h.sp || (h.estGrade ? h.estGrade+'*' : '—');
+    const savedBy    = row.created_by || '—';
+    const savedAt    = new Date(row.created_at).toLocaleDateString('ko-KR');
+    const hasComment = companiesWithComments.has(row.company);
+
     return `<tr>
       <td style="font-weight:700">${h.company}</td>
       <td style="color:var(--muted)">${h.country||'—'}</td>
@@ -2415,6 +2461,12 @@ async function renderHistory() {
       <td><span class="pill pill-b">${grade}</span></td>
       <td style="font-size:12px;color:var(--muted)">${row.credit_pct||'—'}</td>
       <td><span style="display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700;white-space:nowrap;background:${vBg};color:${scoreColor};border:1.5px solid ${vBd}">${verdict}</span></td>
+      <td style="text-align:center">
+        ${hasComment
+          ? `<span style="font-size:12px;font-weight:700;color:var(--green)">있음</span>`
+          : `<span style="font-size:12px;font-weight:700;color:var(--red)">없음</span>`
+        }
+      </td>
       <td style="font-size:12px;color:var(--muted)">${savedAt}<br><span style="font-size:11px;color:var(--dim)">${savedBy}</span></td>
       <td style="white-space:nowrap">
         <button class="btn btn-ghost" style="padding:5px 11px;font-size:12px" onclick="reloadResult(${i})"><i class="ti ti-eye"></i> 보기</button>
@@ -2537,5 +2589,43 @@ window.addEventListener('DOMContentLoaded', async () => {
   <div style="font-size:12px;color:var(--dim);margin-bottom:4px">by <strong style="color:var(--muted)">PEI Finance Team</strong> · Established 2026</div>
   <div style="font-size:11px;color:var(--dim)">ClearGate · AI-powered Automated KYC & Risk Gateway · Internal Use Only</div>
 </footer>
+<!-- 첫 로그인 안내 모달 -->
+<div id="welcome-modal" style="display:none;position:fixed;inset:0;z-index:998;background:rgba(26,20,16,.5);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:var(--cream);border-radius:20px;padding:36px;max-width:480px;width:90%;box-shadow:0 8px 40px rgba(26,20,16,.2);position:relative">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="width:52px;height:52px;background:linear-gradient(135deg,var(--clay),var(--clay-dk));border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <i class="ti ti-ship" style="font-size:24px;color:white"></i>
+      </div>
+      <div style="font-size:18px;font-weight:800;color:var(--ink);margin-bottom:4px">ClearGate에 오신 걸 환영합니다!</div>
+      <div style="font-size:13px;color:var(--muted)">사용 전 아래 KYC 프로세스를 확인해주세요</div>
+    </div>
+
+    <div style="background:var(--sand);border-radius:var(--rlg);padding:18px 20px;margin-bottom:20px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">KYC 프로세스 안내</div>
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
+        <span style="background:var(--clay);color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.7">본 AI 분석 결과는 <strong>참고 자료</strong>입니다. 실제 KYC 진행을 위해서는 <strong>재무팀에 이메일로 공식 요청</strong>이 필요합니다.</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <span style="background:var(--clay);color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</span>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.7">사이트 내 <strong>재무팀 의견</strong>이 등록되어야 KYC Supporting 자료로 인정됩니다.</div>
+      </div>
+    </div>
+
+    <div style="background:var(--clay-lt);border:1.5px solid var(--clay);border-radius:var(--r);padding:12px 16px;margin-bottom:20px;font-size:12px;color:var(--clay-dk)">
+      <i class="ti ti-mail"></i> 재무팀 문의: <strong>josephine@sk.com</strong> · <strong>bkson@sk.com</strong>
+    </div>
+
+    <button onclick="closeWelcomeModal()" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--clay),var(--clay-dk));color:white;border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer">
+      확인했습니다 →
+    </button>
+    <div style="text-align:center;margin-top:10px">
+      <label style="font-size:12px;color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+        <input type="checkbox" id="dont-show-again" style="cursor:pointer"> 다시 보지 않기
+      </label>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
