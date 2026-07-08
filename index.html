@@ -1966,10 +1966,19 @@ async function fetchRealNews(company) {
 
 async function startAnalysis() {
   const company = document.getElementById('cname').value.trim();
-  const apiKey  = document.getElementById('api-key').value.trim();
   if (!company) { alert('회사명을 입력해주세요.'); return; }
-  if (!apiKey)  { alert('Anthropic API Key를 입력해주세요.'); return; }
-  safeSet('pei_api_key', apiKey);
+
+  // API Key 우선순위: Supabase → 숨겨진 input → localStorage
+  let apiKey = document.getElementById('api-key').value.trim();
+  if (!apiKey) {
+    try {
+      const { data } = await sb.from('app_config').select('value').eq('key', 'anthropic_api_key').single();
+      if (data?.value) apiKey = data.value;
+    } catch(e) { console.warn('API key fetch failed:', e.message); }
+  }
+  if (!apiKey) apiKey = safeGet('pei_api_key', '');
+  if (!apiKey) { alert('API Key를 불러오지 못했습니다. 관리자에게 문의해주세요.'); return; }
+  document.getElementById('api-key').value = apiKey;
 
   const finFiles = document.getElementById('file-fin').files;
   const orgFiles = document.getElementById('file-org').files;
