@@ -2068,12 +2068,22 @@ All revenue/cogs/ebitda/etc figures in the JSON MUST be normalized to USD millio
         payload: { model:'claude-sonnet-4-6', max_tokens:4000, messages:[{ role:'user', content:contentBlocks }] }
       })
     });
+
+    const rawText = await resp.text();
+    console.log('Edge Function response status:', resp.status);
+    console.log('Edge Function response body:', rawText.substring(0, 500));
+
     if (!resp.ok) {
-      const err = await resp.json().catch(()=>({}));
-      throw new Error(err.error?.message || 'API 오류 ('+resp.status+')');
+      throw new Error('Edge Function 오류 (' + resp.status + '): ' + rawText.substring(0, 200));
+    }
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch(e) {
+      throw new Error('Edge Function 응답 파싱 실패: ' + rawText.substring(0, 200));
     }
     updateStep(3);
-    const data = await resp.json();
     const raw  = data.content?.find(b=>b.type==='text')?.text || '';
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI 응답 파싱 실패');
