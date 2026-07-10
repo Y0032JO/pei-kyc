@@ -2057,33 +2057,24 @@ All revenue/cogs/ebitda/etc figures in the JSON MUST be normalized to USD millio
     }
 
     updateStep(1);
-    const resp = await fetch(`${SUPABASE_URL}/functions/v1/send-alert-email`, {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON}`
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
       },
-      body: JSON.stringify({
-        type: 'anthropic_proxy',
-        payload: { model:'claude-sonnet-4-6', max_tokens:4000, messages:[{ role:'user', content:contentBlocks }] }
-      })
+      body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:4000, messages:[{ role:'user', content:contentBlocks }] })
     });
 
-    const rawText = await resp.text();
-    console.log('Edge Function response status:', resp.status);
-    console.log('Edge Function response body:', rawText.substring(0, 500));
-
     if (!resp.ok) {
-      throw new Error('Edge Function 오류 (' + resp.status + '): ' + rawText.substring(0, 200));
+      const err = await resp.json().catch(()=>({}));
+      throw new Error(err.error?.message || 'API 오류 ('+resp.status+')');
     }
 
-    let data;
-    try {
-      data = JSON.parse(rawText);
-    } catch(e) {
-      throw new Error('Edge Function 응답 파싱 실패: ' + rawText.substring(0, 200));
-    }
     updateStep(3);
+    const data = await resp.json();
     const raw  = data.content?.find(b=>b.type==='text')?.text || '';
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI 응답 파싱 실패');
