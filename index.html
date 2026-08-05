@@ -493,6 +493,7 @@
       <div class="save-bar-info"><strong id="rname-bar">—</strong> &nbsp;분석 완료 · <span id="rdate-bar"></span></div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-ghost" style="background:rgba(253,246,240,.12);color:rgba(253,246,240,.85);border-color:rgba(253,246,240,.25)" onclick="saveHistory()"><i class="ti ti-device-floppy"></i> 분석 저장</button>
+        <button class="btn btn-ghost" style="background:rgba(253,246,240,.12);color:rgba(253,246,240,.85);border-color:rgba(253,246,240,.25)" onclick="showSupplementModal()"><i class="ti ti-file-plus"></i> 추가 파일 재분석</button>
         <button class="btn btn-ghost" style="background:rgba(253,246,240,.12);color:rgba(253,246,240,.85);border-color:rgba(253,246,240,.25)" onclick="exportReport()"><i class="ti ti-download"></i> PDF</button>
       </div>
     </div>
@@ -1888,6 +1889,154 @@ async function doLogout() {
   document.getElementById('nav-user-email').textContent = '';
 }
 
+function showSupplementModal() {
+  if (!current) { alert('먼저 분석 결과를 불러와주세요.'); return; }
+  document.getElementById('supplement-modal').style.display = 'flex';
+  document.getElementById('file-supplement').value = '';
+  document.getElementById('z-supplement').classList.remove('ok');
+  document.getElementById('st-supplement').textContent = '';
+}
+
+async function startSupplementAnalysis() {
+  const files = document.getElementById('file-supplement').files;
+  if (!files.length) { alert('파일을 선택해주세요.'); return; }
+  if (!current) { alert('기존 분석 결과가 없습니다.'); return; }
+
+  let apiKey = document.getElementById('api-key').value.trim();
+  if (!apiKey) {
+    try {
+      const { data } = await sb.from('app_config').select('value').eq('key', 'anthropic_api_key').single();
+      if (data?.value) apiKey = data.value;
+    } catch(e) {}
+  }
+  if (!apiKey) { alert('API Key를 불러오지 못했습니다.'); return; }
+
+  document.getElementById('supplement-modal').style.display = 'none';
+  showLoading();
+
+  try {
+    const contentBlocks = [];
+
+    // 기존 분석 결과를 텍스트로 전달
+    contentBlocks.push({ type: 'text', text: `You are a senior KYC analyst. You have previously analyzed "${current.company}" and produced the following results:
+
+PREVIOUS ANALYSIS SUMMARY:
+- Company: ${current.company} (${current.country}, ${current.sector})
+- KYC Score: ${current.score}
+- Moody's: ${current.moodys || 'N/A'}, S&P: ${current.sp || 'N/A'}
+- Financial Summary: ${current.financialSummary || 'N/A'}
+- Previous years analyzed: ${(current.yrs||[]).join(', ')}
+- Revenue: ${(current.rev||[]).join(', ')} (USD millions)
+- EBITDA: ${(current.ebi||[]).join(', ')} (USD millions)
+- Net Income: ${(current.net||[]).join(', ')} (USD millions)
+- Net Debt: ${(current.dbt||[]).join(', ')} (USD millions)
+- Total Assets: ${(current.totalAssets||[]).join(', ')} (USD millions)
+- Total Liabilities: ${(current.totalLiabilities||[]).join(', ')} (USD millions)
+- Total Equity: ${(current.totalEquity||[]).join(', ')} (USD millions)
+
+Now analyze the ADDITIONAL documents provided below and produce an UPDATED comprehensive analysis that integrates both the previous results and the new information.
+
+Return a JSON object ONLY (no markdown) with exactly the same structure as before, but updated with the combined analysis. Use the most recent/complete data available. If new documents provide data for additional years, include them. Recalculate the KYC score based on all available information.
+
+Return the same JSON structure:
+{
+  "company":"${current.company}","country":"${current.country}","sector":"${current.sector}",
+  "moodys":"official Moody rating or null","sp":"official S&P/Fitch rating or null",
+  "estGrade":"estimated Moody equivalent if both null, else null",
+  "estRationale":"2-3 sentence Korean rationale if estGrade set",
+  "years":["year1","year2","year3","year4"],"currency":"USD millions",
+  "originalCurrency":"ISO currency code","fxRateUsed":"exchange rate string or null",
+  "revenue":[n,n,n,n],"cogs":[n,n,n,n],"grossProfit":[n,n,n,n],
+  "operatingExpense":[n,n,n,n],"ebitda":[n,n,n,n],"depreciation":[n,n,n,n],
+  "ebit":[n,n,n,n],"interestExpense":[n,n,n,n],"netIncome":[n,n,n,n],
+  "totalAssets":[n,n,n,n],"currentAssets":[n,n,n,n],
+  "totalLiabilities":[n,n,n,n],"currentLiabilities":[n,n,n,n],
+  "totalEquity":[n,n,n,n],"netDebt":[n,n,n,n],
+  "operatingCF":[n,n,n,n],"investingCF":[n,n,n,n],"financingCF":[n,n,n,n],
+  "netChangeInCash":[n,n,n,n],"endingCash":[n,n,n,n],
+  "shareholders":"major shareholders","employees":"headcount",
+  "subsidiaries":"number and countries","founded":"year",
+  "orgAnalysis":"Korean governance analysis",
+  "sanctionsClear":true,"pepFound":false,"pepDetail":null,
+  "sanctionsSummary":"Korean summary","financialSummary":"Korean summary",
+  "riskFactors":"Korean risk factors","aiCommentary":"3-4 paragraph Korean KYC opinion",
+  "score":0-100,"dimFinancial":0-100,"dimSanctions":0-100,"dimGovernance":0-100,"dimHistory":0-100,
+  "parentCompany":"parent company name or null","parentMoodys":"parent Moody rating or null","parentSP":"parent S&P rating or null"
+}` });
+
+    // 새 파일들 추가
+    for (const file of files) {
+      const b64 = await toBase64(file);
+      if (file.type === 'application/pdf') {
+        contentBlocks.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 }, title:'Additional Document: '+file.name });
+      } else if (file.type.startsWith('image/')) {
+        contentBlocks.push({ type:'image', source:{ type:'base64', media_type:file.type, data:b64 } });
+      }
+    }
+
+    updateStep(1);
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:4000, messages:[{ role:'user', content:contentBlocks }] })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(()=>({}));
+      throw new Error(err.error?.message || 'API 오류 ('+resp.status+')');
+    }
+
+    updateStep(3);
+    const data = await resp.json();
+    const raw = data.content?.find(b=>b.type==='text')?.text || '';
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('AI 응답 파싱 실패');
+    const parsed = JSON.parse(jsonMatch[0]);
+
+    updateStep(4);
+    const newsItems = await fetchRealNews(parsed.company || current.company);
+
+    updateStep(5);
+    await new Promise(r=>setTimeout(r,400));
+    hideLoading();
+
+    // 기존 _rowId 유지해서 저장 시 업데이트되게
+    const existingRowId = current._rowId;
+    render({ ...parsed,
+      _rowId: existingRowId,
+      yrs: parsed.years||['2021','2022','2023','2024'],
+      rev: parsed.revenue||[0,0,0,0], ebi: parsed.ebitda||[0,0,0,0],
+      net: parsed.netIncome||[0,0,0,0], dbt: parsed.netDebt||[0,0,0,0],
+      cogs:parsed.cogs||null, grossProfit:parsed.grossProfit||null,
+      operatingExpense:parsed.operatingExpense||null, depreciation:parsed.depreciation||null,
+      ebit:parsed.ebit||null, interestExpense:parsed.interestExpense||null,
+      totalAssets:parsed.totalAssets||null, currentAssets:parsed.currentAssets||null,
+      totalLiabilities:parsed.totalLiabilities||null, currentLiabilities:parsed.currentLiabilities||null,
+      totalEquity:parsed.totalEquity||null, operatingCF:parsed.operatingCF||null,
+      investingCF:parsed.investingCF||null, financingCF:parsed.financingCF||null,
+      netChangeInCash:parsed.netChangeInCash||null, endingCash:parsed.endingCash||null,
+      newsItems, date:new Date().toLocaleDateString('ko-KR'), fromAI:true,
+      fxSource: parsed.originalCurrency && parsed.originalCurrency !== 'USD' ? 'AI 추정 환율' : null
+    });
+
+    // 성공 안내
+    const note = document.createElement('div');
+    note.style.cssText = 'background:var(--green-lt);border:1.5px solid #8bcfad;border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--green);display:flex;align-items:center;gap:8px';
+    note.innerHTML = '<i class="ti ti-circle-check"></i> 추가 파일이 반영된 통합 분석이 완료됐습니다! "분석 저장"을 눌러 이력을 업데이트해주세요.';
+    document.getElementById('results').insertBefore(note, document.getElementById('results').firstChild);
+    setTimeout(() => note.remove(), 6000);
+
+  } catch(e) {
+    hideLoading();
+    alert('추가 분석 중 오류가 발생했습니다:\n\n' + e.message);
+  }
+}
+
 function showWelcomeModal() {
   const dismissed = safeGet('cg_welcome_dismissed', '');
   if (dismissed === 'true') return;
@@ -2639,6 +2788,47 @@ window.addEventListener('DOMContentLoaded', async () => {
       <label style="font-size:12px;color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
         <input type="checkbox" id="dont-show-again" style="cursor:pointer"> 다시 보지 않기
       </label>
+    </div>
+  </div>
+</div>
+
+<!-- 추가 파일 재분석 모달 -->
+<div id="supplement-modal" style="display:none;position:fixed;inset:0;z-index:998;background:rgba(26,20,16,.5);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:var(--cream);border-radius:20px;padding:32px;max-width:520px;width:90%;box-shadow:0 8px 40px rgba(26,20,16,.2)">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <div style="width:40px;height:40px;background:linear-gradient(135deg,var(--clay),var(--clay-dk));border-radius:10px;display:flex;align-items:center;justify-content:center">
+        <i class="ti ti-file-plus" style="font-size:20px;color:white"></i>
+      </div>
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--ink)">추가 파일로 재분석</div>
+        <div style="font-size:12px;color:var(--muted)">기존 분석에 새 파일을 추가해서 합쳐서 재분석합니다</div>
+      </div>
+    </div>
+
+    <div style="background:var(--sand);border-radius:var(--r);padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted)">
+      <i class="ti ti-info-circle" style="color:var(--clay)"></i>
+      기존 분석 결과를 AI에게 전달하고, 새 파일을 추가로 읽어서 통합 분석합니다.
+    </div>
+
+    <!-- 파일 업로드 -->
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px">추가할 파일 선택 (재무제표, 조직도, 질문지 등)</label>
+      <div class="uz" id="z-supplement" style="padding:16px">
+        <input type="file" accept=".pdf,.xlsx,.xls,.docx,.png,.jpg" multiple id="file-supplement" onchange="uploaded('z-supplement','st-supplement',this)">
+        <span class="uz-icon" style="font-size:22px"><i class="ti ti-upload"></i></span>
+        <div class="uz-label" style="font-size:13px">파일 업로드</div>
+        <div class="uz-hint">PDF, Excel, 이미지 모두 가능</div>
+        <div class="uz-status" id="st-supplement"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" style="flex:1" onclick="startSupplementAnalysis()">
+        <i class="ti ti-analyze"></i> 추가 분석 시작
+      </button>
+      <button class="btn btn-ghost" onclick="document.getElementById('supplement-modal').style.display='none'">
+        취소
+      </button>
     </div>
   </div>
 </div>
