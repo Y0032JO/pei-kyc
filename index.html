@@ -2160,12 +2160,7 @@ async function startAnalysis() {
 
 IMPORTANT — CURRENCY HANDLING: ${currencyInstruction}
 
-IMPORTANT — CREDIT RATING EXTRACTION: Search THOROUGHLY for any credit ratings in ALL documents. Look for:
-- Moody's ratings: Aaa, Aa1, Aa2, Aa3, A1, A2, A3, Baa1, Baa2, Baa3, Ba1, Ba2, Ba3, B1, B2, B3, Caa1, Caa2, Caa3, Ca, C
-- S&P/Fitch ratings: AAA, AA+, AA, AA-, A+, A, A-, BBB+, BBB, BBB-, BB+, BB, BB-, B+, B, B-, CCC+, CCC, CCC-, CC, C, D
-- Look in: cover pages, headers, footers, tables, text mentioning "rated", "rating", "Moody's", "S&P", "Fitch", "credit rating"
-- Also check for ratings of parent company or guarantor
-- If you find a rating anywhere in the documents, you MUST include it. Do NOT return null if a rating exists.
+IMPORTANT — CREDIT RATING: Search ALL pages thoroughly for Moody's (e.g. Baa1, Ba2) and S&P/Fitch ratings (e.g. BBB+, BB-). Check cover pages, headers, tables, and any text mentioning "rated" or "rating". If found anywhere, include it — do NOT return null if a rating exists in the documents.
 
 Extract and return a JSON object ONLY (no markdown, no explanation) with exactly this structure:
 {
