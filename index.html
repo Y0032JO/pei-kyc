@@ -2205,7 +2205,9 @@ All revenue/cogs/ebitda/etc figures in the JSON MUST be normalized to USD millio
       contentBlocks.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 }, title:'Sanctions Questionnaire: '+file.name });
     }
 
+    console.log('🔍 contentBlocks count:', contentBlocks.length, '| API key length:', apiKey.length);
     updateStep(1);
+    console.log('🔍 Calling Anthropic API...');
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -2216,6 +2218,7 @@ All revenue/cogs/ebitda/etc figures in the JSON MUST be normalized to USD millio
       },
       body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:4000, messages:[{ role:'user', content:contentBlocks }] })
     });
+    console.log('🔍 API response status:', resp.status);
 
     if (!resp.ok) {
       const err = await resp.json().catch(()=>({}));
