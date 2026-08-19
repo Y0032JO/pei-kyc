@@ -519,13 +519,13 @@
           <div class="score-meta" id="rmeta"></div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <div class="rating-box" style="flex:1;min-width:110px">
-            <div class="rating-src">Moody's</div>
+          <div class="rating-box" style="flex:1;min-width:110px;cursor:pointer;position:relative" onclick="editRating('moodys')" title="클릭하여 수정">
+            <div class="rating-src">Moody's <i class="ti ti-pencil" style="font-size:9px;opacity:.5"></i></div>
             <div class="rating-grade" id="mg" style="color:var(--blue)">—</div>
             <div class="rating-desc" id="md"></div>
           </div>
-          <div class="rating-box" style="flex:1;min-width:110px">
-            <div class="rating-src">S&amp;P / Fitch</div>
+          <div class="rating-box" style="flex:1;min-width:110px;cursor:pointer;position:relative" onclick="editRating('sp')" title="클릭하여 수정">
+            <div class="rating-src">S&amp;P / Fitch <i class="ti ti-pencil" style="font-size:9px;opacity:.5"></i></div>
             <div class="rating-grade" id="sg" style="color:var(--purple)">—</div>
             <div class="rating-desc" id="sd"></div>
           </div>
@@ -1889,6 +1889,69 @@ async function doLogout() {
   document.getElementById('nav-user-email').textContent = '';
 }
 
+// ── 신용등급 직접 수정 ──
+let editingRatingType = null;
+
+function editRating(type) {
+  editingRatingType = type;
+  const title = type === 'moodys' ? "Moody's 등급 수정" : "S&P / Fitch 등급 수정";
+  const current_val = type === 'moodys' ? (current?.moodys || '') : (current?.sp || '');
+  document.getElementById('rating-edit-title').textContent = title;
+  document.getElementById('rating-edit-input').value = current_val;
+  document.getElementById('rating-edit-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('rating-edit-input').focus(), 100);
+}
+
+function applyRatingEdit() {
+  if (!current || !editingRatingType) return;
+  const val = document.getElementById('rating-edit-input').value.trim() || null;
+  document.getElementById('rating-edit-modal').style.display = 'none';
+
+  if (editingRatingType === 'moodys') {
+    current.moodys = val;
+    document.getElementById('mg').textContent = val || '미공시';
+    document.getElementById('md').textContent = val ? rDesc(val) : '직접 입력';
+  } else {
+    current.sp = val;
+    document.getElementById('sg').textContent = val || '미공시';
+    document.getElementById('sd').textContent = val ? rDesc(val) : '직접 입력';
+  }
+
+  // AI 추정 박스 토글
+  const noOfficial = !current.moodys && !current.sp;
+  document.getElementById('est-box').style.display = noOfficial ? 'block' : 'none';
+
+  // 신용보강 조건 재계산
+  const tier = getTier(current.sp, current.moodys, current.estGrade);
+  renderCreditTiers(tier);
+
+  // PCG 재계산
+  const parentGrade = current.parentMoodys || current.parentSP;
+  if (current.parentCompany && parentGrade) {
+    const pcgEligible = isPCGEligible(current.parentMoodys, current.parentSP);
+    document.getElementById('parent-pcg').textContent = pcgEligible ? '✅ PCG 사용 가능' : '❌ PCG 조건 미충족';
+    document.getElementById('parent-pcg').style.color = pcgEligible ? 'var(--green)' : 'var(--red)';
+  }
+
+  // 판정 배지 재계산
+  const score = current.score;
+  const vw = document.getElementById('verdict-wrap');
+  if      (score>=85) vw.innerHTML = '<span class="verdict" style="background:#e8f5e9;color:#1b5e20;border:1.5px solid #66bb6a"><i class="ti ti-check"></i> 우수 · 거래 승인</span>';
+  else if (score>=70) vw.innerHTML = '<span class="verdict" style="background:#e3f2fd;color:#0d47a1;border:1.5px solid #42a5f5"><i class="ti ti-check"></i> 양호 · 승인 권고</span>';
+  else if (score>=55) vw.innerHTML = '<span class="verdict" style="background:#fffde7;color:#f57f17;border:1.5px solid #fdd835"><i class="ti ti-alert-triangle"></i> 주의 · 조건부 검토</span>';
+  else if (score>=40) vw.innerHTML = '<span class="verdict" style="background:#fff3e0;color:#e65100;border:1.5px solid #ffa726"><i class="ti ti-alert-triangle"></i> 고위험 · 추가 심사</span>';
+  else                vw.innerHTML = '<span class="verdict" style="background:var(--red-lt);color:var(--red);border:1.5px solid #fecdca"><i class="ti ti-x"></i> 매우 고위험 · 거래 불가</span>';
+
+  // 저장 안내
+  if (current._rowId) {
+    const note = document.createElement('div');
+    note.style.cssText = 'background:var(--amber-lt);border:1.5px solid #f0bf7a;border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--amber);display:flex;align-items:center;gap:8px';
+    note.innerHTML = '<i class="ti ti-alert-circle"></i> 등급이 수정되었습니다. 상단 "분석 저장" 버튼을 눌러야 이력에 반영됩니다.';
+    document.getElementById('results').insertBefore(note, document.getElementById('results').firstChild);
+    setTimeout(() => note.remove(), 6000);
+  }
+}
+
 function showSupplementModal() {
   if (!current) { alert('먼저 분석 결과를 불러와주세요.'); return; }
   document.getElementById('supplement-modal').style.display = 'flex';
@@ -2791,6 +2854,23 @@ window.addEventListener('DOMContentLoaded', async () => {
       <label style="font-size:12px;color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
         <input type="checkbox" id="dont-show-again" style="cursor:pointer"> 다시 보지 않기
       </label>
+    </div>
+  </div>
+</div>
+
+<!-- 등급 수정 모달 -->
+<div id="rating-edit-modal" style="display:none;position:fixed;inset:0;z-index:998;background:rgba(26,20,16,.5);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:var(--cream);border-radius:16px;padding:28px;max-width:400px;width:90%;box-shadow:0 8px 40px rgba(26,20,16,.2)">
+    <div style="font-size:15px;font-weight:800;color:var(--ink);margin-bottom:6px" id="rating-edit-title">Moody's 등급 수정</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">예: Baa1, Baa2, Ba1, BBB+, BBB- 등</div>
+    <input type="text" id="rating-edit-input" placeholder="등급 입력 (없으면 비워두기)"
+      style="width:100%;border:1.5px solid var(--border2);border-radius:var(--r);padding:11px 14px;font-size:18px;font-weight:700;color:var(--ink);outline:none;margin-bottom:8px;text-align:center"
+      onfocus="this.style.borderColor='var(--clay)'" onblur="this.style.borderColor='var(--border2)'"
+      onkeydown="if(event.key==='Enter')applyRatingEdit()">
+    <div style="font-size:11px;color:var(--dim);margin-bottom:16px;text-align:center">수정 후 신용보강 조건이 자동으로 재계산됩니다</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="applyRatingEdit()"><i class="ti ti-check"></i> 적용</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('rating-edit-modal').style.display='none'">취소</button>
     </div>
   </div>
 </div>
