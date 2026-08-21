@@ -2059,14 +2059,19 @@ Based on this data (especially the updated credit ratings), return an updated JS
     const data = await resp.json();
     const raw = data.content?.find(b=>b.type==='text')?.text || '';
     const clean = raw.replace(/```json|```/g, '').trim();
-    console.log('🔍 Clean response (first 500):', clean.substring(0, 500));
+    console.log('🔍 Clean response (first 200):', clean.substring(0, 200));
+    // Try to find JSON with or without leading brace
+    let jsonStr = clean;
+    if (!jsonStr.startsWith('{')) jsonStr = '{' + jsonStr;
+    if (!jsonStr.endsWith('}')) jsonStr = jsonStr + '}';
+    // Also try regex as fallback
     const jsonMatch = clean.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('JSON 블록을 찾을 수 없음: ' + clean.substring(0, 200));
+    const toParse = jsonMatch ? jsonMatch[0] : jsonStr;
     let parsed;
     try {
-      parsed = JSON.parse(jsonMatch[0]);
+      parsed = JSON.parse(toParse);
     } catch(e) {
-      throw new Error('JSON 파싱 실패: ' + e.message + ' | ' + jsonMatch[0].substring(0, 200));
+      throw new Error('JSON 파싱 실패: ' + e.message);
     }
 
     updateStep(5);
