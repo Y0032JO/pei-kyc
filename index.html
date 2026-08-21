@@ -491,8 +491,9 @@
   <div id="results">
     <div class="save-bar">
       <div class="save-bar-info"><strong id="rname-bar">—</strong> &nbsp;분석 완료 · <span id="rdate-bar"></span></div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-ghost" style="background:rgba(253,246,240,.12);color:rgba(253,246,240,.85);border-color:rgba(253,246,240,.25)" onclick="saveHistory()"><i class="ti ti-device-floppy"></i> 분석 저장</button>
+        <button class="btn btn-ghost" style="background:rgba(253,246,240,.12);color:rgba(253,246,240,.85);border-color:rgba(253,246,240,.25)" onclick="reanalyseWithCurrentData()"><i class="ti ti-refresh"></i> 데이터로 재분석</button>
         <button class="btn btn-ghost" style="background:rgba(253,246,240,.12);color:rgba(253,246,240,.85);border-color:rgba(253,246,240,.25)" onclick="showSupplementModal()"><i class="ti ti-file-plus"></i> 추가 파일 재분석</button>
         <button class="btn btn-ghost" style="background:rgba(253,246,240,.12);color:rgba(253,246,240,.85);border-color:rgba(253,246,240,.25)" onclick="exportReport()"><i class="ti ti-download"></i> PDF</button>
       </div>
@@ -1952,6 +1953,158 @@ function applyRatingEdit() {
   }
 }
 
+async function reanalyseWithCurrentData() {
+  if (!current) return;
+
+  let apiKey = document.getElementById('api-key').value.trim();
+  if (!apiKey) {
+    try {
+      const { data } = await sb.from('app_config').select('value').eq('key', 'anthropic_api_key').single();
+      if (data?.value) apiKey = data.value;
+    } catch(e) {}
+  }
+  if (!apiKey) { alert('API Key를 불러오지 못했습니다.'); return; }
+
+  showLoading();
+  try {
+    const prompt = `You are a senior KYC analyst. Re-analyze the following counterparty based on the existing data provided. The user has manually updated some fields (e.g. credit ratings). Produce an updated comprehensive KYC analysis.
+
+EXISTING DATA:
+- Company: ${current.company} (${current.country}, ${current.sector})
+- Moody's Rating: ${current.moodys || 'Not rated'}
+- S&P/Fitch Rating: ${current.sp || 'Not rated'}
+- Years: ${(current.yrs||[]).join(', ')}
+- Revenue (USD mn): ${(current.rev||[]).join(', ')}
+- EBITDA (USD mn): ${(current.ebi||[]).join(', ')}
+- Net Income (USD mn): ${(current.net||[]).join(', ')}
+- Net Debt (USD mn): ${(current.dbt||[]).join(', ')}
+- Total Assets (USD mn): ${(current.totalAssets||[]).join(', ')}
+- Total Liabilities (USD mn): ${(current.totalLiabilities||[]).join(', ')}
+- Total Equity (USD mn): ${(current.totalEquity||[]).join(', ')}
+- Operating CF (USD mn): ${(current.operatingCF||[]).join(', ')}
+- Shareholders: ${current.shareholders || 'N/A'}
+- Employees: ${current.employees || 'N/A'}
+- Subsidiaries: ${current.subsidiaries || 'N/A'}
+- Founded: ${current.founded || 'N/A'}
+- Sanctions Clear: ${current.sanctionsClear}
+- PEP Found: ${current.pepFound}
+- Parent Company: ${current.parentCompany || 'N/A'}
+- Parent Moody's: ${current.parentMoodys || 'N/A'}
+- Parent S&P: ${current.parentSP || 'N/A'}
+- Previous Financial Summary: ${current.financialSummary || 'N/A'}
+- Previous Risk Factors: ${current.riskFactors || 'N/A'}
+
+Based on this data (especially the updated credit ratings), return an updated JSON object ONLY (no markdown):
+{
+  "company":"${current.company}","country":"${current.country}","sector":"${current.sector}",
+  "moodys":"${current.moodys || null}","sp":"${current.sp || null}",
+  "estGrade":${current.moodys || current.sp ? 'null' : '"estimated grade"'},
+  "estRationale":null,
+  "years":${JSON.stringify(current.yrs||['2021','2022','2023','2024'])},
+  "currency":"USD millions",
+  "originalCurrency":${JSON.stringify(current.originalCurrency||null)},
+  "fxRateUsed":${JSON.stringify(current.fxRateUsed||null)},
+  "revenue":${JSON.stringify(current.rev||[null,null,null,null])},
+  "cogs":${JSON.stringify(current.cogs||[null,null,null,null])},
+  "grossProfit":${JSON.stringify(current.grossProfit||[null,null,null,null])},
+  "operatingExpense":${JSON.stringify(current.operatingExpense||[null,null,null,null])},
+  "ebitda":${JSON.stringify(current.ebi||[null,null,null,null])},
+  "depreciation":${JSON.stringify(current.depreciation||[null,null,null,null])},
+  "ebit":${JSON.stringify(current.ebit||[null,null,null,null])},
+  "interestExpense":${JSON.stringify(current.interestExpense||[null,null,null,null])},
+  "netIncome":${JSON.stringify(current.net||[null,null,null,null])},
+  "totalAssets":${JSON.stringify(current.totalAssets||[null,null,null,null])},
+  "currentAssets":${JSON.stringify(current.currentAssets||[null,null,null,null])},
+  "totalLiabilities":${JSON.stringify(current.totalLiabilities||[null,null,null,null])},
+  "currentLiabilities":${JSON.stringify(current.currentLiabilities||[null,null,null,null])},
+  "totalEquity":${JSON.stringify(current.totalEquity||[null,null,null,null])},
+  "netDebt":${JSON.stringify(current.dbt||[null,null,null,null])},
+  "operatingCF":${JSON.stringify(current.operatingCF||[null,null,null,null])},
+  "investingCF":${JSON.stringify(current.investingCF||[null,null,null,null])},
+  "financingCF":${JSON.stringify(current.financingCF||[null,null,null,null])},
+  "netChangeInCash":${JSON.stringify(current.netChangeInCash||[null,null,null,null])},
+  "endingCash":${JSON.stringify(current.endingCash||[null,null,null,null])},
+  "shareholders":"updated or same","employees":"updated or same",
+  "subsidiaries":"updated or same","founded":"updated or same",
+  "orgAnalysis":"updated Korean governance analysis",
+  "sanctionsClear":${current.sanctionsClear},"pepFound":${current.pepFound},"pepDetail":null,
+  "sanctionsSummary":"updated Korean summary","financialSummary":"updated Korean summary",
+  "riskFactors":"updated Korean risk factors","aiCommentary":"updated 3-4 paragraph Korean KYC opinion",
+  "score":0-100,"dimFinancial":0-100,"dimSanctions":0-100,"dimGovernance":0-100,"dimHistory":0-100,
+  "parentCompany":${JSON.stringify(current.parentCompany||null)},
+  "parentMoodys":${JSON.stringify(current.parentMoodys||null)},
+  "parentSP":${JSON.stringify(current.parentSP||null)}
+}`;
+
+    updateStep(1);
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:4000, messages:[{ role:'user', content: prompt }] })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(()=>({}));
+      throw new Error(err.error?.message || 'API 오류 ('+resp.status+')');
+    }
+
+    updateStep(3);
+    const data = await resp.json();
+    const raw = data.content?.find(b=>b.type==='text')?.text || '';
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('AI 응답 파싱 실패');
+    const parsed = JSON.parse(jsonMatch[0]);
+
+    updateStep(5);
+    hideLoading();
+
+    const existingRowId = current._rowId;
+    render({ ...parsed,
+      _rowId: existingRowId,
+      yrs: parsed.years || current.yrs,
+      rev: parsed.revenue || current.rev,
+      ebi: parsed.ebitda || current.ebi,
+      net: parsed.netIncome || current.net,
+      dbt: parsed.netDebt || current.dbt,
+      cogs: parsed.cogs || current.cogs,
+      grossProfit: parsed.grossProfit || current.grossProfit,
+      operatingExpense: parsed.operatingExpense || current.operatingExpense,
+      depreciation: parsed.depreciation || current.depreciation,
+      ebit: parsed.ebit || current.ebit,
+      interestExpense: parsed.interestExpense || current.interestExpense,
+      totalAssets: parsed.totalAssets || current.totalAssets,
+      currentAssets: parsed.currentAssets || current.currentAssets,
+      totalLiabilities: parsed.totalLiabilities || current.totalLiabilities,
+      currentLiabilities: parsed.currentLiabilities || current.currentLiabilities,
+      totalEquity: parsed.totalEquity || current.totalEquity,
+      operatingCF: parsed.operatingCF || current.operatingCF,
+      investingCF: parsed.investingCF || current.investingCF,
+      financingCF: parsed.financingCF || current.financingCF,
+      netChangeInCash: parsed.netChangeInCash || current.netChangeInCash,
+      endingCash: parsed.endingCash || current.endingCash,
+      newsItems: current.newsItems,
+      date: new Date().toLocaleDateString('ko-KR'),
+      fromAI: true,
+      fxSource: current.fxSource
+    });
+
+    const note = document.createElement('div');
+    note.style.cssText = 'background:var(--green-lt);border:1.5px solid #8bcfad;border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--green);display:flex;align-items:center;gap:8px';
+    note.innerHTML = '<i class="ti ti-circle-check"></i> 수정된 데이터 기반으로 재분석 완료! "분석 저장"을 눌러 이력을 업데이트해주세요.';
+    document.getElementById('results').insertBefore(note, document.getElementById('results').firstChild);
+    setTimeout(() => note.remove(), 6000);
+
+  } catch(e) {
+    hideLoading();
+    alert('재분석 중 오류가 발생했습니다:\n\n' + e.message);
+  }
+}
+
 function showSupplementModal() {
   if (!current) { alert('먼저 분석 결과를 불러와주세요.'); return; }
   document.getElementById('supplement-modal').style.display = 'flex';
@@ -1962,7 +2115,9 @@ function showSupplementModal() {
 
 async function startSupplementAnalysis() {
   const files = document.getElementById('file-supplement').files;
-  if (!files.length) { alert('파일을 선택해주세요.'); return; }
+  if (!files.length && !current.moodys && !current.sp) {
+    alert('파일을 선택하거나 먼저 등급을 수정해주세요.'); return;
+  }
   if (!current) { alert('기존 분석 결과가 없습니다.'); return; }
 
   let apiKey = document.getElementById('api-key').value.trim();
@@ -2890,7 +3045,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     <div style="background:var(--sand);border-radius:var(--r);padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted)">
       <i class="ti ti-info-circle" style="color:var(--clay)"></i>
-      기존 분석 결과를 AI에게 전달하고, 새 파일을 추가로 읽어서 통합 분석합니다.
+      기존 분석 결과를 AI에게 전달하고, 새 파일을 추가로 읽어서 통합 분석합니다.<br>
+      <span style="color:var(--clay);font-weight:600">파일 없이 시작하면 수정된 등급 기준으로만 재분석합니다.</span>
     </div>
 
     <!-- 파일 업로드 -->
