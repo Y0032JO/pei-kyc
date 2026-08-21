@@ -2755,7 +2755,7 @@ function render(d) {
   ];
   const news = (d.newsItems && d.newsItems.length > 0) ? d.newsItems : demoNews;
   document.getElementById('news-el').innerHTML = news.map(n =>
-    `<div class="news-item" onclick="window.open('https://www.google.com/search?q='+encodeURIComponent('${n.hl.replace(/'/g,"\\'")}'),'_blank')">
+    `<div class="news-item" onclick="if('${n.url}'!=='#')window.open('${n.url}','_blank')">
       <div class="news-top"><span class="ntag ntag-${n.tag}">${n.tl}</span><span class="news-date">${n.date}</span></div>
       <div class="news-hl">${n.hl}</div><div class="news-src">${n.src}</div>
     </div>`).join('');
