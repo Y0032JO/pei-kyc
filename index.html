@@ -2059,7 +2059,8 @@ Based on this data (especially the updated credit ratings), return an updated JS
     const data = await resp.json();
     const raw = data.content?.find(b=>b.type==='text')?.text || '';
     console.log('🔍 Reanalyse raw response (first 300):', raw.substring(0, 300));
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI 응답 파싱 실패');
     const parsed = JSON.parse(jsonMatch[0]);
 
