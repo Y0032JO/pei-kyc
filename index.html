@@ -2058,11 +2058,16 @@ Based on this data (especially the updated credit ratings), return an updated JS
     updateStep(3);
     const data = await resp.json();
     const raw = data.content?.find(b=>b.type==='text')?.text || '';
-    console.log('🔍 Reanalyse raw response (first 300):', raw.substring(0, 300));
     const clean = raw.replace(/```json|```/g, '').trim();
+    console.log('🔍 Clean response (first 500):', clean.substring(0, 500));
     const jsonMatch = clean.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('AI 응답 파싱 실패');
-    const parsed = JSON.parse(jsonMatch[0]);
+    if (!jsonMatch) throw new Error('JSON 블록을 찾을 수 없음: ' + clean.substring(0, 200));
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch(e) {
+      throw new Error('JSON 파싱 실패: ' + e.message + ' | ' + jsonMatch[0].substring(0, 200));
+    }
 
     updateStep(5);
     hideLoading();
